@@ -30,6 +30,11 @@
     <description>pig 通用用户权限管理系统业务处理模块</description>
 
     <dependencies>
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
         <!--upms api、model 模块-->
         <dependency>
             <groupId>com.pig4cloud</groupId>

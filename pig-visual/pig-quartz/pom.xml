@@ -15,6 +15,10 @@
     <description>基于quartz后台定时任务模块</description>
 
     <dependencies>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
         <!--注册中心客户端-->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>

@@ -30,6 +30,16 @@
 	</properties>
 	<dependencies>
 		<dependency>
+			<groupId>com.pig4cloud.plugin</groupId>
+			<artifactId>nacos-datasource-plugin-postgresql</artifactId>
+			<version>0.0.7</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>io.github.pig-mesh.nacos</groupId>
 			<artifactId>nacos-console</artifactId>
 			<version>${nacos.version}</version>
