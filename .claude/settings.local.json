@@ -10,7 +10,8 @@
       "Bash(dir:*)",
       "mcp__zread__get_repo_structure",
       "Bash(tree:*)",
-      "Bash(done:*)"
+      "Bash(done:*)",
+      "mcp__zread__read_file"
     ]
   }
 }
