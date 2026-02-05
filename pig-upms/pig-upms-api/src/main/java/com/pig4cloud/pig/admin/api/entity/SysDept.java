@@ -45,7 +45,9 @@ import java.time.LocalDateTime;
 public class SysDept extends Model<SysDept> {
 
 	private static final long serialVersionUID = 1L;
-
+	/**
+	 * 测试
+	 */
 	@TableId(value = "dept_id", type = IdType.ASSIGN_ID)
 	@Schema(description = "部门id")
 	private Long deptId;
