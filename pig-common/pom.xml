@@ -47,7 +47,6 @@
 		<module>pig-common-base</module>
 		<module>pig-common-plugin</module>
 		<module>pig-common-remoting</module>
-		<module>pig-common-collector</module>
 		<module>pig-common-alert</module>
 	</modules>
 
@@ -168,11 +167,6 @@
 			<dependency>
 				<groupId>com.pig4cloud</groupId>
 				<artifactId>pig-common-remoting</artifactId>
-				<version>${revision}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.pig4cloud</groupId>
-				<artifactId>pig-common-collector</artifactId>
 				<version>${revision}</version>
 			</dependency>
 			<dependency>
