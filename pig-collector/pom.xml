@@ -6,7 +6,8 @@
 	<parent>
 		<groupId>com.pig4cloud</groupId>
 		<artifactId>pig</artifactId>
-		<version>3.9.2</version>
+		<version>${revision}</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>pig-collector</artifactId>
@@ -14,6 +15,11 @@
 	<modules>
 		<module>collector-basic</module>
 		<module>collector-common</module>
+		<module>collector-collector</module>
+		<module>collector-kafka</module>
+		<module>collector-mongodb</module>
+		<module>collector-nebulagraph</module>
+		<module>collector-rocketmq</module>
 	</modules>
 
 	<properties>

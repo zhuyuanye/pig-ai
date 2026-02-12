@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.pig4cloud</groupId>
 		<artifactId>pig-collector</artifactId>
-		<version>3.9.2</version>
+		<version>${revision}</version>
 	</parent>
 
 	<artifactId>collector-common</artifactId>
@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<scope>provided</scope>
+<!--			<scope>provided</scope>-->
 		</dependency>
 		<!-- remoting -->
 		<dependency>

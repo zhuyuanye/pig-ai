@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.pig4cloud</groupId>
+		<artifactId>pig-collector</artifactId>
+		<version>${revision}</version>
+	</parent>
+
+	<artifactId>collector-rocketmq</artifactId>
+
+	<properties>
+		<maven.compiler.source>21</maven.compiler.source>
+		<maven.compiler.target>21</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>com.pig4cloud</groupId>
+			<artifactId>collector-common</artifactId>
+			<version>${revision}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- rocketmq -->
+		<dependency>
+			<groupId>org.apache.rocketmq</groupId>
+			<artifactId>rocketmq-tools</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.rocketmq</groupId>
+			<artifactId>rocketmq-common</artifactId>
+			<version>4.9.4</version>
+		</dependency>
+	</dependencies>
+
+</project>

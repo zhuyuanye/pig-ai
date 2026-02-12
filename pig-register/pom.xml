@@ -19,6 +19,7 @@
 		<groupId>com.pig4cloud</groupId>
 		<artifactId>pig</artifactId>
 		<version>${revision}</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>pig-register</artifactId>

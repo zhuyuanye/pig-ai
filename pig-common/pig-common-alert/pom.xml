@@ -5,9 +5,9 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.pig4cloud</groupId>
-		<artifactId>pig</artifactId>
-		<version>3.9.2</version>
-		<relativePath>../../pom.xml</relativePath>
+		<artifactId>pig-common</artifactId>
+		<version>${revision}</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>pig-common-alert</artifactId>

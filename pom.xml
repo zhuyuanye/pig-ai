@@ -22,6 +22,7 @@
 	<artifactId>pig</artifactId>
 	<name>${project.artifactId}</name>
 	<version>${revision}</version>
+<!--	<version>3.9.2</version>-->
 	<packaging>pom</packaging>
 	<url>https://www.pig4cloud.com</url>
 	<properties>
@@ -448,6 +449,11 @@
 				<artifactId>rocketmq-tools</artifactId>
 				<version>${rocketmq-tools.version}</version>
 			</dependency>
+<!--			<dependency>-->
+<!--				<groupId>org.apache.rocketmq</groupId>-->
+<!--				<artifactId>rocketmq-common</artifactId>-->
+<!--				<version>${rocketmq-tools.version}</version>-->
+<!--			</dependency>-->
 			<!-- clickhouse -->
 			<dependency>
 				<groupId>com.clickhouse</groupId>

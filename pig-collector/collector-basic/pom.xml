@@ -6,7 +6,8 @@
 	<parent>
 		<groupId>com.pig4cloud</groupId>
 		<artifactId>pig-collector</artifactId>
-		<version>3.9.2</version>
+		<version>${revision}</version>
+		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<artifactId>collector-basic</artifactId>
@@ -22,13 +23,13 @@
 		<dependency>
 			<groupId>com.pig4cloud</groupId>
 			<artifactId>collector-common</artifactId>
-			<version>3.9.2</version>
+			<version>${revision}</version>
 		</dependency>
 		<!-- spring -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-			<scope>provided</scope>
+<!--			<scope>provided</scope>-->
 		</dependency>
 		<!-- run sql script-->
 		<dependency>
