@@ -16,7 +16,7 @@
  */
 
 syntax = "proto3";
-package org.apache.hertzbeat.common.entity.message;
+package com.pig4cloud.pig.common.core.entity.message;
 
 message Message
 {
@@ -40,7 +40,7 @@ enum MessageType
     GO_OFFLINE = 2;
     // collector go close to master
     GO_CLOSE = 3;
-    // issue cyclic collect task 
+    // issue cyclic collect task
     ISSUE_CYCLIC_TASK = 4;
     // delete cyclic collect task
     DELETE_CYCLIC_TASK = 5;

@@ -11,7 +11,8 @@
       "mcp__zread__get_repo_structure",
       "Bash(tree:*)",
       "Bash(done:*)",
-      "mcp__zread__read_file"
+      "mcp__zread__read_file",
+      "Bash(mkdir:*)"
     ]
   }
 }

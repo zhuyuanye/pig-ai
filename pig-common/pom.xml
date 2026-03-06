@@ -49,6 +49,9 @@
 		<module>pig-common-plugin</module>
 		<module>pig-common-remoting</module>
 		<module>pig-common-alert</module>
+		<module>pig-common-grafana</module>
+		<module>pig-common-push</module>
+		<module>pig-common-otel</module>
 	</modules>
 
 	<properties>

@@ -3,8 +3,8 @@
   ~ contributor license agreements.  See the NOTICE file distributed with
   ~ this work for additional information regarding copyright ownership.
   ~ The ASF licenses this file to You under the Apache License, Version 2.0
-  ~ (the "License"); you may not use this file except in compliance with
-  ~ the License.  You may obtain a copy of the License at
+  ~ (the "License"); you may not use this file except in compliance with the
+  ~ License.  You may obtain a copy of the License at
   ~
   ~     http://www.apache.org/licenses/LICENSE-2.0
   ~
@@ -16,64 +16,54 @@
   -->
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd
-http://maven.apache.org/ASSEMBLY/2.0.0 ">
-    <!--Required, will be appended to the end of the packaged file name-->
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
     <id>incubating-docker-compose</id>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>apache-hertzbeat-${hzb.version}-incubating-docker-compose</baseDirectory>
-    <!--Packaging type, multiple types can be set, different types will be packaged when packaging-->
+    <baseDirectory>apache-pig-${hzb.version}-incubating-docker-compose</baseDirectory>
     <formats>
         <format>tar.gz</format>
     </formats>
-    
+
+    <!-- Include docker-compose configurations -->
     <fileSets>
         <fileSet>
-            <directory>../script/docker-compose/hertzbeat-mysql-iotdb</directory>
+            <directory>${project.basedir}/../../script/docker-compose/hertzbeat-mysql-iotdb</directory>
             <filtered>true</filtered>
             <includes>
-                <include>conf/**</include>
-                <include>*.yaml</include>
-                <include>*.md</include>
-                <include>ext-lib/README</include>
+                <include>**/*</include>
             </includes>
             <outputDirectory>hertzbeat-mysql-iotdb</outputDirectory>
+            <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../script/docker-compose/hertzbeat-mysql-tdengine</directory>
+            <directory>${project.basedir}/../../script/docker-compose/hertzbeat-mysql-tdengine</directory>
             <filtered>true</filtered>
             <includes>
-                <include>conf/**</include>
-                <include>*.yaml</include>
-                <include>*.md</include>
-                <include>ext-lib/README</include>
+                <include>**/*</include>
             </includes>
             <outputDirectory>hertzbeat-mysql-tdengine</outputDirectory>
+            <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../script/docker-compose/hertzbeat-mysql-victoria-metrics</directory>
+            <directory>${project.basedir}/../../script/docker-compose/hertzbeat-mysql-victoria-metrics</directory>
             <filtered>true</filtered>
             <includes>
-                <include>conf/**</include>
-                <include>*.yaml</include>
-                <include>*.md</include>
-                <include>ext-lib/README</include>
+                <include>**/*</include>
             </includes>
             <outputDirectory>hertzbeat-mysql-victoria-metrics</outputDirectory>
+            <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../script/docker-compose/hertzbeat-postgresql-victoria-metrics</directory>
+            <directory>${project.basedir}/../../script/docker-compose/hertzbeat-postgresql-victoria-metrics</directory>
             <filtered>true</filtered>
             <includes>
-                <include>conf/**</include>
-                <include>*.yaml</include>
-                <include>*.md</include>
-                <include>ext-lib/README</include>
+                <include>**/*</include>
             </includes>
             <outputDirectory>hertzbeat-postgresql-victoria-metrics</outputDirectory>
+            <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>../script/docker-compose</directory>
+            <directory>${project.basedir}/../../script/docker-compose</directory>
             <filtered>true</filtered>
             <includes>
                 <include>README.md</include>
@@ -81,10 +71,8 @@ http://maven.apache.org/ASSEMBLY/2.0.0 ">
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
-        
-        <!-- doc -->
         <fileSet>
-            <directory>../</directory>
+            <directory>${project.basedir}/../..</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>DISCLAIMER</include>

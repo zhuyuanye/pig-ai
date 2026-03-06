@@ -1,0 +1,324 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#server:
+#  port: 1157
+spring:
+#  application:
+#    name: ${HOSTNAME:@hertzbeat@}${PID}
+#  profiles:
+#    active: prod
+  mvc:
+    static-path-pattern: /**
+  jackson:
+    default-property-inclusion: ALWAYS
+  web:
+    resources:
+      static-locations:
+        - classpath:/dist/
+        - classpath:../dist/
+  # need to disable spring boot mongodb auto config, or default mongodb connection tried and failed.
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration, org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+  freemarker:
+    enabled: false
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+management:
+  health:
+    mail:
+      enabled: off
+  endpoints:
+    web:
+      exposure:
+        include:
+          - 'metrics'
+          - 'health'
+          - 'prometheus'
+    enabled-by-default: on
+sa-token:
+  token-name: satoken      # token 名称（同时也是 cookie 名）
+  timeout: 3600            # token 有效期，单位: 秒 (默认30天)
+  active-timeout: -1       # token临时有效期，-1代表不限制
+  is-concurrent: true      # 是否允许同一账号多地同时登录
+  is-share: true           # 在多人登录同一账号时，是否共享 session
+  token-style: uuid        # token 风格（uuid、simple-uuid、random-32、random-64、random-128、tik）
+  is-log: true             # 是否输出操作日志
+
+
+sureness:
+  container: jakarta_servlet
+  auths:
+    - digest
+    - basic
+    - jwt
+  jwt:
+    secret: 'CyaFv0bwq2Eik0jdrKUtsA6bx3sDJeFV643R
+             LnfKefTjsIfJLBa2YkhEqEGtcHDTNe4CU6+9
+             8tVt4bisXQ13rbN0oxhUZR73M6EByXIO+SV5
+             dKhaX0csgOCTlCxq20yhmUea6H6JIpSE2Rwp'
+
+otel:
+  traces:
+    exporter: none
+  metrics:
+    exporter: none
+  logs:
+    exporter: none
+
+---
+spring:
+#  config:
+#    activate:
+#      on-profile: prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    url: jdbc:mysql://localhost:3306/hertzbeat?useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true&useSSL=false
+    hikari:
+      max-lifetime: 120000
+  jpa:
+    show-sql: true
+    database-platform: org.eclipse.persistence.platform.database.MySQLPlatform
+    database: mysql
+    properties:
+      eclipselink:
+        logging:
+          level: SEVERE
+
+  flyway:
+    enabled: true
+    clean-disabled: true
+    baseline-on-migrate: true
+    baseline-version: 1
+    locations:
+      - classpath:db/migration/mysql
+
+  # Not Require, Please config if you need email notify
+  # 非必填：不使用邮箱作为警告通知可以去掉spring.mail配置
+  mail:
+    # Mail server address, eg: qq-mailbox is smtp.qq.com, qq-exmail is smtp.exmail.qq.com
+    host: smtp.qq.com
+    username: 280545735@qq.com
+    # Attention this is not email account password, this requires an email authorization code
+    password: mmrjoujswixibgce
+    # Mailbox smtp server port, eg: qq-mailbox is 465, qq-exmail is 587
+    port: 465
+    properties:
+      mail:
+        smtp:
+          socketFactoryClass: javax.net.ssl.SSLSocketFactory
+          ssl:
+            enable: true
+          starttls:
+            enable: false
+common:
+  queue:
+    # memory or kafka
+    type: memory
+    # properties when queue type is kafka
+    kafka:
+      servers: 127.0.0.1:9092
+      metrics-data-topic: async-metrics-data
+      service-discovery-data-topic: service-discovery-data
+      alerts-data-topic: async-alerts-data
+
+warehouse:
+  store:
+    # store history metrics data, enable only one below
+    # 存储历史数据方式, 下方只能enabled启用一种方式
+    jpa:
+      enabled: true
+      # The maximum retention time for history records, after which records will be deleted
+      expire-time: 1h
+    victoria-metrics:
+      # Standalone mode toggle — must be set to false when using cluster mode
+      enabled: false
+      url: http://localhost:8428
+      username: root
+      password: root
+      insert:
+        buffer-size: 1000
+        flush-interval: 3
+      cluster:
+        enabled: false
+        select:
+          url: http://localhost:8481
+          username: root
+          password: root
+        insert:
+          url: http://localhost:8480
+          username: root
+          password: root
+          buffer-size: 1000
+          flush-interval: 3
+    td-engine:
+      enabled: false
+      driver-class-name: com.taosdata.jdbc.rs.RestfulDriver
+      url: jdbc:TAOS-RS://localhost:6041/hertzbeat
+      username: root
+      password: taosdata
+    greptime:
+      enabled: false
+      grpc-endpoints: localhost:4001
+      http-endpoint: http://localhost:4000
+      # if you config other database name, you should create them first
+      database: public
+      username: greptime
+      password: greptime
+    iot-db:
+      enabled: false
+      host: 127.0.0.1
+      rpc-port: 6667
+      username: root
+      password: root
+      query-timeout-in-ms: -1
+      # data expire time, unit:ms, default '7776000000'(90 days, -1:never expire)
+      expire-time: '7776000000'
+    influxdb:
+      enabled: false
+      server-url: http://127.0.0.1:8086
+      username: root
+      password: root
+      expire-time: '30d'
+      replication: 1
+  # store real-time metrics data, enable only one below
+  real-time:
+    memory:
+      enabled: true
+      init-size: 16
+    redis:
+      enabled: false
+      # redis mode: single, sentinel, cluster. Default is single
+      mode: single
+      # separate each address with comma when using cluster mode, eg: 127.0.0.1:6379,127.0.0.1:6380
+      address: 127.0.0.1:6379
+      # enter master name when using sentinel mode
+      masterName: mymaster
+      password: 123456
+      # redis db index, default: DB0
+      db: 0
+
+alerter:
+  # custom console url
+  console-url: https://console.tancloud.io
+  # we work
+  we-work-webhook-url: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=
+  # ding ding talk
+  ding-talk-webhook-url: https://oapi.dingtalk.com/robot/send?access_token=
+  # fei shu fly book
+  fly-book-webhook-url: https://open.feishu.cn/open-apis/bot/v2/hook/
+  # telegram
+  telegram-webhook-url: https://api.telegram.org/bot%s/sendMessage
+  # discord
+  discord-webhook-url: https://discord.com/api/v9/channels/%s/messages
+  # serverChan
+  server-chan-webhook-url: https://sctapi.ftqq.com/%s.send
+  # gotify
+  gotify-webhook-url: http://127.0.0.1/message?token=%s
+  # alert inhibit ttl unit ms, default 14400000(4 hours)
+  inhibit:
+    ttl: 14400000
+  sms:
+    enable: false
+    type: tencent
+    tencent:
+      secret-id:
+      secret-key:
+      app-id:
+      sign-name:
+      template-id:
+    alibaba:
+      access-key-id:
+      access-key-secret:
+      sign-name:
+      template-code:
+    unisms:
+      # auth-mode: simple or hmac
+      auth-mode: simple
+      access-key-id: YOUR_ACCESS_KEY_ID
+      # hmac mode need to fill in access-key-secret
+      access-key-secret: YOUR_ACCESS_KEY_SECRET
+      signature: YOUR_SMS_SIGNATURE
+      template-id: YOUR_TEMPLATE_ID
+    smslocal:
+      api-key: YOUR_API_KEY_HERE
+    aws:
+      access-key-id: YOUR_ACCESS_KEY_ID
+      access-key-secret: YOUR_ACCESS_KEY_SECRET
+      region: AWS_REGION_FOR_END_USER_MESSAGING
+    twilio:
+      account-sid: YOUR_ACCOUNT_SID
+      auth-token: YOUR_AUTH_TOKEN
+      twilio-phone-number: YOUR_TWILIO_PHONE_NUMBER
+scheduler:
+  server:
+    enabled: true
+    port: 1158
+
+grafana:
+  enabled: false
+  url: http://127.0.0.1:3000
+  expose-url: http://127.0.0.1:3000
+  username: admin
+  password: admin
+
+# See the documentation for details : https://hertzbeat.apache.org/zh-cn/docs/help/aiConfig
+ai:
+  # AI Type:zhiPu、alibabaAi、kimiAi、sparkDesk
+  type:
+  # Model name：glm-4、qwen-turboo、moonshot-v1-8k、generalv3.5
+  model:
+  # api key
+  api-key:
+  #At present, only IFLYTEK large model needs to be filled in
+  api-secret:
+springdoc:
+  api-docs:
+    enabled: true  # 启用 API 文档
+    path: /v3/api-docs  # API 文档的路径
+    group: default  # 设置分组（默认是 "default"）
+  swagger-ui:
+    enabled: true  # 启用 Swagger UI
+    path: /swagger-ui.html  # Swagger UI 的路径 账号admin  密码  hertzbeat
+    display-request-duration: true  # 显示请求持续时间
+    tags-sorter: alpha  # 标签排序方式，按字母顺序
+    operations-sorter: alpha  # 操作排序方式，按字母顺序
+  # 定义默认媒体类型
+  default-produces-media-type: application/json
+three-service:
+  services:
+    - id: "dataease"
+      loginUrl: "http://192.168.118.1:8100/de2api/login/localLogin"
+      keyUrl: "http://192.168.118.1:8100/de2api/dekey"
+      targetUrl: "http://192.168.118.1:8100/#/workbranch/index?token=%s"
+      name: "admin"
+      pwd: "DataEase@123456"
+
+
+redirect-urls:
+  urls:
+    alarmUrl: https://报警大屏
+    monitoringUrl: https://监控大屏
+    orderUrl: https://运维工单
+
+logging:
+  level:
+    org.apache.hertzbeat.collector.collect.ipmi2: DEBUG
+    org.apache.hertzbeat.collector.dispatch: DEBUG
+

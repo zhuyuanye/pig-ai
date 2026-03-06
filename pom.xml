@@ -58,7 +58,6 @@
 
 
 		<p3c-pmd.version>2.1.1</p3c-pmd.version>
-		<maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
 		<maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
 		<maven-pmd-plugin.version>3.21.0</maven-pmd-plugin.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -197,7 +196,7 @@
 			<dependency>
 				<groupId>com.pig4cloud</groupId>
 				<artifactId>pig-common-bom</artifactId>
-				<version>${project.version}</version>
+				<version>${revision}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -268,70 +267,76 @@
 			</dependency>
 			<!-- common -->
 			<dependency>
-				<groupId>org.apache.hertzbeat</groupId>
-				<artifactId>hertzbeat-common</artifactId>
-				<version>${hertzbeat.version}</version>
+				<groupId>com.pig4cloud</groupId>
+				<artifactId>pig-common-core</artifactId>
+				<version>${revision}</version>
 			</dependency>
 			<!-- base -->
 			<dependency>
-				<groupId>org.apache.hertzbeat</groupId>
-				<artifactId>hertzbeat-base</artifactId>
-				<version>${hertzbeat.version}</version>
+				<groupId>com.pig4cloud</groupId>
+				<artifactId>pig-common-base</artifactId>
+				<version>${revision}</version>
 			</dependency>
 
 			<!-- data warehouse -->
 			<dependency>
-				<groupId>org.apache.hertzbeat</groupId>
-				<artifactId>hertzbeat-warehouse</artifactId>
-				<version>${hertzbeat.version}</version>
+				<groupId>com.pig4cloud</groupId>
+				<artifactId>pig-common-warehouse</artifactId>
+				<version>${revision}</version>
 			</dependency>
 			<!-- alerter -->
 			<dependency>
-				<groupId>org.apache.hertzbeat</groupId>
-				<artifactId>hertzbeat-alerter</artifactId>
-				<version>${hertzbeat.version}</version>
+				<groupId>com.pig4cloud</groupId>
+				<artifactId>pig-common-alerter</artifactId>
+				<version>${revision}</version>
 			</dependency>
 			<!-- collector -->
 			<dependency>
-				<groupId>org.apache.hertzbeat</groupId>
-				<artifactId>hertzbeat-collector</artifactId>
-				<version>${hertzbeat.version}</version>
+				<groupId>com.pig4cloud</groupId>
+				<artifactId>pig-common-collector</artifactId>
+				<version>${revision}</version>
 			</dependency>
 			<!-- remoting -->
 			<dependency>
-				<groupId>org.apache.hertzbeat</groupId>
-				<artifactId>hertzbeat-remoting</artifactId>
-				<version>${hertzbeat.version}</version>
+				<groupId>com.pig4cloud</groupId>
+				<artifactId>pig-common-remoting</artifactId>
+				<version>${revision}</version>
 			</dependency>
 			<!-- push -->
 			<dependency>
-				<groupId>org.apache.hertzbeat</groupId>
-				<artifactId>hertzbeat-push</artifactId>
-				<version>${hertzbeat.version}</version>
+				<groupId>com.pig4cloud</groupId>
+				<artifactId>pig-common-push</artifactId>
+				<version>${revision}</version>
+			</dependency>
+			<!-- otel -->
+			<dependency>
+				<groupId>com.pig4cloud</groupId>
+				<artifactId>pig-common-otel</artifactId>
+				<version>${revision}</version>
 			</dependency>
 			<!-- plugin -->
 			<dependency>
-				<groupId>org.apache.hertzbeat</groupId>
-				<artifactId>hertzbeat-plugin</artifactId>
-				<version>${hertzbeat.version}</version>
+				<groupId>com.pig4cloud</groupId>
+				<artifactId>pig-common-plugin</artifactId>
+				<version>${revision}</version>
 			</dependency>
 			<!-- grafana -->
-			<dependency>
-				<groupId>org.apache.hertzbeat</groupId>
-				<artifactId>hertzbeat-grafana</artifactId>
-				<version>${hertzbeat.version}</version>
-			</dependency>
-			<!-- log -->
-			<dependency>
-				<groupId>org.apache.hertzbeat</groupId>
-				<artifactId>hertzbeat-otel</artifactId>
-				<version>${hertzbeat.version}</version>
-			</dependency>
+<!--			<dependency>-->
+<!--				<groupId>com.pig4cloud</groupId>-->
+<!--				<artifactId>pig-grafana</artifactId>-->
+<!--				<version>${revision}</version>-->
+<!--			</dependency>-->
+<!--			&lt;!&ndash; log &ndash;&gt;-->
+<!--			<dependency>-->
+<!--				<groupId>com.pig4cloud</groupId>-->
+<!--				<artifactId>pig-otel</artifactId>-->
+<!--				<version>${revision}</version>-->
+<!--			</dependency>-->
 			<!-- collector-basic -->
 			<dependency>
-				<groupId>org.apache.hertzbeat</groupId>
-				<artifactId>hertzbeat-collector-collector</artifactId>
-				<version>${hertzbeat.version}</version>
+				<groupId>com.pig4cloud</groupId>
+				<artifactId>collector-collector</artifactId>
+				<version>${revision}</version>
 			</dependency>
 			<!-- spring -->
 			<dependency>
@@ -672,8 +677,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${maven-compiler-plugin.version}</version>
 				<configuration>
-					<target>${maven.compiler.target}</target>
-					<source>${maven.compiler.source}</source>
+					<target>21</target>
+					<source>21</source>
 					<encoding>UTF-8</encoding>
 					<parameters>true</parameters>
 				</configuration>

@@ -16,10 +16,21 @@
 
 package com.pig4cloud.pig.monitor;
 
+import com.pig4cloud.pig.monitor.nativex.HertzbeatRuntimeHintsRegistrar;
 import de.codecentric.boot.admin.server.config.EnableAdminServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.ImportRuntimeHints;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+
+import javax.annotation.PostConstruct;
 
 /**
  * 监控中心应用启动类
@@ -30,10 +41,22 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @EnableAdminServer
 @EnableDiscoveryClient
 @SpringBootApplication
+@EnableJpaAuditing
+@EnableJpaRepositories(basePackages = {"com.pig4cloud"})
+@EntityScan(basePackages = {"com.pig4cloud"})
+@ComponentScan(basePackages = {"com.pig4cloud"})
+@ConfigurationPropertiesScan(basePackages = {"com.pig4cloud"})
+@ImportRuntimeHints(HertzbeatRuntimeHintsRegistrar.class)
+@EnableAsync
+@EnableScheduling
 public class PigMonitorApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PigMonitorApplication.class, args);
 	}
 
+	@PostConstruct
+	public void init() {
+		System.setProperty("jdk.jndi.object.factoriesFilter", "!com.zaxxer.hikari.HikariJNDIFactory");
+	}
 }
