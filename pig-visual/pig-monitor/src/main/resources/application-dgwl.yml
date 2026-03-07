@@ -86,16 +86,16 @@ spring:
 #    activate:
 #      on-profile: prod
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: root
-    url: jdbc:mysql://localhost:3306/hertzbeat?useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true&useSSL=false
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    url: jdbc:postgresql://127.0.0.1:5432/pig-ai
     hikari:
       max-lifetime: 120000
   jpa:
-    show-sql: true
-    database-platform: org.eclipse.persistence.platform.database.MySQLPlatform
-    database: mysql
+    show-sql: false
+    database-platform: org.eclipse.persistence.platform.database.PostgreSQLPlatform
+    database: postgresql
     properties:
       eclipselink:
         logging:
@@ -107,7 +107,7 @@ spring:
     baseline-on-migrate: true
     baseline-version: 1
     locations:
-      - classpath:db/migration/mysql
+      - classpath:db/migration/postgresql
 
   # Not Require, Please config if you need email notify
   # 非必填：不使用邮箱作为警告通知可以去掉spring.mail配置

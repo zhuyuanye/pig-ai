@@ -209,6 +209,12 @@
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<!-- postgresql -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<!-- email -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
