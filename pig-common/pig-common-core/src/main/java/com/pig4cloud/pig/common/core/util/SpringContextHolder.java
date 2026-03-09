@@ -32,7 +32,7 @@ import org.springframework.stereotype.Service;
  * @date 2019/2/1 Spring 工具类
  */
 @Slf4j
-@Service
+@Service("springContextHolderUtil")
 @Lazy(false)
 public class SpringContextHolder implements ApplicationContextAware, EnvironmentAware, DisposableBean {
 

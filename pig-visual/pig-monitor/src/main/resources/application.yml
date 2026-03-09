@@ -1,9 +1,11 @@
 server:
-  port: 5001
+  port: 1157
 
 spring:
   application:
     name: @artifactId@
+  profiles:
+    active: dgwl
   cloud:
     nacos:
       username: @nacos.username@

@@ -57,11 +57,11 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 	 * 创建并配置国际化消息源
 	 * @return 可重载的资源包消息源
 	 */
-	@Bean
-	public MessageSource messageSource() {
-		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-		messageSource.setBasename("classpath:i18n/messages");
-		return messageSource;
-	}
+//	@Bean
+//	public MessageSource messageSource() {
+//		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+//		messageSource.setBasename("classpath:i18n/messages");
+//		return messageSource;
+//	}
 
 }
