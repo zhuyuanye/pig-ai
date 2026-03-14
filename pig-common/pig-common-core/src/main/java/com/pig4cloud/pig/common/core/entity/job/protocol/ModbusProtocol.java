@@ -32,7 +32,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ModbusProtocol implements Protocol {
+public class ModbusProtocol implements CommonRequestProtocol, Protocol {
 
     /**
      * IP ADDRESS OR DOMAIN NAME OF THE PEER HOST
@@ -52,4 +52,9 @@ public class ModbusProtocol implements Protocol {
     private String timeout;
 
     private List<String> registerAddresses;
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

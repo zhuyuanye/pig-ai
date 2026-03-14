@@ -92,4 +92,14 @@ public class MqttProtocol implements CommonRequestProtocol, Protocol {
     public boolean testPublish(){
         return StringUtils.isNotBlank(this.testMessage);
     }
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

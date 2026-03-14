@@ -17,78 +17,150 @@
 
 package com.pig4cloud.pig.common.core.entity.manager;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * status page org entity
+ * 状态页组织实体类
+ * <p>
+ * 用于表示状态页的组织信息，一个组织可以有多个状态页
+ * <p>
+ * 主要功能：
+ * <ul>
+ *   <li>定义状态页的基本信息</li>
+ *   <li>配置状态页的样式和主题</li>
+ *   <li>维护组织的状态汇总</li>
+ * </ul>
+ *
+ * @author HertzBeat
+ * @since 1.0.0
  */
-@Entity
-@Table(name = "hzb_status_page_org")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "status page org entity")
-@EntityListeners(AuditingEntityListener.class)
-public class StatusPageOrg {
+@TableName("hzb_status_page_org")
+@Schema(description = "状态页组织实体")
+public class StatusPageOrg implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "ID", example = "87584674384")
-    private Long id;
+	private static final long serialVersionUID = 1L;
 
-    @Schema(title = "org name", example = "TanCloud")
-    @NotBlank
-    private String name;
+	/**
+	 * 主键ID
+	 * <p>
+	 * 使用数据库自增策略生成的唯一标识
+	 */
+	@TableId(value = "id", type = IdType.AUTO)
+	@Schema(title = "主键ID", example = "87584674384")
+	private Long id;
 
-    @Schema(title = "org desc", example = "TanCloud inc")
-    @NotBlank
-    private String description;
+	/**
+	 * 组织名称
+	 * <p>
+	 * 组织的显示名称
+	 */
+	@Schema(title = "组织名称", example = "TanCloud")
+	@NotBlank
+	private String name;
 
-    @Schema(title = "org home url", example = "https://tancloud.com")
-    @NotBlank
-    private String home;
+	/**
+	 * 组织描述
+	 * <p>
+	 * 对组织的简要说明
+	 */
+	@Schema(title = "组织描述", example = "云服务监控平台")
+	@NotBlank
+	private String description;
 
-    @Schema(title = "org logo url", example = "logo.svg url")
-    @NotBlank
-    private String logo;
+	/**
+	 * 组织主页URL
+	 * <p>
+	 * 组织官网或主页链接
+	 */
+	@Schema(title = "组织主页URL", example = "https://tancloud.com")
+	@NotBlank
+	private String home;
 
-    @Schema(title = "org feedback issue url", example = "contact@email.com")
-    private String feedback;
+	/**
+	 * 组织Logo URL
+	 * <p>
+	 * 组织Logo图片的URL地址
+	 */
+	@Schema(title = "组织Logo URL", example = "https://tancloud.com/logo.svg")
+	@NotBlank
+	private String logo;
 
-    @Schema(title = "org theme background color", example = "#ffffff")
-    private String color;
+	/**
+	 * 反馈联系信息
+	 * <p>
+	 * 用户反馈或联系方式，如邮箱
+	 */
+	@Schema(title = "反馈联系信息", example = "contact@tancloud.com")
+	private String feedback;
 
-    @Schema(title = "org current state: 0-All Systems Operational 1-Some Systems Abnormal 2-All Systems Abnormal ",
-            example = "0")
-    private byte state;
+	/**
+	 * 主题背景色
+	 * <p>
+	 * 状态页的主题背景颜色，十六进制颜色值
+	 */
+	@Schema(title = "主题背景色", example = "#ffffff")
+	private String color;
 
-    @Schema(title = "The creator of this record", example = "tom")
-    @CreatedBy
-    private String creator;
+	/**
+	 * 组织当前状态
+	 * <p>
+	 * 组织的整体状态，根据所有组件状态汇总
+	 * <ul>
+	 *   <li>0 - 所有系统运行正常</li>
+	 *   <li>1 - 部分系统异常</li>
+	 *   <li>2 - 所有系统异常</li>
+	 * </ul>
+	 */
+	@Schema(title = "组织状态: 0-全部正常 1-部分异常 2-全部异常", example = "0")
+	private Byte state;
 
-    @Schema(title = "The modifier of this record", example = "tom")
-    @LastModifiedBy
-    private String modifier;
+	/**
+	 * 创建者
+	 * <p>
+	 * 记录创建该组织的用户名
+	 */
+	@TableField(fill = FieldFill.INSERT)
+	@Schema(title = "创建者", example = "tom")
+	private String creator;
 
-    @Schema(title = "Record create time", example = "1612198922000")
-    @CreatedDate
-    private LocalDateTime gmtCreate;
+	/**
+	 * 修改者
+	 * <p>
+	 * 记录最后修改该组织的用户名
+	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	@Schema(title = "修改者", example = "tom")
+	private String modifier;
 
-    @Schema(title = "Record modify time", example = "1612198444000")
-    @LastModifiedDate
-    private LocalDateTime gmtUpdate;
+	/**
+	 * 创建时间
+	 * <p>
+	 * 组织创建的时间戳
+	 */
+	@TableField(fill = FieldFill.INSERT)
+	@Schema(title = "创建时间", example = "1612198922000")
+	private LocalDateTime gmtCreate;
+
+	/**
+	 * 修改时间
+	 * <p>
+	 * 组织最后修改的时间戳
+	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	@Schema(title = "修改时间", example = "1612198444000")
+	private LocalDateTime gmtUpdate;
+
 }

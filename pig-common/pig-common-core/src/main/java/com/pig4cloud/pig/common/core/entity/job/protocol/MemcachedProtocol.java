@@ -41,5 +41,14 @@ public class MemcachedProtocol implements CommonRequestProtocol, Protocol {
      */
     private String port;
 
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 
 }

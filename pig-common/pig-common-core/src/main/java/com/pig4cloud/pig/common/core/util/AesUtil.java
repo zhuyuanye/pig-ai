@@ -17,7 +17,8 @@
 
 package com.pig4cloud.pig.common.core.util;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -31,8 +32,9 @@ import java.util.Base64;
 /**
  * AES Decode Encode Util
  */
-@Slf4j
 public final class AesUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(AesUtil.class);
 
     /**
      *  Default encryption key The AES encryption key is 16 bits by default.

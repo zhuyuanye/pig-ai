@@ -64,4 +64,14 @@ public class Pop3Protocol implements CommonRequestProtocol, Protocol {
     public boolean isInvalid() {
         return StringUtils.isAllBlank(host, port, timeout, ssl, email, authorize);
     }
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

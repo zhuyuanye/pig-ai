@@ -18,7 +18,7 @@
 package com.pig4cloud.pig.monitor.service;
 
 import com.pig4cloud.pig.common.core.entity.dto.CollectorSummary;
-import org.springframework.data.domain.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import java.util.List;
 import java.util.Map;
@@ -36,7 +36,7 @@ public interface CollectorService {
      *
      * @return Search result
      */
-    Page<CollectorSummary> getCollectors(String name, int pageIndex, Integer pageSize);
+    IPage<CollectorSummary> getCollectors(String name, int pageIndex, Integer pageSize);
 
     /**
      * delete registered collectors

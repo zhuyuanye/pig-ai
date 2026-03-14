@@ -24,7 +24,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -33,8 +34,9 @@ import javax.annotation.concurrent.ThreadSafe;
  * json util
  */
 @ThreadSafe
-@Slf4j
 public final class JsonUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(JsonUtil.class);
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 

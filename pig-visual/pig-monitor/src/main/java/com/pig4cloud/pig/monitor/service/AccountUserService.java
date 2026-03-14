@@ -18,7 +18,7 @@
 package com.pig4cloud.pig.monitor.service;
 
 import com.pig4cloud.pig.common.core.entity.user.HzbUser;
-import org.springframework.data.domain.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 /**
  * Account service
@@ -66,7 +66,7 @@ public interface AccountUserService {
      * @param size 数量
      * @return 分页
      */
-    Page<HzbUser> getUsersByPage(String username, int page, int size);
+    IPage<HzbUser> getUsersByPage(String username, int page, int size);
 
 
 }

@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class NacosSdProtocol implements Protocol {
+public class NacosSdProtocol implements CommonRequestProtocol, Protocol {
     /**
      * Nacos server host
      */
@@ -58,5 +58,15 @@ public class NacosSdProtocol implements Protocol {
      */
     public boolean isInvalid() {
         return StringUtils.isAnyBlank(host, port);
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
     }
 }

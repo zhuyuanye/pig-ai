@@ -44,4 +44,14 @@ public class WebsocketProtocol implements CommonRequestProtocol, Protocol {
      * The path to the websocket endpoint
      */
     private String path;
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

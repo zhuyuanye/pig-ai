@@ -54,4 +54,14 @@ public class SmtpProtocol implements CommonRequestProtocol, Protocol {
      * Sent command
      */
     private String cmd;
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

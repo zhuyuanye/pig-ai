@@ -92,4 +92,14 @@ public class SnmpProtocol implements CommonRequestProtocol, Protocol {
      * v3 requires
      */
     private String privPasswordEncryption;
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

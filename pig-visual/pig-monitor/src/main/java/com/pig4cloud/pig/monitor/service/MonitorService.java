@@ -25,7 +25,7 @@ import com.pig4cloud.pig.common.core.entity.manager.Param;
 import com.pig4cloud.pig.monitor.pojo.dto.AppCount;
 import com.pig4cloud.pig.monitor.pojo.dto.MonitorDto;
 import com.pig4cloud.pig.monitor.support.exception.MonitorDetectException;
-import org.springframework.data.domain.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -116,7 +116,7 @@ public interface MonitorService {
      * @param labels     Monitor labels
      * @return Search Result
      */
-    Page<Monitor> getMonitors(List<Long> monitorIds, String app, String search, Byte status, String sort, String order, int pageIndex, int pageSize, String labels);
+    IPage<Monitor> getMonitors(List<Long> monitorIds, String app, String search, Byte status, String sort, String order, int pageIndex, int pageSize, String labels);
 
     /**
      * Unmanaged monitoring items in batches according to the monitoring ID list

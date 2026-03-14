@@ -18,6 +18,7 @@ package com.pig4cloud.pig.monitor;
 
 import com.pig4cloud.pig.monitor.nativex.HertzbeatRuntimeHintsRegistrar;
 import de.codecentric.boot.admin.server.config.EnableAdminServer;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -34,6 +35,18 @@ import javax.annotation.PostConstruct;
 
 /**
  * 监控中心应用启动类
+ * <p>
+ * 使用 MyBatis-Plus 和 JPA 混合模式作为数据访问层ORM框架
+ * <p>
+ * 主要配置：
+ * <ul>
+ *   <li>启用Spring Boot Admin服务监控</li>
+ *   <li>启用服务发现客户端（Nacos）</li>
+ *   <li>配置MyBatis Mapper扫描路径（pig-monitor模块使用）</li>
+ *   <li>配置JPA Repository扫描路径（支持pig-common模块的JPA Dao）</li>
+ *   <li>启用JPA审计功能</li>
+ *   <li>启用异步任务和定时调度</li>
+ * </ul>
  *
  * @author lengleng
  * @date 2018/06/21
@@ -42,8 +55,9 @@ import javax.annotation.PostConstruct;
 @EnableDiscoveryClient
 @SpringBootApplication
 @EnableJpaAuditing
-@EnableJpaRepositories(basePackages = {"com.pig4cloud"})
+@EnableJpaRepositories(basePackages = {"com.pig4cloud.pig.common.base", "com.pig4cloud.pig.common.alert"})
 @EntityScan(basePackages = {"com.pig4cloud"})
+@MapperScan("com.pig4cloud.pig.monitor.mapper")
 @ComponentScan(basePackages = {"com.pig4cloud"})
 @ConfigurationPropertiesScan(basePackages = {"com.pig4cloud"})
 @ImportRuntimeHints(HertzbeatRuntimeHintsRegistrar.class)

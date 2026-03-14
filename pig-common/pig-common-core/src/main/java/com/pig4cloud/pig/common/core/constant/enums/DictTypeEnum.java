@@ -17,7 +17,6 @@
 package com.pig4cloud.pig.common.core.constant.enums;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * @author lengleng
@@ -26,7 +25,6 @@ import lombok.RequiredArgsConstructor;
  * 字典类型
  */
 @Getter
-@RequiredArgsConstructor
 public enum DictTypeEnum {
 
 	/**
@@ -48,5 +46,10 @@ public enum DictTypeEnum {
 	 * 描述
 	 */
 	private final String description;
+
+	DictTypeEnum(String type, String description) {
+		this.type = type;
+		this.description = description;
+	}
 
 }

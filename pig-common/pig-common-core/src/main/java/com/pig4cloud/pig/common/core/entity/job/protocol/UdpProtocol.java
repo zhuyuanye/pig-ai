@@ -49,4 +49,14 @@ public class UdpProtocol implements CommonRequestProtocol, Protocol {
      * Custom protocol packet hexString Hexadecimal character string
      */
     private String content;
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

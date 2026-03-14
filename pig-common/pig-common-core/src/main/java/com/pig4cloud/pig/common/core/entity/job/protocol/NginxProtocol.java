@@ -63,4 +63,14 @@ public class NginxProtocol implements CommonRequestProtocol, Protocol {
     public boolean isInValid() {
         return StringUtils.isAnyBlank(host, port, timeout);
     }
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

@@ -17,8 +17,9 @@
 
 package com.pig4cloud.pig.common.core.entity.manager;
 
+import com.baomidou.mybatisplus.annotation.*;
+import com.pig4cloud.pig.common.core.util.JsonUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -26,85 +27,127 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.pig4cloud.pig.common.core.util.JsonUtil;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
 
 /**
- * Monitor parameter values
+ * 监控参数实体类
+ * <p>
+ * 用于存储监控任务的参数配置信息，每个监控任务可以有多个参数
+ * <p>
+ * 主要功能：
+ * <ul>
+ *   <li>存储监控任务的配置参数</li>
+ *   <li>支持多种参数类型（数字、字符串、加密字符串、JSON等）</li>
+ *   <li>参数与监控任务的关联管理</li>
+ * </ul>
+ *
+ * @author HertzBeat
+ * @since 1.0.0
  */
-@Entity
-@Table(name = "hzb_param", indexes = { @Index(columnList = "monitorId") },
-        uniqueConstraints = @UniqueConstraint(columnNames = {"monitorId", "field"}))
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Parameter Entity")
-@EntityListeners(AuditingEntityListener.class)
-public class Param {
+@TableName("hzb_param")
+@Schema(description = "监控参数实体")
+public class Param implements Serializable {
 
-    /**
-     * Parameter primary key index ID
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "Parameter primary key index ID", example = "87584674384", accessMode = READ_ONLY)
-    private Long id;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * Monitor ID
-     */
-    @Schema(title = "Monitor task ID", example = "875846754543", accessMode = READ_WRITE)
-    private Long monitorId;
+	/**
+	 * 参数主键ID
+	 * <p>
+	 * 使用数据库自增策略生成的唯一标识
+	 */
+	@TableId(value = "id", type = IdType.AUTO)
+	@Schema(title = "参数主键ID", example = "87584674384", accessMode = READ_ONLY)
+	private Long id;
 
-    /**
-     * Parameter Field Identifier
-     */
-    @Schema(title = "Parameter identifier field", example = "port", accessMode = READ_WRITE)
-    @Size(max = 100)
-    @NotBlank(message = "field can not null")
-    private String field;
+	/**
+	 * 监控任务ID
+	 * <p>
+	 * 关联的监控任务ID，表示该参数属于哪个监控任务
+	 */
+	@Schema(title = "监控任务ID", example = "875846754543", accessMode = READ_WRITE)
+	private Long monitorId;
 
-    /**
-     * Param Value
-     */
-    @Schema(title = "parameter values", example = "8080", accessMode = READ_WRITE)
-    @Size(max = 8126)
-    @Column(length = 8126)
-    private String paramValue;
+	/**
+	 * 参数字段标识
+	 * <p>
+	 * 参数的唯一标识符，用于区分不同的参数
+	 * <p>
+	 * 示例：
+	 * <ul>
+	 *   <li>port - 端口号</li>
+	 *   <li>url - 请求地址</li>
+	 *   <li>username - 用户名</li>
+	 *   <li>password - 密码</li>
+	 * </ul>
+	 */
+	@Schema(title = "参数字段标识", example = "port", accessMode = READ_WRITE)
+	@Size(max = 100)
+	@NotBlank(message = "field can not null")
+	private String field;
 
-    /**
-     * Parameter type 0: number 1: string 2: encrypted string 3: json string mapped by map
-     */
-    @Schema(title = "Parameter types 0: number 1: string 2: encrypted string 3:map mapped json string 4:arrays string",
-            accessMode = READ_WRITE)
-    @Min(0)
-    private byte type;
+	/**
+	 * 参数值
+	 * <p>
+	 * 参数的具体值，根据参数类型存储不同格式的数据
+	 */
+	@Schema(title = "参数值", example = "8080", accessMode = READ_WRITE)
+	@Size(max = 8126)
+	private String paramValue;
 
-    /**
-     * Record create time
-     */
-    @Schema(title = "Record create time", example = "1612198922000", accessMode = READ_ONLY)
-    @CreatedDate
-    private LocalDateTime gmtCreate;
+	/**
+	 * 参数类型
+	 * <p>
+	 * 可选值：
+	 * <ul>
+	 *   <li>0 - 数字类型</li>
+	 *   <li>1 - 字符串类型</li>
+	 *   <li>2 - 加密字符串类型（如密码）</li>
+	 *   <li>3 - JSON映射字符串（Map格式）</li>
+	 *   <li>4 - 字符串数组</li>
+	 * </ul>
+	 */
+	@Schema(title = "参数类型 0:数字 1:字符串 2:加密字符串 3:Map格式JSON字符串 4:字符串数组", accessMode = READ_WRITE)
+	@Min(0)
+	private Byte type;
 
-    /**
-     * Record the latest modification time
-     */
-    @Schema(title = "Record modify time", example = "1612198444000", accessMode = READ_ONLY)
-    @LastModifiedDate
-    private LocalDateTime gmtUpdate;
+	/**
+	 * 创建时间
+	 * <p>
+	 * 参数创建的时间戳
+	 */
+	@TableField(fill = FieldFill.INSERT)
+	@Schema(title = "创建时间", example = "1612198922000", accessMode = READ_ONLY)
+	private LocalDateTime gmtCreate;
 
-    @Override
-    public Param clone() {
-        // deep clone
-        return JsonUtil.fromJson(JsonUtil.toJson(this), getClass());
-    }
+	/**
+	 * 修改时间
+	 * <p>
+	 * 参数最后修改的时间戳
+	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	@Schema(title = "修改时间", example = "1612198444000", accessMode = READ_ONLY)
+	private LocalDateTime gmtUpdate;
+
+	/**
+	 * 克隆当前参数对象
+	 * <p>
+	 * 通过JSON序列化和反序列化实现对象的深拷贝
+	 *
+	 * @return 参数的克隆对象
+	 */
+	@Override
+	public Param clone() {
+		// 深拷贝
+		return JsonUtil.fromJson(JsonUtil.toJson(this), getClass());
+	}
+
 }

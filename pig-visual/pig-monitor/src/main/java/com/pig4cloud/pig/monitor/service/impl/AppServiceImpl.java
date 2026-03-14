@@ -34,9 +34,9 @@ import com.pig4cloud.pig.common.core.entity.message.CollectRep;
 import com.pig4cloud.pig.common.core.support.SpringContextHolder;
 import com.pig4cloud.pig.common.core.support.exception.CommonException;
 import com.pig4cloud.pig.common.core.util.CommonUtil;
-import com.pig4cloud.pig.monitor.dao.DefineDao;
-import com.pig4cloud.pig.monitor.dao.MonitorDao;
-import com.pig4cloud.pig.monitor.dao.ParamDao;
+import com.pig4cloud.pig.monitor.mapper.DefineMapper;
+import com.pig4cloud.pig.monitor.mapper.MonitorMapper;
+import com.pig4cloud.pig.monitor.mapper.ParamMapper;
 import com.pig4cloud.pig.monitor.pojo.dto.Hierarchy;
 import com.pig4cloud.pig.monitor.pojo.dto.ObjectStoreConfigChangeEvent;
 import com.pig4cloud.pig.monitor.pojo.dto.ObjectStoreDTO;
@@ -79,16 +79,16 @@ public class AppServiceImpl implements AppService, InitializingBean {
     private static final String PUSH_PROTOCOL_METRICS_NAME = "metrics";
 
     @Resource
-    private MonitorDao monitorDao;
+    private MonitorMapper monitorMapper;
 
     @Resource
     private ObjectStoreConfigServiceImpl objectStoreConfigService;
 
     @Resource
-    private ParamDao paramDao;
+    private ParamMapper paramMapper;
 
     @Resource
-    private DefineDao defineDao;
+    private DefineMapper defineMapper;
 
     @Resource
     private WarehouseService warehouseService;
@@ -119,7 +119,7 @@ public class AppServiceImpl implements AppService, InitializingBean {
         List<Metrics> metricsTmp = new ArrayList<>();
         for (Metrics metric : metrics) {
             if (PUSH_PROTOCOL_METRICS_NAME.equals(metric.getName())) {
-                List<Param> params = paramDao.findParamsByMonitorId(monitorId);
+                List<Param> params = paramMapper.selectList(new QueryWrapper<Param>().eq("monitor_id", monitorId));
                 List<Configmap> configmaps = params.stream()
                         .map(param -> new Configmap(param.getField(), param.getParamValue(),
                                 param.getType())).toList();
@@ -322,7 +322,7 @@ public class AppServiceImpl implements AppService, InitializingBean {
         }
         List<Hierarchy> hierarchyMetricList = new LinkedList<>();
         if (DispatchConstants.PROTOCOL_PROMETHEUS.equalsIgnoreCase(job.getApp())) {
-            List<Monitor> monitors = monitorDao.findMonitorsByAppEquals(job.getApp());
+            List<Monitor> monitors = monitorMapper.selectList(new QueryWrapper<Monitor>().eq("app", job.getApp()));
             for (Monitor monitor : monitors) {
                 List<CollectRep.MetricsData> metricsDataList = warehouseService.queryMonitorMetricsData(monitor.getId());
                 for (CollectRep.MetricsData metricsData : metricsDataList) {
@@ -487,7 +487,7 @@ public class AppServiceImpl implements AppService, InitializingBean {
     @Override
     public void deleteMonitorDefine(String app) {
         // if app has monitors now, delete failed
-        var monitors = monitorDao.findMonitorsByAppEquals(app);
+        var monitors = monitorMapper.selectList(new QueryWrapper<Monitor>().eq("app", app));
         if (monitors != null && !monitors.isEmpty()) {
             throw new IllegalArgumentException("Can not delete define which has monitoring instances.");
         }
@@ -783,7 +783,7 @@ public class AppServiceImpl implements AppService, InitializingBean {
         @Override
         public boolean loadAppDefines() {
             Yaml yaml = new Yaml();
-            List<Define> defines = defineDao.findAll();
+            List<Define> defines = defineMapper.selectList(null);
             for (Define define : defines) {
                 var app = yaml.loadAs(define.getContent(), Job.class);
                 if (app != null){
@@ -796,8 +796,8 @@ public class AppServiceImpl implements AppService, InitializingBean {
 
         @Override
         public String loadAppDefine(String app) {
-            Optional<Define> defineOptional = defineDao.findById(app);
-            return defineOptional.map(Define::getContent).orElse(null);
+            Define define = defineMapper.selectById(app);
+            return define != null ? define.getContent() : null;
         }
 
         @Override
@@ -805,17 +805,17 @@ public class AppServiceImpl implements AppService, InitializingBean {
             Define define = new Define();
             define.setApp(app);
             define.setContent(ymlContent);
-            defineDao.save(define);
+            defineMapper.insert(define);
         }
 
         @Override
         public void delete(String app) {
-            Optional<Define> defineOptional = defineDao.findById(app);
-            if (defineOptional.isEmpty() && appDefines.containsKey(app.toLowerCase())){
+            Define define = defineMapper.selectById(app);
+            if (define == null && appDefines.containsKey(app.toLowerCase())){
                 throw new CommonException("the app define file is not in current file server provider");
             }
-            if (defineOptional.isPresent()){
-                defineDao.deleteById(app);
+            if (define != null){
+                defineMapper.deleteById(app);
             }
             appDefines.remove(app.toLowerCase());
         }

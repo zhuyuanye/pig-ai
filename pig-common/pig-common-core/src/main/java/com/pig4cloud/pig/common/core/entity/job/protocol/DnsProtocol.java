@@ -46,4 +46,9 @@ public class DnsProtocol implements CommonRequestProtocol, Protocol {
     public void setHost(String host) {
         this.address = host;
     }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

@@ -17,7 +17,6 @@
 
 package com.pig4cloud.pig.monitor.service.impl;
 
-import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -31,18 +30,19 @@ import com.pig4cloud.pig.common.core.entity.manager.PluginMetadata;
 import com.pig4cloud.pig.common.core.entity.plugin.PluginConfig;
 import com.pig4cloud.pig.common.core.entity.plugin.PluginContext;
 import com.pig4cloud.pig.common.core.support.exception.CommonException;
-import com.pig4cloud.pig.monitor.dao.PluginItemDao;
-import com.pig4cloud.pig.monitor.dao.PluginMetadataDao;
-import com.pig4cloud.pig.monitor.dao.PluginParamDao;
+import com.pig4cloud.pig.monitor.mapper.PluginItemMapper;
+import com.pig4cloud.pig.monitor.mapper.PluginMetadataMapper;
+import com.pig4cloud.pig.monitor.mapper.PluginParamMapper;
 import com.pig4cloud.pig.monitor.pojo.dto.PluginParam;
 import com.pig4cloud.pig.monitor.pojo.dto.PluginParametersVO;
 import com.pig4cloud.pig.monitor.service.PluginService;
 import com.pig4cloud.pig.common.plugin.Plugin;
 import com.pig4cloud.pig.common.plugin.PostAlertPlugin;
 import com.pig4cloud.pig.common.plugin.PostCollectPlugin;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.yaml.snakeyaml.Yaml;
@@ -73,11 +73,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PluginServiceImpl implements PluginService {
 
-    private final PluginMetadataDao metadataDao;
+    private final PluginMetadataMapper metadataMapper;
 
-    private final PluginItemDao itemDao;
+    private final PluginItemMapper itemMapper;
 
-    private final PluginParamDao pluginParamDao;
+    private final PluginParamMapper pluginParamMapper;
 
     public static Map<Class<?>, PluginType> PLUGIN_TYPE_MAPPING = new HashMap<>();
 
@@ -106,7 +106,7 @@ public class PluginServiceImpl implements PluginService {
     @Override
     @Transactional
     public void deletePlugins(Set<Long> ids) {
-        List<PluginMetadata> plugins = metadataDao.findAllById(ids);
+        List<PluginMetadata> plugins = metadataMapper.selectBatchIds(ids);
         // disable the plugins that need to be removed
         for (PluginMetadata plugin : plugins) {
             plugin.setEnableStatus(false);
@@ -127,14 +127,15 @@ public class PluginServiceImpl implements PluginService {
                     FileUtils.deleteDirectory(otherLibDir);
                 }
                 // delete metadata
-                metadataDao.deleteById(plugin.getId());
+                metadataMapper.deleteById(plugin.getId());
                 syncPluginParamMap(plugin.getId(), null, true);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
         }
-        pluginParamDao.deletePluginParamsByPluginMetadataIdIn(ids);
+        pluginParamMapper.delete(new QueryWrapper<com.pig4cloud.pig.monitor.pojo.dto.PluginParam>()
+                .in("plugin_metadata_id", ids));
         syncPluginStatus();
 
     }
@@ -151,11 +152,10 @@ public class PluginServiceImpl implements PluginService {
 
     @Override
     public void updateStatus(PluginMetadata plugin) {
-        Optional<PluginMetadata> pluginMetadata = metadataDao.findById(plugin.getId());
-        if (pluginMetadata.isPresent()) {
-            PluginMetadata metadata = pluginMetadata.get();
+        PluginMetadata metadata = metadataMapper.selectById(plugin.getId());
+        if (metadata != null) {
             metadata.setEnableStatus(plugin.getEnableStatus());
-            metadataDao.save(metadata);
+            metadataMapper.updateById(metadata);
             syncSinglePluginStatus(metadata);
         } else {
             throw new IllegalArgumentException("The plugin is not existed");
@@ -168,7 +168,8 @@ public class PluginServiceImpl implements PluginService {
         PluginParametersVO pluginParametersVO = new PluginParametersVO();
         if (PARAMS_CONFIG_MAP.containsKey(pluginMetadataId)) {
             PluginConfig config = PARAMS_CONFIG_MAP.get(pluginMetadataId);
-            List<PluginParam> paramsByPluginMetadataId = pluginParamDao.findParamsByPluginMetadataId(pluginMetadataId);
+            List<PluginParam> paramsByPluginMetadataId = pluginParamMapper.selectList(
+                    new QueryWrapper<PluginParam>().eq("plugin_metadata_id", pluginMetadataId));
             pluginParametersVO.setParamDefines(Optional.ofNullable(config).map(PluginConfig::getParams).orElse(new ArrayList<>()));
             pluginParametersVO.setPluginParams(paramsByPluginMetadataId);
             return pluginParametersVO;
@@ -182,8 +183,15 @@ public class PluginServiceImpl implements PluginService {
         if (CollectionUtils.isEmpty(params)) {
             return;
         }
-        pluginParamDao.deletePluginParamsByPluginMetadataId(params.get(0).getPluginMetadataId());
-        pluginParamDao.saveAll(params);
+        pluginParamMapper.delete(new QueryWrapper<PluginParam>()
+                .eq("plugin_metadata_id", params.get(0).getPluginMetadataId()));
+        params.forEach(param -> {
+            if (param.getId() == null) {
+                pluginParamMapper.insert(param);
+            } else {
+                pluginParamMapper.updateById(param);
+            }
+        });
         syncPluginParamMap(params.get(0).getPluginMetadataId(), params, false);
     }
 
@@ -293,7 +301,9 @@ public class PluginServiceImpl implements PluginService {
     }
 
     private void validateMetadata(PluginMetadata metadata) {
-        if (metadataDao.countPluginMetadataByName(metadata.getName()) != 0) {
+        Long count = metadataMapper.selectCount(new QueryWrapper<PluginMetadata>()
+                .eq("name", metadata.getName()));
+        if (count != null && count != 0) {
             throw new CommonException("A plugin named " + metadata.getName() + " already exists");
         }
     }
@@ -330,8 +340,8 @@ public class PluginServiceImpl implements PluginService {
             throw e;
         }
         // save plugin metadata
-        metadataDao.save(pluginMetadata);
-        itemDao.saveAll(pluginItems);
+        metadataMapper.insert(pluginMetadata);
+        pluginItems.forEach(item -> itemMapper.insert(item));
         // load jar to classloader
         loadJarToClassLoader();
         // sync enabled status
@@ -358,25 +368,14 @@ public class PluginServiceImpl implements PluginService {
     }
 
     @Override
-    public Page<PluginMetadata> getPlugins(String search, int pageIndex, int pageSize) {
+    public IPage<PluginMetadata> getPlugins(String search, int pageIndex, int pageSize) {
         // Get tag information
-        Specification<PluginMetadata> specification = (root, query, criteriaBuilder) -> {
-            List<Predicate> andList = new ArrayList<>();
-            if (search != null && !search.isEmpty()) {
-                Predicate predicateApp = criteriaBuilder.like(root.get("name"), "%" + search + "%");
-                andList.add(predicateApp);
-            }
-            Predicate[] andPredicates = new Predicate[andList.size()];
-            Predicate andPredicate = criteriaBuilder.and(andList.toArray(andPredicates));
-
-            if (andPredicates.length == 0) {
-                return query.where().getRestriction();
-            } else {
-                return andPredicate;
-            }
-        };
-        PageRequest pageRequest = PageRequest.of(pageIndex, pageSize);
-        return metadataDao.findAll(specification, pageRequest);
+        LambdaQueryWrapper<PluginMetadata> queryWrapper = new LambdaQueryWrapper<>();
+        if (search != null && !search.isEmpty()) {
+            queryWrapper.like(PluginMetadata::getName, search);
+        }
+        Page<PluginMetadata> page = new Page<>(pageIndex, pageSize);
+        return metadataMapper.selectPage(page, queryWrapper);
     }
 
     /**
@@ -384,7 +383,7 @@ public class PluginServiceImpl implements PluginService {
      */
     @PostConstruct
     private void syncPluginStatus() {
-        List<PluginMetadata> plugins = metadataDao.findAll();
+        List<PluginMetadata> plugins = metadataMapper.selectList(null);
         Map<String, Boolean> statusMap = new HashMap<>();
         Map<String, Long> itemToPluginMetadataIdMap = new HashMap<>();
         for (PluginMetadata plugin : plugins) {
@@ -412,7 +411,7 @@ public class PluginServiceImpl implements PluginService {
     @PostConstruct
     private void initParams() {
         try {
-            List<PluginParam> params = pluginParamDao.findAll();
+            List<PluginParam> params = pluginParamMapper.selectList(null);
             Map<Long, List<PluginParam>> content = params.stream()
                 .collect(Collectors.groupingBy(PluginParam::getPluginMetadataId));
 
@@ -445,7 +444,8 @@ public class PluginServiceImpl implements PluginService {
             System.gc();
         }
         PARAMS_CONFIG_MAP.clear();
-        List<PluginMetadata> plugins = metadataDao.findPluginMetadataByEnableStatusTrue();
+        List<PluginMetadata> plugins = metadataMapper.selectList(
+                new QueryWrapper<PluginMetadata>().eq("enable_status", true));
         for (PluginMetadata metadata : plugins) {
             try {
                 List<URL> urls = loadLibInPlugin(metadata.getJarFilePath(), metadata.getId());

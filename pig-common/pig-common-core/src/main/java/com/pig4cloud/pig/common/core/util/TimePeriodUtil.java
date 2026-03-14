@@ -17,7 +17,8 @@
 
 package com.pig4cloud.pig.common.core.util;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Period;
@@ -26,8 +27,9 @@ import java.time.temporal.TemporalAmount;
 /**
  * time util
  */
-@Slf4j
 public final class TimePeriodUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(TimePeriodUtil.class);
 
     private TimePeriodUtil() {
     }

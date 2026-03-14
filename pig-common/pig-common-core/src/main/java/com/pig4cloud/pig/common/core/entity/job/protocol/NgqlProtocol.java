@@ -72,4 +72,14 @@ public class NgqlProtocol implements CommonRequestProtocol, Protocol {
      * how to parse data
      */
     private String parseType;
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

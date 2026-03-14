@@ -17,19 +17,14 @@
 
 package com.pig4cloud.pig.common.core.entity.manager;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.pig4cloud.pig.common.core.entity.alerter.JsonMapAttributeConverter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -38,170 +33,244 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
 
 /**
- * Monitoring parameter definitions
+ * 监控参数定义实体类
+ * <p>
+ * 用于定义监控任务的参数结构、验证规则和显示配置
+ * <p>
+ * 主要功能：
+ * <ul>
+ *   <li>定义监控类型的参数结构</li>
+ *   <li>配置参数的验证规则和默认值</li>
+ *   <li>设置参数的UI显示属性</li>
+ *   <li>支持参数之间的依赖关系</li>
+ * </ul>
+ *
+ * @author HertzBeat
+ * @since 1.0.0
  */
-@Entity
-@Table(name = "hzb_param_define")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Parameter structure definition entity")
-@EntityListeners(AuditingEntityListener.class)
-public class ParamDefine {
+@TableName("hzb_param_define")
+@Schema(description = "参数结构定义实体")
+public class ParamDefine implements Serializable {
 
-    /**
-     * Parameter Structure ID
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "Parameter structure ID", example = "87584674384", accessMode = READ_ONLY)
-    private Long id;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * Monitoring application type name
-     */
-    @Schema(title = "Type of monitoring", example = "TanCloud", accessMode = READ_WRITE)
-    private String app;
+	/**
+	 * 参数结构ID
+	 * <p>
+	 * 使用数据库自增策略生成的唯一标识
+	 */
+	@TableId(value = "id", type = IdType.AUTO)
+	@Schema(title = "参数结构ID", example = "87584674384", accessMode = READ_ONLY)
+	private Long id;
 
-    /**
-     * Parameter field external display name
-     * Port
-     */
-    @Schema(description = "The parameter field displays the internationalized name", example = "{zh-CN: '端口'}",
-            accessMode = READ_WRITE)
-    @Convert(converter = JsonMapAttributeConverter.class)
-    @SuppressWarnings("JpaAttributeTypeInspection")
-    @Column(length = 2048)
-    private Map<String, String> name;
+	/**
+	 * 监控应用类型名称
+	 * <p>
+	 * 参数定义所属的监控类型，如http、ping、mysql等
+	 */
+	@Schema(title = "监控类型", example = "http", accessMode = READ_WRITE)
+	private String app;
 
-    /**
-     * Parameter Field Identifier
-     */
-    @Schema(title = "Parameter field identifier", example = "port", accessMode = READ_WRITE)
-    private String field;
+	/**
+	 * 参数字段外部显示名称
+	 * <p>
+	 * 参数字段的国际化显示名称，支持多语言
+	 * <p>
+	 * 示例：{"zh-CN": "端口", "en-US": "Port"}
+	 */
+	@TableField(typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler")
+	@Schema(description = "参数字段国际化显示名称", example = "{zh-CN: '端口', en-US: 'Port'}", accessMode = READ_WRITE)
+	private Map<String, String> name;
 
-    /**
-     * Field type, style (mostly map the input tag type attribute)
-     */
-    @Schema(title = "Field type, style (mostly map the input tag type attribute)", example = "number", accessMode = READ_WRITE)
-    private String type;
+	/**
+	 * 参数字段标识符
+	 * <p>
+	 * 参数的唯一标识符，如port、url、username等
+	 */
+	@Schema(title = "参数字段标识符", example = "port", accessMode = READ_WRITE)
+	private String field;
 
-    /**
-     * Is it mandatory true-required false-optional
-     */
-    @Schema(title = "Is it mandatory true-required false-optional", example = "true", accessMode = READ_WRITE)
-    private boolean required = false;
+	/**
+	 * 字段类型
+	 * <p>
+	 * 定义参数的输入类型，主要映射HTML input标签的type属性
+	 * <p>
+	 * 常用类型：
+	 * <ul>
+	 *   <li>text - 文本输入框</li>
+	 *   <li>number - 数字输入框</li>
+	 *   <li>password - 密码输入框</li>
+	 *   <li>radio - 单选框</li>
+	 *   <li>checkbox - 复选框</li>
+	 *   <li>key-value - 键值对输入</li>
+	 * </ul>
+	 */
+	@Schema(title = "字段类型", example = "number", accessMode = READ_WRITE)
+	private String type;
 
-    /**
-     * Parameter Default Value
-     */
-    @Schema(title = "Parameter default values", example = "12", accessMode = READ_WRITE)
-    private String defaultValue;
+	/**
+	 * 是否必填
+	 * <p>
+	 * 定义参数是否为必填项
+	 * <ul>
+	 *   <li>true - 必填参数</li>
+	 *   <li>false - 可选参数</li>
+	 * </ul>
+	 */
+	@Schema(title = "是否必填", example = "true", accessMode = READ_WRITE)
+	private Boolean required = false;
 
-    /**
-     * Parameter input box prompt information
-     */
-    @Schema(title = "Parameter input field prompt information", example = "enter your password", accessMode = READ_WRITE)
-    private String placeholder;
+	/**
+	 * 参数默认值
+	 * <p>
+	 * 参数的默认值，用户未输入时使用此值
+	 */
+	@Schema(title = "参数默认值", example = "8080", accessMode = READ_WRITE)
+	private String defaultValue;
 
-    /**
-     * When type is number, use range to represent the range eg: 0-233
-     */
-    @Schema(title = "When type is number, the range is represented by the range interval", example = "[0,233]", accessMode = READ_WRITE)
-    @Column(name = "param_range")
-    private String range;
+	/**
+	 * 参数输入框提示信息
+	 * <p>
+	 * 显示在输入框中的提示文本，引导用户输入
+	 */
+	@Schema(title = "参数输入框提示信息", example = "请输入端口号", accessMode = READ_WRITE)
+	private String placeholder;
 
-    /**
-     * When type is text, use limit to indicate the limit size of the string. The maximum is 255
-     */
-    @Schema(title = "When type is text, use limit to indicate the limit size of the string. The maximum is 255",
-            example = "30", accessMode = READ_WRITE)
-    @Column(name = "param_limit")
-    private Short limit;
+	/**
+	 * 参数范围
+	 * <p>
+	 * 当type为number时，使用range表示数值的有效范围
+	 * <p>
+	 * 示例：0-65535 表示端口范围
+	 */
+	@TableField("param_range")
+	@Schema(title = "数值范围", example = "0-65535", accessMode = READ_WRITE)
+	private String range;
 
-    /**
-     * When the type is radio radio box, checkbox checkbox, options represents a list of optional values
-     * eg: {
-     * "key1":"value1",
-     * "key2":"value2"
-     * }
-     * key-Value display label
-     * value-True value
-     */
-    @Schema(description = "When the type is radio radio box, checkbox checkbox, options represents a list of optional values",
-            example = "{key1,value1}", accessMode = READ_WRITE)
-    @Column(name = "param_options", length = 2048)
-    @Convert(converter = JsonOptionListAttributeConverter.class)
-    private List<Option> options;
+	/**
+	 * 参数长度限制
+	 * <p>
+	 * 当type为text时，使用limit表示字符串的最大长度
+	 */
+	@TableField("param_limit")
+	@Schema(title = "字符串长度限制", example = "30", accessMode = READ_WRITE)
+	private Short limit;
 
-    /**
-     * Valid when type is key-value, indicating the alias description of the key
-     */
-    @Schema(title = "Valid when type is key-value, indicating the alias description of the key", example = "Name", accessMode = READ_WRITE)
-    private String keyAlias;
+	/**
+	 * 参数选项列表
+	 * <p>
+	 * 当type为radio或checkbox时，options表示可选值列表
+	 * <p>
+	 * 示例格式：[{"label":"选项1","value":"value1"},{"label":"选项2","value":"value2"}]
+	 * <ul>
+	 *   <li>label - 显示的标签文本</li>
+	 *   <li>value - 实际的值</li>
+	 * </ul>
+	 */
+	@TableField(value = "param_options", typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonOptionListTypeHandler")
+	@Schema(description = "单选框/复选框的可选值列表", example = "[{\"label\":\"选项1\",\"value\":\"value1\"}]",
+			accessMode = READ_WRITE)
+	private List<Object> options;
 
-    /**
-     * Valid when type is key-value, indicating the alias description of value type
-     */
-    @Schema(title = "Valid when type is key-value, indicating the alias description of value type", example = "Value", accessMode = READ_WRITE)
-    private String valueAlias;
+	/**
+	 * 键别名
+	 * <p>
+	 * 当type为key-value时，表示键的别名描述
+	 */
+	@Schema(title = "键别名", example = "名称", accessMode = READ_WRITE)
+	private String keyAlias;
 
-    /**
-     * Is it an advanced hidden parameter true-yes false-no
-     */
-    @Schema(title = "Is it an advanced hidden parameter true-yes false-no", example = "true", accessMode = READ_WRITE)
-    private boolean hide = false;
+	/**
+	 * 值别名
+	 * <p>
+	 * 当type为key-value时，表示值的别名描述
+	 */
+	@Schema(title = "值别名", example = "值", accessMode = READ_WRITE)
+	private String valueAlias;
 
-    /**
-     * The creator of this record
-     */
-    @Schema(title = "The creator of this record", example = "tom", accessMode = READ_ONLY)
-    @CreatedBy
-    private String creator;
+	/**
+	 * 是否为高级隐藏参数
+	 * <p>
+	 * 定义参数是否为高级配置，默认隐藏
+	 * <ul>
+	 *   <li>true - 高级参数，默认隐藏</li>
+	 *   <li>false - 普通参数，默认显示</li>
+	 * </ul>
+	 */
+	@Schema(title = "是否为高级隐藏参数", example = "true", accessMode = READ_WRITE)
+	private Boolean hide = false;
 
-    /**
-     * This record was last modified by
-     */
-    @Schema(title = "The modifier of this record", example = "tom", accessMode = READ_ONLY)
-    @LastModifiedBy
-    private String modifier;
+	/**
+	 * 创建者
+	 * <p>
+	 * 记录创建该参数定义的用户名
+	 */
+	@TableField(fill = FieldFill.INSERT)
+	@Schema(title = "创建者", example = "tom", accessMode = READ_ONLY)
+	private String creator;
 
-    /**
-     * Record create time
-     */
-    @Schema(title = "Record create time", example = "1612198922000", accessMode = READ_ONLY)
-    @CreatedDate
-    private LocalDateTime gmtCreate;
+	/**
+	 * 修改者
+	 * <p>
+	 * 记录最后修改该参数定义的用户名
+	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	@Schema(title = "修改者", example = "tom", accessMode = READ_ONLY)
+	private String modifier;
 
-    /**
-     * Record the latest modification time
-     */
-    @Schema(title = "Record modify time", example = "1612198444000", accessMode = READ_ONLY)
-    @LastModifiedDate
-    private LocalDateTime gmtUpdate;
+	/**
+	 * 创建时间
+	 * <p>
+	 * 参数定义创建的时间戳
+	 */
+	@TableField(fill = FieldFill.INSERT)
+	@Schema(title = "创建时间", example = "1612198922000", accessMode = READ_ONLY)
+	private LocalDateTime gmtCreate;
 
-    /**
-     *  Depends on which parameters
-     */
-    @Schema(title = "Depends on which parameters", example = "{field:[value1, value2, ...]}", accessMode = READ_WRITE)
-    @Convert(converter = JsonMapAttributeConverter.class)
-    private Map<String, List<Object>> depend;
+	/**
+	 * 修改时间
+	 * <p>
+	 * 参数定义最后修改的时间戳
+	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	@Schema(title = "修改时间", example = "1612198444000", accessMode = READ_ONLY)
+	private LocalDateTime gmtUpdate;
 
-    /**
-     * Parameter option configuration
-     */
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static final class Option {
-        /**
-         * value display label
-         */
-        private String label;
-        /**
-         * optional value
-         */
-        private String value;
-    }
+	/**
+	 * 参数依赖关系
+	 * <p>
+	 * 定义该参数依赖于其他参数的哪些值
+	 * <p>
+	 * 示例：{"field":["value1","value2"]} 表示当field参数的值为value1或value2时，此参数才显示
+	 */
+	@TableField(typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler")
+	@Schema(title = "参数依赖关系", example = "{\"field\":[\"value1\",\"value2\"]}", accessMode = READ_WRITE)
+	private Map<String, List<Object>> depend;
+
+	/**
+	 * 参数选项配置类
+	 * <p>
+	 * 用于定义单选框和复选框的选项
+	 */
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static final class Option {
+
+		/**
+		 * 选项显示标签
+		 */
+		private String label;
+
+		/**
+		 * 选项实际值
+		 */
+		private String value;
+
+	}
+
 }

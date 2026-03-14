@@ -19,10 +19,9 @@ package com.pig4cloud.pig.monitor.service;
 
 import com.pig4cloud.pig.common.core.entity.manager.Bulletin;
 import com.pig4cloud.pig.monitor.pojo.dto.BulletinMetricsData;
-import org.springframework.data.domain.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Bulletin Service
@@ -37,7 +36,7 @@ public interface BulletinService {
     /**
      * Get Bulletin by id
      */
-    Optional<Bulletin> getBulletinById(Long id);
+    Bulletin getBulletinById(Long id);
 
     /**
      * Save Bulletin
@@ -61,7 +60,7 @@ public interface BulletinService {
      * @param pageSize page size
      * @return bulletins
      */
-    Page<Bulletin> getBulletins(String search, Integer pageIndex, Integer pageSize);
+    IPage<Bulletin> getBulletins(String search, Integer pageIndex, Integer pageSize);
 
     /**
      * delete bulletins

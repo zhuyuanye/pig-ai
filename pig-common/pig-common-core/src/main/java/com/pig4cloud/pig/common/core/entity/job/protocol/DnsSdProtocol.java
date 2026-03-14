@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class DnsSdProtocol implements Protocol {
+public class DnsSdProtocol implements CommonRequestProtocol, Protocol {
 
     private String host;
 
@@ -38,4 +38,14 @@ public class DnsSdProtocol implements Protocol {
     private String recordType;
 
     private String recordName;
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
 }

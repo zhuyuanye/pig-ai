@@ -23,10 +23,10 @@ import com.pig4cloud.pig.common.core.entity.dto.CollectorInfo;
 import com.pig4cloud.pig.common.core.entity.job.Configmap;
 import com.pig4cloud.pig.common.core.entity.job.Job;
 import com.pig4cloud.pig.common.core.entity.manager.*;
-import com.pig4cloud.pig.monitor.dao.CollectorDao;
-import com.pig4cloud.pig.monitor.dao.CollectorMonitorBindDao;
-import com.pig4cloud.pig.monitor.dao.MonitorDao;
-import com.pig4cloud.pig.monitor.dao.ParamDao;
+import com.pig4cloud.pig.monitor.mapper.CollectorMapper;
+import com.pig4cloud.pig.monitor.mapper.CollectorMonitorBindMapper;
+import com.pig4cloud.pig.monitor.mapper.MonitorMapper;
+import com.pig4cloud.pig.monitor.mapper.ParamMapper;
 import com.pig4cloud.pig.monitor.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -60,24 +60,24 @@ public class SchedulerInit implements CommandLineRunner {
     private AppService appService;
 
     @Autowired
-    private MonitorDao monitorDao;
+    private MonitorMapper monitorMapper;
 
     @Autowired
-    private ParamDao paramDao;
+    private ParamMapper paramMapper;
 
     @Autowired
-    private CollectorDao collectorDao;
+    private CollectorMapper collectorMapper;
 
     @Autowired
-    private CollectorMonitorBindDao collectorMonitorBindDao;
+    private CollectorMonitorBindMapper collectorMonitorBindMapper;
 
     @Override
     public void run(String... args) throws Exception {
         // init pre collector status
-        List<Collector> collectors = collectorDao.findAll().stream()
+        List<Collector> collectors = collectorMapper.selectList(null).stream()
                 .peek(item -> item.setStatus(CommonConstants.COLLECTOR_STATUS_OFFLINE))
                 .collect(Collectors.toList());
-        collectorDao.saveAll(collectors);
+        collectors.forEach(collector -> collectorMapper.updateById(collector));
         // insert default consistent node
         CollectorInfo collectorInfo = CollectorInfo.builder()
                 .name(CommonConstants.MAIN_COLLECTOR_NODE)
@@ -86,8 +86,8 @@ public class SchedulerInit implements CommandLineRunner {
                 .build();
         collectorScheduling.collectorGoOnline(CommonConstants.MAIN_COLLECTOR_NODE, collectorInfo);
         // init jobs
-        List<Monitor> monitors = monitorDao.findMonitorsByStatusNotInAndJobIdNotNull(List.of(CommonConstants.MONITOR_PAUSED_CODE));
-        List<CollectorMonitorBind> monitorBinds = collectorMonitorBindDao.findAll();
+        List<Monitor> monitors = monitorMapper.findMonitorsByStatusNotInAndJobIdNotNull(List.of(CommonConstants.MONITOR_PAUSED_CODE));
+        List<CollectorMonitorBind> monitorBinds = collectorMonitorBindMapper.selectList(null);
         Map<Long, String> monitorIdCollectorMap = monitorBinds.stream().collect(
                 Collectors.toMap(CollectorMonitorBind::getMonitorId, CollectorMonitorBind::getCollector));
         for (Monitor monitor : monitors) {
@@ -99,7 +99,7 @@ public class SchedulerInit implements CommandLineRunner {
                 if (!isStatic) {
                     appDefine.setSd(true);
                 }
-                List<Param> params = paramDao.findParamsByMonitorId(monitor.getId());
+                List<Param> params = paramMapper.findParamsByMonitorId(monitor.getId());
                 if (CommonConstants.PROMETHEUS.equals(monitor.getApp())) {
                     appDefine.setApp(CommonConstants.PROMETHEUS_APP_PREFIX + monitor.getName());
                 }
@@ -129,7 +129,7 @@ public class SchedulerInit implements CommandLineRunner {
                 String collector = monitorIdCollectorMap.get(monitor.getId());
                 long jobId = collectJobScheduling.addAsyncCollectJob(appDefine, collector);
                 monitor.setJobId(jobId);
-                monitorDao.save(monitor);
+                monitorMapper.updateById(monitor);
             } catch (Exception e) {
                 log.error("init monitor job: {} error,continue next monitor", monitor, e);
             }

@@ -17,7 +17,6 @@
 
 package com.pig4cloud.pig.monitor.service.impl;
 
-import jakarta.persistence.criteria.Predicate;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.pig4cloud.pig.common.core.entity.dto.CollectorSummary;
@@ -25,19 +24,19 @@ import com.pig4cloud.pig.common.core.entity.manager.Collector;
 import com.pig4cloud.pig.common.core.entity.manager.CollectorMonitorBind;
 import com.pig4cloud.pig.common.core.support.exception.CommonException;
 import com.pig4cloud.pig.common.core.util.IpDomainUtil;
-import com.pig4cloud.pig.monitor.dao.CollectorDao;
-import com.pig4cloud.pig.monitor.dao.CollectorMonitorBindDao;
+import com.pig4cloud.pig.monitor.mapper.CollectorMapper;
+import com.pig4cloud.pig.monitor.mapper.CollectorMonitorBindMapper;
 import com.pig4cloud.pig.monitor.scheduler.AssignJobs;
 import com.pig4cloud.pig.monitor.scheduler.ConsistentHash;
 import com.pig4cloud.pig.monitor.scheduler.netty.ManageServer;
 import com.pig4cloud.pig.monitor.service.CollectorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -52,10 +51,10 @@ import java.util.Map;
 public class CollectorServiceImpl implements CollectorService {
 
     @Autowired
-    private CollectorDao collectorDao;
+    private CollectorMapper collectorMapper;
 
     @Autowired
-    private CollectorMonitorBindDao collectorMonitorBindDao;
+    private CollectorMonitorBindMapper collectorMonitorBindMapper;
 
     @Autowired
     private ConsistentHash consistentHash;
@@ -65,22 +64,21 @@ public class CollectorServiceImpl implements CollectorService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<CollectorSummary> getCollectors(String name, int pageIndex, Integer pageSize) {
+    public IPage<CollectorSummary> getCollectors(String name, int pageIndex, Integer pageSize) {
         if (pageSize == null) {
             pageSize = Integer.MAX_VALUE;
         }
-        Specification<Collector> specification = (root, query, criteriaBuilder) -> {
-            Predicate predicate = criteriaBuilder.conjunction();
-            if (StringUtils.isNotBlank(name)) {
-                Predicate predicateName = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + name.toLowerCase() + "%");
-                predicate = criteriaBuilder.and(predicateName);
-            }
-            return predicate;
-        };
-        PageRequest pageRequest = PageRequest.of(pageIndex, pageSize);
-        Page<Collector> collectors = collectorDao.findAll(specification, pageRequest);
+
+        LambdaQueryWrapper<Collector> queryWrapper = new LambdaQueryWrapper<>();
+        if (StringUtils.isNotBlank(name)) {
+            queryWrapper.likeRight(Collector::getName, name.toLowerCase());
+        }
+
+        Page<Collector> page = new Page<>(pageIndex, pageSize);
+        IPage<Collector> collectors = collectorMapper.selectPage(page, queryWrapper);
+
         List<CollectorSummary> collectorSummaryList = new LinkedList<>();
-        for (Collector collector : collectors.getContent()) {
+        for (Collector collector : collectors.getRecords()) {
             CollectorSummary.CollectorSummaryBuilder summaryBuilder = CollectorSummary.builder().collector(collector);
             ConsistentHash.Node node = consistentHash.getNode(collector.getName());
             if (node != null && node.getAssignJobs() != null) {
@@ -90,7 +88,10 @@ public class CollectorServiceImpl implements CollectorService {
             }
             collectorSummaryList.add(summaryBuilder.build());
         }
-        return new PageImpl<>(collectorSummaryList, pageRequest, collectors.getTotalElements());
+
+        Page<CollectorSummary> resultPage = new Page<>(pageIndex, pageSize, collectors.getTotal());
+        resultPage.setRecords(collectorSummaryList);
+        return resultPage;
     }
 
     @Override
@@ -101,20 +102,21 @@ public class CollectorServiceImpl implements CollectorService {
         }
         // Determine whether there are fixed tasks on the collector
         collectors.forEach(collector -> {
-            List<CollectorMonitorBind> binds = this.collectorMonitorBindDao.findCollectorMonitorBindsByCollector(collector);
+            List<CollectorMonitorBind> binds = this.collectorMonitorBindMapper.selectList(
+                    new QueryWrapper<CollectorMonitorBind>().eq("collector", collector));
             if (CollectionUtils.isNotEmpty(binds)) {
                 throw new CommonException("The collector " + collector + " has pinned tasks that cannot be deleted.");
             }
         });
         collectors.forEach(collector -> {
             this.manageServer.closeChannel(collector);
-            this.collectorDao.deleteCollectorByName(collector);
+            this.collectorMapper.delete(new QueryWrapper<Collector>().eq("name", collector));
         });
     }
 
     @Override
     public boolean hasCollector(String collector) {
-        return this.collectorDao.findCollectorByName(collector).isPresent();
+        return this.collectorMapper.selectOne(new QueryWrapper<Collector>().eq("name", collector)) != null;
     }
 
     @Override

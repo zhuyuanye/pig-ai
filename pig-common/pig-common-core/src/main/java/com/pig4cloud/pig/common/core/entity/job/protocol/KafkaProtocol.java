@@ -55,4 +55,14 @@ public class KafkaProtocol implements CommonRequestProtocol, Protocol {
      * Monitor internal topic
      */
     private String monitorInternalTopic = "false";
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

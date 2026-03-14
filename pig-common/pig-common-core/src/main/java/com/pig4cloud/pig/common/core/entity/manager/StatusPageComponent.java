@@ -17,80 +17,160 @@
 
 package com.pig4cloud.pig.common.core.entity.manager;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.pig4cloud.pig.common.core.entity.alerter.JsonMapAttributeConverter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Map;
 
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
 
 /**
- * status page component entity
+ * 状态页组件实体类
+ * <p>
+ * 用于表示状态页中的组件信息，组件是状态页的基本单元
+ * <p>
+ * 主要功能：
+ * <ul>
+ *   <li>定义状态页的组件信息</li>
+ *   <li>维护组件的状态和监控方式</li>
+ *   <li>支持组件标签和描述信息</li>
+ * </ul>
+ *
+ * @author HertzBeat
+ * @since 1.0.0
  */
-@Entity
-@Table(name = "hzb_status_page_component")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "status page component entity")
-@EntityListeners(AuditingEntityListener.class)
-public class StatusPageComponent {
+@TableName("hzb_status_page_component")
+@Schema(description = "状态页组件实体")
+public class StatusPageComponent implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "ID", example = "87584674384")
-    private Long id;
+	private static final long serialVersionUID = 1L;
 
-    @Schema(title = "org id", example = "1234")
-    private Long orgId;
+	/**
+	 * 主键ID
+	 * <p>
+	 * 使用数据库自增策略生成的唯一标识
+	 */
+	@TableId(value = "id", type = IdType.AUTO)
+	@Schema(title = "主键ID", example = "87584674384")
+	private Long id;
 
-    @Schema(title = "component name", example = "Gateway")
-    @NotBlank
-    private String name;
+	/**
+	 * 组织ID
+	 * <p>
+	 * 关联的状态页组织ID
+	 */
+	@Schema(title = "组织ID", example = "1234")
+	private Long orgId;
 
-    @Schema(title = "component desc", example = "TanCloud Gateway")
-    private String description;
+	/**
+	 * 组件名称
+	 * <p>
+	 * 组件的显示名称，如"Gateway"、"Database"等
+	 */
+	@Schema(title = "组件名称", example = "Gateway")
+	@NotBlank
+	private String name;
 
-    @Schema(title = "component label", example = "{env:test}", accessMode = READ_WRITE)
-    @Convert(converter = JsonMapAttributeConverter.class)
-    @Column(length = 4096)
-    private Map<String, String> labels;
+	/**
+	 * 组件描述
+	 * <p>
+	 * 对组件功能的详细说明
+	 */
+	@Schema(title = "组件描述", example = "网关服务")
+	private String description;
 
-    @Schema(title = "calculate status method: 0-auto 1-manual", example = "0")
-    private byte method;
+	/**
+	 * 组件标签
+	 * <p>
+	 * 用于过滤和分类组件的标签信息，以JSON格式存储
+	 */
+	@TableField(typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler")
+	@Schema(title = "组件标签", example = "{env:test}", accessMode = READ_WRITE)
+	private Map<String, String> labels;
 
-    @Schema(title = "config state when use manual method: 0-Normal 1-Abnormal 2-unknown", example = "0")
-    private byte configState;
+	/**
+	 * 状态计算方式
+	 * <p>
+	 * 可选值：
+	 * <ul>
+	 *   <li>0 - 自动计算，根据关联监控任务的状态自动计算</li>
+	 *   <li>1 - 手动配置，由用户手动配置状态</li>
+	 * </ul>
+	 */
+	@Schema(title = "状态计算方式: 0-自动 1-手动", example = "0")
+	private Byte method;
 
-    @Schema(title = "component current state: 0-Normal 1-Abnormal 2-unknown", example = "0")
-    private byte state;
+	/**
+	 * 配置状态
+	 * <p>
+	 * 当使用手动方式时，配置的状态值
+	 * <ul>
+	 *   <li>0 - 正常</li>
+	 *   <li>1 - 异常</li>
+	 *   <li>2 - 未知</li>
+	 * </ul>
+	 */
+	@Schema(title = "配置状态: 0-正常 1-异常 2-未知", example = "0")
+	private Byte configState;
 
-    @Schema(title = "The creator of this record", example = "tom")
-    @CreatedBy
-    private String creator;
+	/**
+	 * 组件当前状态
+	 * <p>
+	 * 组件的实际运行状态
+	 * <ul>
+	 *   <li>0 - 正常</li>
+	 *   <li>1 - 异常</li>
+	 *   <li>2 - 未知</li>
+	 * </ul>
+	 */
+	@Schema(title = "组件当前状态: 0-正常 1-异常 2-未知", example = "0")
+	private Byte state;
 
-    @Schema(title = "The modifier of this record", example = "tom")
-    @LastModifiedBy
-    private String modifier;
+	/**
+	 * 创建者
+	 * <p>
+	 * 记录创建该组件的用户名
+	 */
+	@TableField(fill = FieldFill.INSERT)
+	@Schema(title = "创建者", example = "tom")
+	private String creator;
 
-    @Schema(title = "Record create time", example = "1612198922000")
-    @CreatedDate
-    private LocalDateTime gmtCreate;
+	/**
+	 * 修改者
+	 * <p>
+	 * 记录最后修改该组件的用户名
+	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	@Schema(title = "修改者", example = "tom")
+	private String modifier;
 
-    @Schema(title = "Record modify time", example = "1612198444000")
-    @LastModifiedDate
-    private LocalDateTime gmtUpdate;
+	/**
+	 * 创建时间
+	 * <p>
+	 * 组件创建的时间戳
+	 */
+	@TableField(fill = FieldFill.INSERT)
+	@Schema(title = "创建时间", example = "1612198922000")
+	private LocalDateTime gmtCreate;
+
+	/**
+	 * 修改时间
+	 * <p>
+	 * 组件最后修改的时间戳
+	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	@Schema(title = "修改时间", example = "1612198444000")
+	private LocalDateTime gmtUpdate;
+
 }

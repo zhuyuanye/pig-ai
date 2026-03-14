@@ -37,4 +37,14 @@ public class PushProtocol implements CommonRequestProtocol, Protocol {
     private String port;
     private String uri = "/api/push";
     private List<Field> fields;
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

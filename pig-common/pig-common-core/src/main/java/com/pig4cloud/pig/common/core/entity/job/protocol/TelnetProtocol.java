@@ -51,4 +51,14 @@ public class TelnetProtocol implements CommonRequestProtocol, Protocol {
      */
     private String cmd;
 
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
+
 }

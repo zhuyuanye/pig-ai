@@ -17,15 +17,10 @@
 
 package com.pig4cloud.pig.common.core.config;
 
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * Kafka properties
  */
 
-@Getter
-@Setter
 public class BaseKafkaProperties {
 
     /**
@@ -42,5 +37,29 @@ public class BaseKafkaProperties {
      * Consumer Group ID
      */
     private String groupId;
+
+    public String getServers() {
+        return servers;
+    }
+
+    public void setServers(String servers) {
+        this.servers = servers;
+    }
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
 }

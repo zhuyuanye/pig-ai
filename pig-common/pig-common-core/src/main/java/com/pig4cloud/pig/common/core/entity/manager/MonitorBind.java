@@ -17,63 +17,109 @@
 
 package com.pig4cloud.pig.common.core.entity.manager;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * Monitor Bind
+ * 监控绑定实体类
+ * <p>
+ * 用于表示监控任务与业务对象的绑定关系
+ * <p>
+ * 主要功能：
+ * <ul>
+ *   <li>监控任务与业务对象的关联管理</li>
+ *   <li>支持监控任务的动态绑定和解绑</li>
+ *   <li>维护监控任务的绑定状态</li>
+ * </ul>
+ *
+ * @author HertzBeat
+ * @since 1.0.0
  */
-@Entity
-@Table(name = "hzb_monitor_bind", indexes = {
-        @Index(name = "index_monitor_bind", columnList = "bizId"),
-        @Index(name = "index_monitor_bin", columnList = "monitor_id")
-})
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "relation between monitor")
-@EntityListeners(AuditingEntityListener.class)
-public class MonitorBind {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "primary id", example = "23")
-    private Long id;
+@TableName("hzb_monitor_bind")
+@Schema(description = "监控任务绑定关系")
+public class MonitorBind implements Serializable {
 
-    @Schema(title = "key string: ip:port")
-    private String keyStr;
+	private static final long serialVersionUID = 1L;
 
-    @Schema(title = "connect bind id", example = "87432674384")
-    private Long bizId;
+	/**
+	 * 主键ID
+	 * <p>
+	 * 使用数据库自增策略生成的唯一标识
+	 */
+	@TableId(value = "id", type = IdType.AUTO)
+	@Schema(title = "主键ID", example = "23")
+	private Long id;
 
-    @Schema(title = "monitor ID", example = "87432674336")
-    @Column(name = "monitor_id")
-    private Long monitorId;
+	/**
+	 * 键字符串
+	 * <p>
+	 * 用于标识绑定关系的键值，通常格式为 "ip:port"
+	 */
+	@Schema(title = "键字符串", example = "192.168.1.1:8080")
+	private String keyStr;
 
-    @Schema(title = "The creator of this record", example = "tom")
-    @CreatedBy
-    private String creator;
+	/**
+	 * 业务绑定ID
+	 * <p>
+	 * 关联的业务对象ID，可以是采集器ID、告警规则ID等
+	 */
+	@Schema(title = "业务绑定ID", example = "87432674384")
+	private Long bizId;
 
-    @Schema(title = "This record was last modified by")
-    @LastModifiedBy
-    private String modifier;
+	/**
+	 * 监控任务ID
+	 * <p>
+	 * 关联的监控任务ID
+	 */
+	@Schema(title = "监控任务ID", example = "87432674336")
+	@TableField("monitor_id")
+	private Long monitorId;
 
-    @Schema(title = "This record creation time (millisecond timestamp)")
-    @CreatedDate
-    private LocalDateTime gmtCreate;
+	/**
+	 * 创建者
+	 * <p>
+	 * 记录创建该绑定关系的用户名
+	 */
+	@TableField(fill = FieldFill.INSERT)
+	@Schema(title = "创建者", example = "tom")
+	private String creator;
 
-    @Schema(title = "Record the latest modification time (timestamp in milliseconds)")
-    @LastModifiedDate
-    private LocalDateTime gmtUpdate;
+	/**
+	 * 修改者
+	 * <p>
+	 * 记录最后修改该绑定关系的用户名
+	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	@Schema(title = "修改者")
+	private String modifier;
+
+	/**
+	 * 创建时间
+	 * <p>
+	 * 绑定关系创建的时间戳（毫秒）
+	 */
+	@TableField(fill = FieldFill.INSERT)
+	@Schema(title = "创建时间（毫秒时间戳）")
+	private LocalDateTime gmtCreate;
+
+	/**
+	 * 修改时间
+	 * <p>
+	 * 绑定关系最后修改的时间戳（毫秒）
+	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	@Schema(title = "最后修改时间（毫秒时间戳）")
+	private LocalDateTime gmtUpdate;
+
 }

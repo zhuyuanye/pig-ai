@@ -18,7 +18,7 @@
 package com.pig4cloud.pig.monitor.service;
 
 import com.pig4cloud.pig.common.core.entity.manager.Label;
-import org.springframework.data.domain.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +50,7 @@ public interface LabelService {
      * @param pageSize      Number of list pagination
      * @return label
      */
-    Page<Label> getLabels(String search, Byte type, int pageIndex, int pageSize);
+    IPage<Label> getLabels(String search, Byte type, int pageIndex, int pageSize);
 
     /**
      * delete labels

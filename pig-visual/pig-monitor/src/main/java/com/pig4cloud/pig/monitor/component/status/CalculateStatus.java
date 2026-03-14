@@ -18,7 +18,7 @@
 package com.pig4cloud.pig.monitor.component.status;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import jakarta.persistence.criteria.Predicate;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import com.pig4cloud.pig.common.core.constants.CommonConstants;
 import com.pig4cloud.pig.common.core.entity.manager.Monitor;
@@ -26,11 +26,10 @@ import com.pig4cloud.pig.common.core.entity.manager.StatusPageComponent;
 import com.pig4cloud.pig.common.core.entity.manager.StatusPageHistory;
 import com.pig4cloud.pig.common.core.entity.manager.StatusPageOrg;
 import com.pig4cloud.pig.monitor.config.StatusProperties;
-import com.pig4cloud.pig.monitor.dao.MonitorDao;
-import com.pig4cloud.pig.monitor.dao.StatusPageComponentDao;
-import com.pig4cloud.pig.monitor.dao.StatusPageHistoryDao;
-import com.pig4cloud.pig.monitor.dao.StatusPageOrgDao;
-import org.springframework.data.jpa.domain.Specification;
+import com.pig4cloud.pig.monitor.mapper.MonitorMapper;
+import com.pig4cloud.pig.monitor.mapper.StatusPageComponentMapper;
+import com.pig4cloud.pig.monitor.mapper.StatusPageHistoryMapper;
+import com.pig4cloud.pig.monitor.mapper.StatusPageOrgMapper;
 import org.springframework.stereotype.Component;
 
 import java.time.*;
@@ -49,23 +48,23 @@ public class CalculateStatus {
 
     private static final int DEFAULT_CALCULATE_INTERVAL_TIME = 300;
 
-    private final StatusPageOrgDao statusPageOrgDao;
+    private final StatusPageOrgMapper statusPageOrgMapper;
 
-    private final StatusPageComponentDao statusPageComponentDao;
+    private final StatusPageComponentMapper statusPageComponentMapper;
 
-    private final StatusPageHistoryDao statusPageHistoryDao;
+    private final StatusPageHistoryMapper statusPageHistoryMapper;
 
-    private final MonitorDao monitorDao;
+    private final MonitorMapper monitorMapper;
 
     private final int intervals;
 
-    public CalculateStatus(StatusPageOrgDao statusPageOrgDao, StatusPageComponentDao statusPageComponentDao,
-                           StatusProperties statusProperties, StatusPageHistoryDao statusPageHistoryDao,
-                           MonitorDao monitorDao) {
-        this.statusPageOrgDao = statusPageOrgDao;
-        this.monitorDao = monitorDao;
-        this.statusPageComponentDao = statusPageComponentDao;
-        this.statusPageHistoryDao = statusPageHistoryDao;
+    public CalculateStatus(StatusPageOrgMapper statusPageOrgMapper, StatusPageComponentMapper statusPageComponentMapper,
+                           StatusProperties statusProperties, StatusPageHistoryMapper statusPageHistoryMapper,
+                           MonitorMapper monitorMapper) {
+        this.statusPageOrgMapper = statusPageOrgMapper;
+        this.monitorMapper = monitorMapper;
+        this.statusPageComponentMapper = statusPageComponentMapper;
+        this.statusPageHistoryMapper = statusPageHistoryMapper;
         intervals = statusProperties.getCalculate() == null ? DEFAULT_CALCULATE_INTERVAL_TIME : statusProperties.getCalculate().getInterval();
         startCalculate();
         startCombineHistory();
@@ -85,10 +84,10 @@ public class CalculateStatus {
             log.info("start to calculate status page state");
             try {
                 // calculate component state from tag bind monitors status
-                List<StatusPageOrg> statusPageOrgList = statusPageOrgDao.findAll();
+                List<StatusPageOrg> statusPageOrgList = statusPageOrgMapper.selectList(null);
                 for (StatusPageOrg statusPageOrg : statusPageOrgList) {
                     long orgId = statusPageOrg.getId();
-                    List<StatusPageComponent> pageComponentList = statusPageComponentDao.findByOrgId(orgId);
+                    List<StatusPageComponent> pageComponentList = statusPageComponentMapper.findByOrgId(orgId);
                     Set<Byte> stateSet = new HashSet<>(8);
                     for (StatusPageComponent component : pageComponentList) {
                         byte state;
@@ -99,18 +98,13 @@ public class CalculateStatus {
                             if (labels == null || labels.isEmpty()) {
                                 continue;
                             }
-                            Specification<Monitor> specification = (root, query, criteriaBuilder) -> {
-                                List<Predicate> predicates = new ArrayList<>();
-                                // create every label condition
-                                labels.forEach((key, value) -> {
-                                    String pattern = String.format("%%\"%s\":\"%s\"%%", key, value);
-                                    predicates.add(criteriaBuilder.like(root.get("labels"), pattern));
-                                });
-
-                                // use or connect them
-                                return criteriaBuilder.or(predicates.toArray(new Predicate[0]));
-                            };
-                            List<Monitor> monitorList = monitorDao.findAll(specification);
+                            LambdaQueryWrapper<Monitor> queryWrapper = new LambdaQueryWrapper<>();
+                            // create every label condition
+                            labels.forEach((key, value) -> {
+                                String pattern = String.format("%%\"%s\":\"%s\"%%", key, value);
+                                queryWrapper.or().like(Monitor::getLabels, pattern);
+                            });
+                            List<Monitor> monitorList = monitorMapper.selectList(queryWrapper);
                             state = CommonConstants.STATUS_PAGE_COMPONENT_STATE_UNKNOWN;
                             for (Monitor monitor : monitorList) {
                                 if (monitor.getStatus() == CommonConstants.MONITOR_DOWN_CODE) {
@@ -123,14 +117,14 @@ public class CalculateStatus {
                         }
                         stateSet.add(state);
                         component.setState(state);
-                        statusPageComponentDao.save(component);
+                        statusPageComponentMapper.updateById(component);
                         // insert component state history
                         StatusPageHistory statusPageHistory = StatusPageHistory.builder()
                                 .componentId(component.getId())
                                 .state(state)
                                 .timestamp(System.currentTimeMillis())
                                 .build();
-                        statusPageHistoryDao.save(statusPageHistory);
+                        statusPageHistoryMapper.insert(statusPageHistory);
                     }
                     stateSet.remove(CommonConstants.STATUS_PAGE_COMPONENT_STATE_UNKNOWN);
                     if (stateSet.remove(CommonConstants.STATUS_PAGE_COMPONENT_STATE_ABNORMAL)) {
@@ -143,7 +137,7 @@ public class CalculateStatus {
                         statusPageOrg.setState(CommonConstants.STATUS_PAGE_ORG_STATE_ALL_NORMAL);
                     }
                     statusPageOrg.setGmtUpdate(LocalDateTime.now());
-                    statusPageOrgDao.save(statusPageOrg);
+                    statusPageOrgMapper.updateById(statusPageOrg);
                 }
             } catch (Exception e) {
                 log.error("status page calculate component state error: {}", e.getMessage(), e);
@@ -177,7 +171,7 @@ public class CalculateStatus {
                 LocalDateTime preNight = midnight.minusDays(1);
                 long midnightTimestamp = midnight.toInstant(zoneOffset).toEpochMilli();
                 long preNightTimestamp = preNight.toInstant(zoneOffset).toEpochMilli();
-                List<StatusPageHistory> statusPageHistoryList = statusPageHistoryDao
+                List<StatusPageHistory> statusPageHistoryList = statusPageHistoryMapper
                         .findStatusPageHistoriesByTimestampBetween(preNightTimestamp, midnightTimestamp);
                 Map<Long, StatusPageHistory> statusPageHistoryMap = new HashMap<>(8);
                 for (StatusPageHistory statusPageHistory : statusPageHistoryList) {
@@ -205,7 +199,9 @@ public class CalculateStatus {
                         statusPageHistoryMap.put(statusPageHistory.getComponentId(), statusPageHistory);
                     }
                 }
-                statusPageHistoryDao.deleteAll(statusPageHistoryList);
+                for (StatusPageHistory history : statusPageHistoryList) {
+                    statusPageHistoryMapper.deleteById(history.getId());
+                }
                 for (StatusPageHistory history : statusPageHistoryMap.values()) {
                     double total = history.getNormal() + history.getAbnormal() + history.getUnknowing();
                     double uptime = 0;
@@ -220,7 +216,7 @@ public class CalculateStatus {
                     } else {
                         history.setState(CommonConstants.STATUS_PAGE_COMPONENT_STATE_UNKNOWN);
                     }
-                    statusPageHistoryDao.save(history);
+                    statusPageHistoryMapper.updateById(history);
                 }
             } catch (Exception e) {
                 log.error("status page combine history error: {}", e.getMessage(), e);

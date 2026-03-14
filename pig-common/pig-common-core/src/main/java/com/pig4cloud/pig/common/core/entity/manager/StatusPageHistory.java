@@ -17,71 +17,145 @@
 
 package com.pig4cloud.pig.common.core.entity.manager;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * status page history entity
+ * 状态页历史实体类
+ * <p>
+ * 用于记录状态页组件的历史状态信息，用于计算可用性和生成统计报表
+ * <p>
+ * 主要功能：
+ * <ul>
+ *   <li>记录组件的历史状态变化</li>
+ *   <li>统计各状态的持续时间</li>
+ *   <li>计算组件的可用性指标</li>
+ * </ul>
+ *
+ * @author HertzBeat
+ * @since 1.0.0
  */
-@Entity
-@Table(name = "hzb_status_page_history")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "status page component history entity")
-@EntityListeners(AuditingEntityListener.class)
-public class StatusPageHistory {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "ID", example = "87584674384")
-    private Long id;
+@TableName("hzb_status_page_history")
+@Schema(description = "状态页组件历史实体")
+public class StatusPageHistory implements Serializable {
 
-    @Schema(title = "component id", example = "1234")
-    private Long componentId;
+	private static final long serialVersionUID = 1L;
 
-    @Schema(title = "component state: 0-Normal 1-Abnormal 2-unknown", example = "0")
-    private byte state;
+	/**
+	 * 主键ID
+	 * <p>
+	 * 使用数据库自增策略生成的唯一标识
+	 */
+	@TableId(value = "id", type = IdType.AUTO)
+	@Schema(title = "主键ID", example = "87584674384")
+	private Long id;
 
-    @Schema(title = "state calculate timestamp", example = "4248574985744")
-    private Long timestamp;
+	/**
+	 * 组件ID
+	 * <p>
+	 * 关联的状态页组件ID
+	 */
+	@Schema(title = "组件ID", example = "1234")
+	private Long componentId;
 
-    @Schema(title = "state uptime percentage", example = "99.99")
-    private Double uptime;
+	/**
+	 * 组件状态
+	 * <p>
+	 * 历史记录的状态值
+	 * <ul>
+	 *   <li>0 - 正常</li>
+	 *   <li>1 - 异常</li>
+	 *   <li>2 - 未知</li>
+	 * </ul>
+	 */
+	@Schema(title = "组件状态: 0-正常 1-异常 2-未知", example = "0")
+	private Byte state;
 
-    @Schema(title = "state abnormal time(s)", example = "1000")
-    private Integer abnormal;
+	/**
+	 * 状态计算时间戳
+	 * <p>
+	 * 计算状态的时间点（毫秒时间戳）
+	 */
+	@Schema(title = "状态计算时间戳", example = "4248574985744")
+	private Long timestamp;
 
-    @Schema(title = "state unknown time(s)", example = "1000")
-    private Integer unknowing;
+	/**
+	 * 可用性百分比
+	 * <p>
+	 * 组件的可用性百分比，范围0-100
+	 */
+	@Schema(title = "可用性百分比", example = "99.99")
+	private Double uptime;
 
-    @Schema(title = "state normal tim(s)", example = "1000")
-    private Integer normal;
+	/**
+	 * 异常时间
+	 * <p>
+	 * 组件处于异常状态的累计时间（秒）
+	 */
+	@Schema(title = "异常时间(秒)", example = "1000")
+	private Integer abnormal;
 
-    @Schema(title = "The creator of this record", example = "tom")
-    @CreatedBy
-    private String creator;
+	/**
+	 * 未知时间
+	 * <p>
+	 * 组件处于未知状态的累计时间（秒）
+	 */
+	@Schema(title = "未知时间(秒)", example = "1000")
+	private Integer unknowing;
 
-    @Schema(title = "The modifier of this record", example = "tom")
-    @LastModifiedBy
-    private String modifier;
+	/**
+	 * 正常时间
+	 * <p>
+	 * 组件处于正常状态的累计时间（秒）
+	 */
+	@Schema(title = "正常时间(秒)", example = "1000")
+	private Integer normal;
 
-    @Schema(title = "Record create time", example = "1612198922000")
-    @CreatedDate
-    private LocalDateTime gmtCreate;
+	/**
+	 * 创建者
+	 * <p>
+	 * 记录创建该历史记录的用户名
+	 */
+	@TableField(fill = FieldFill.INSERT)
+	@Schema(title = "创建者", example = "tom")
+	private String creator;
 
-    @Schema(title = "Record modify time", example = "1612198444000")
-    @LastModifiedDate
-    private LocalDateTime gmtUpdate;
+	/**
+	 * 修改者
+	 * <p>
+	 * 记录最后修改该历史记录的用户名
+	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	@Schema(title = "修改者", example = "tom")
+	private String modifier;
+
+	/**
+	 * 创建时间
+	 * <p>
+	 * 历史记录创建的时间戳
+	 */
+	@TableField(fill = FieldFill.INSERT)
+	@Schema(title = "创建时间", example = "1612198922000")
+	private LocalDateTime gmtCreate;
+
+	/**
+	 * 修改时间
+	 * <p>
+	 * 历史记录最后修改的时间戳
+	 */
+	@TableField(fill = FieldFill.INSERT_UPDATE)
+	@Schema(title = "修改时间", example = "1612198444000")
+	private LocalDateTime gmtUpdate;
+
 }

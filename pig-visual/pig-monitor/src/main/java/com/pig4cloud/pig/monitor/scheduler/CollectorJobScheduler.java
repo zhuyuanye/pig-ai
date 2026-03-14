@@ -32,10 +32,10 @@ import com.pig4cloud.pig.common.core.entity.message.ClusterMsg;
 import com.pig4cloud.pig.common.core.entity.message.CollectRep;
 import com.pig4cloud.pig.common.core.util.JsonUtil;
 import com.pig4cloud.pig.common.core.util.SnowFlakeIdGenerator;
-import com.pig4cloud.pig.monitor.dao.CollectorDao;
-import com.pig4cloud.pig.monitor.dao.CollectorMonitorBindDao;
-import com.pig4cloud.pig.monitor.dao.MonitorDao;
-import com.pig4cloud.pig.monitor.dao.ParamDao;
+import com.pig4cloud.pig.monitor.mapper.CollectorMapper;
+import com.pig4cloud.pig.monitor.mapper.CollectorMonitorBindMapper;
+import com.pig4cloud.pig.monitor.mapper.MonitorMapper;
+import com.pig4cloud.pig.monitor.mapper.ParamMapper;
 import com.pig4cloud.pig.monitor.scheduler.netty.ManageServer;
 import com.pig4cloud.pig.monitor.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,10 +61,10 @@ public class CollectorJobScheduler implements CollectorScheduling, CollectJobSch
     private final Map<Long, CollectResponseEventListener> eventListeners = new ConcurrentHashMap<>(16);
 
     @Autowired
-    private CollectorDao collectorDao;
+    private CollectorMapper collectorMapper;
 
     @Autowired
-    private CollectorMonitorBindDao collectorMonitorBindDao;
+    private CollectorMonitorBindMapper collectorMonitorBindMapper;
 
     @Autowired
     private ConsistentHash consistentHash;
@@ -76,10 +76,10 @@ public class CollectorJobScheduler implements CollectorScheduling, CollectJobSch
     private AppService appService;
 
     @Autowired
-    private MonitorDao monitorDao;
+    private MonitorMapper monitorMapper;
 
     @Autowired
-    private ParamDao paramDao;
+    private ParamMapper paramMapper;
 
     private ManageServer manageServer;
 
@@ -89,7 +89,7 @@ public class CollectorJobScheduler implements CollectorScheduling, CollectJobSch
             log.error("identity can not be null if collector not existed");
             return;
         }
-        Collector collector = collectorDao.findCollectorByName(identity).orElse(null);
+        Collector collector = collectorMapper.findCollectorByName(identity);
         if (Objects.nonNull(collector)) {
             if (collector.getStatus() == CommonConstants.COLLECTOR_STATUS_ONLINE) {
                 return;
@@ -113,17 +113,17 @@ public class CollectorJobScheduler implements CollectorScheduling, CollectJobSch
                     .status(CommonConstants.COLLECTOR_STATUS_ONLINE)
                     .build();
         }
-        collectorDao.save(collector);
+        collectorMapper.updateById(collector);
         ConsistentHash.Node node = new ConsistentHash.Node(identity, collector.getMode(),
                 collector.getIp(), System.currentTimeMillis(), null);
         consistentHash.addNode(node);
         reBalanceCollectorAssignJobs();
         // Read database The fixed collection tasks at this collector are delivered
-        List<CollectorMonitorBind> binds = collectorMonitorBindDao.findCollectorMonitorBindsByCollector(identity);
+        List<CollectorMonitorBind> binds = collectorMonitorBindMapper.findCollectorMonitorBindsByCollector(identity);
         if (CollectionUtils.isEmpty(binds)){
             return;
         }
-        List<Monitor> monitors = monitorDao.findMonitorsByIdIn(binds.stream().map(CollectorMonitorBind::getMonitorId).collect(Collectors.toSet()));
+        List<Monitor> monitors = monitorMapper.findMonitorsByIdIn(binds.stream().map(CollectorMonitorBind::getMonitorId).collect(Collectors.toSet()));
         for (Monitor monitor : monitors) {
             if (Objects.isNull(monitor) || monitor.getStatus() == CommonConstants.MONITOR_PAUSED_CODE) {
                 continue;
@@ -138,7 +138,7 @@ public class CollectorJobScheduler implements CollectorScheduling, CollectJobSch
                 appDefine.setDefaultInterval(monitor.getIntervals());
                 appDefine.setCyclic(true);
                 appDefine.setTimestamp(System.currentTimeMillis());
-                List<Param> params = paramDao.findParamsByMonitorId(monitor.getId());
+                List<Param> params = paramMapper.findParamsByMonitorId(monitor.getId());
                 List<Configmap> configmaps = params.stream()
                         .map(param -> Configmap.builder()
                                         .key(param.getField())
@@ -159,7 +159,7 @@ public class CollectorJobScheduler implements CollectorScheduling, CollectJobSch
                 appDefine.setConfigmap(configmaps);
                 long jobId = addAsyncCollectJob(appDefine, identity);
                 monitor.setJobId(jobId);
-                monitorDao.save(monitor);
+                monitorMapper.updateById(monitor);
             } catch (Exception e) {
                 log.error("insert pinned monitor job: {} in collector: {} error,continue next monitor", monitor, identity, e);
             }
@@ -168,13 +168,13 @@ public class CollectorJobScheduler implements CollectorScheduling, CollectJobSch
 
     @Override
     public void collectorGoOffline(String identity) {
-        Collector collector = collectorDao.findCollectorByName(identity).orElse(null);
+        Collector collector = collectorMapper.findCollectorByName(identity);
         if (Objects.isNull(collector)) {
             log.info("the collector : {} not found.", identity);
             return;
         }
         collector.setStatus(CommonConstants.COLLECTOR_STATUS_OFFLINE);
-        collectorDao.save(collector);
+        collectorMapper.updateById(collector);
         consistentHash.removeNode(identity);
         reBalanceCollectorAssignJobs();
         log.info("the collector: {} go offline success.", identity);
@@ -245,7 +245,7 @@ public class CollectorJobScheduler implements CollectorScheduling, CollectJobSch
 
     @Override
     public boolean onlineCollector(String identity) {
-        Collector collector = collectorDao.findCollectorByName(identity).orElse(null);
+        Collector collector = collectorMapper.findCollectorByName(identity);
         if (Objects.isNull(collector)) {
             return false;
         }

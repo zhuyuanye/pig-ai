@@ -22,7 +22,7 @@ import com.pig4cloud.pig.common.core.entity.manager.PluginMetadata;
 import com.pig4cloud.pig.common.core.entity.plugin.PluginContext;
 import com.pig4cloud.pig.monitor.pojo.dto.PluginParam;
 import com.pig4cloud.pig.monitor.pojo.dto.PluginParametersVO;
-import org.springframework.data.domain.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import java.util.List;
 import java.util.Set;
@@ -56,7 +56,7 @@ public interface PluginService {
      * @param pageSize      Number of list pagination
      * @return Plugins
      */
-    Page<PluginMetadata> getPlugins(String search, int pageIndex, int pageSize);
+    IPage<PluginMetadata> getPlugins(String search, int pageIndex, int pageSize);
 
     /**
      * execute plugin

@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConsulSdProtocol implements Protocol{
+public class ConsulSdProtocol implements CommonRequestProtocol, Protocol{
 
     private String host;
 
@@ -38,5 +38,15 @@ public class ConsulSdProtocol implements Protocol{
 
     public boolean isInvalid() {
         return StringUtils.isAnyBlank(host, port);
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
     }
 }

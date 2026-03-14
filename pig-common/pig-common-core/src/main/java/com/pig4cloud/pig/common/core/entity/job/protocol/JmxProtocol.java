@@ -65,4 +65,14 @@ public class JmxProtocol implements CommonRequestProtocol, Protocol {
      */
     private String objectName;
 
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
+
 }

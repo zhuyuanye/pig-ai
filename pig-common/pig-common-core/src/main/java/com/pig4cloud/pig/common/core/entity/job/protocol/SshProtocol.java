@@ -110,4 +110,14 @@ public class SshProtocol implements CommonRequestProtocol, Protocol {
      * Proxy private key (optional)
      */
     private String proxyPrivateKey;
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

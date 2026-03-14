@@ -1,18 +1,19 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mvn clean package:*)",
-      "Bash(mvn clean install:*)",
-      "Bash(mvn help:effective-pom:*)",
-      "Bash(find:*)",
-      "Bash(java:*)",
-      "Bash(mvn:*)",
       "Bash(dir:*)",
-      "mcp__zread__get_repo_structure",
-      "Bash(tree:*)",
-      "Bash(done:*)",
-      "mcp__zread__read_file",
-      "Bash(mkdir:*)"
+      "Bash(npx claude-plugins install:*)",
+      "Bash(npx claude-plugins list:*)",
+      "Bash(git fetch:*)",
+      "Bash(\"C:\\\\Program Files \\(x86\\)\\\\VMware\\\\VMware Workstation\\\\vmware.exe\")",
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(where mvn:*)",
+      "Bash(where:*)",
+      "Skill(glm-plan-usage:usage-query)",
+      "Skill(glm-plan-usage:usage-query-skill)",
+      "WebSearch",
+      "Bash(find:*)",
+      "Bash(git config:*)"
     ]
   }
 }

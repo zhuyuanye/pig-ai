@@ -17,19 +17,19 @@
 
 package com.pig4cloud.pig.monitor.service.impl;
 
-import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import com.pig4cloud.pig.common.core.entity.manager.Label;
-import com.pig4cloud.pig.monitor.dao.LabelDao;
+import com.pig4cloud.pig.monitor.mapper.LabelMapper;
 import com.pig4cloud.pig.monitor.service.LabelService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -43,69 +43,58 @@ import java.util.stream.Collectors;
 public class LabelServiceImpl implements LabelService {
 
     @Autowired
-    private LabelDao labelDao;
+    private LabelMapper labelMapper;
 
     @Override
     public void addLabel(Label label) {
         // Verify request data
-        Optional<Label> optional = labelDao.findLabelByNameAndTagValue(label.getName(), label.getTagValue());
-        if (optional.isPresent()) {
+        Label existing = labelMapper.selectOne(new QueryWrapper<Label>()
+                .eq("name", label.getName())
+                .eq("tag_value", label.getTagValue()));
+        if (existing != null) {
             throw new IllegalArgumentException("The label already exists.");
         }
         label.setType((byte) 1);
         label.setId(null);
-        labelDao.save(label);
+        labelMapper.insert(label);
     }
 
     @Override
     public void modifyLabel(Label label) {
-        Optional<Label> optional = labelDao.findById(label.getId());
-        if (optional.isPresent()) {
-
-            Optional<Label> existOptional = labelDao.findLabelByNameAndTagValue(label.getName(), label.getTagValue());
-            if (existOptional.isPresent() && !existOptional.get().getId().equals(label.getId())) {
+        Label existing = labelMapper.selectById(label.getId());
+        if (existing != null) {
+            Label existOptional = labelMapper.selectOne(new QueryWrapper<Label>()
+                    .eq("name", label.getName())
+                    .eq("tag_value", label.getTagValue()));
+            if (existOptional != null && !existOptional.getId().equals(label.getId())) {
                 throw new IllegalArgumentException("The label with same key and value already exists.");
             }
             label.setTagValue(StringUtils.isEmpty(label.getTagValue()) ? null : label.getTagValue());
-            labelDao.save(label);
+            labelMapper.updateById(label);
         } else {
             throw new IllegalArgumentException("The label is not existed");
         }
     }
 
     @Override
-    public Page<Label> getLabels(String search, Byte type, int pageIndex, int pageSize) {
-        Specification<Label> specification = (root, query, criteriaBuilder) -> {
-            List<Predicate> andList = new ArrayList<>();
-            if (type != null) {
-                Predicate predicateApp = criteriaBuilder.equal(root.get("type"), type);
-                andList.add(predicateApp);
-            }
-            Predicate[] andPredicates = new Predicate[andList.size()];
-            Predicate andPredicate = criteriaBuilder.and(andList.toArray(andPredicates));
+    public IPage<Label> getLabels(String search, Byte type, int pageIndex, int pageSize) {
+        LambdaQueryWrapper<Label> queryWrapper = new LambdaQueryWrapper<>();
 
-            List<Predicate> orList = new ArrayList<>();
-            if (StringUtils.isNotBlank(search)) {
-                Predicate predicateName = criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + search.toLowerCase() + "%");
-                orList.add(predicateName);
-                Predicate predicateValue = criteriaBuilder.like(criteriaBuilder.lower(root.get("tagValue")), "%" + search.toLowerCase() + "%");
-                orList.add(predicateValue);
-            }
-            Predicate[] orPredicates = new Predicate[orList.size()];
-            Predicate orPredicate = criteriaBuilder.or(orList.toArray(orPredicates));
+        // AND conditions
+        if (type != null) {
+            queryWrapper.eq(Label::getType, type);
+        }
 
-            if (andPredicates.length == 0 && orPredicates.length == 0) {
-                return query.where().getRestriction();
-            } else if (andPredicates.length == 0) {
-                return orPredicate;
-            } else if (orPredicates.length == 0) {
-                return andPredicate;
-            } else {
-                return query.where(andPredicate, orPredicate).getRestriction();
-            }
-        };
-        PageRequest pageRequest = PageRequest.of(pageIndex, pageSize);
-        return labelDao.findAll(specification, pageRequest);
+        // OR conditions for search
+        if (StringUtils.isNotBlank(search)) {
+            queryWrapper.and(wrapper -> wrapper
+                    .likeRight(Label::getName, search.toLowerCase())
+                    .or()
+                    .likeRight(Label::getTagValue, search.toLowerCase()));
+        }
+
+        Page<Label> page = new Page<>(pageIndex, pageSize);
+        return labelMapper.selectPage(page, queryWrapper);
     }
 
     @Override
@@ -113,7 +102,7 @@ public class LabelServiceImpl implements LabelService {
         if (CollectionUtils.isEmpty(ids)){
             return;
         }
-        labelDao.deleteLabelsByIdIn(ids);
+        labelMapper.deleteBatchIds(ids);
     }
 
     public List<Label> determineNewLabels(Set<Map.Entry<String, String>> originLabels){
@@ -121,7 +110,7 @@ public class LabelServiceImpl implements LabelService {
         if (originLabels == null || originLabels.isEmpty()) return List.of();
 
         // Get all labels from the database
-        Set<Map.Entry<String, String>> allLabels = labelDao.findAll().stream()
+        Set<Map.Entry<String, String>> allLabels = labelMapper.selectList(null).stream()
                 .map(label -> Map.entry(label.getName(), label.getTagValue()))
                 .collect(Collectors.toSet());
 

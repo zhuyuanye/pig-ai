@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 pig4cloud Authors. All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pig4cloud.pig.monitor.mapper.ParamDefineMapper">
+
+	<!-- 结果映射 - 参数定义实体 -->
+	<resultMap id="BaseResultMap" type="com.pig4cloud.pig.common.core.entity.manager.ParamDefine">
+		<id column="id" property="id"/>
+		<result column="app" property="app"/>
+		<result column="name" property="name" typeHandler="com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler"/>
+		<result column="field" property="field"/>
+		<result column="type" property="type"/>
+		<result column="required" property="required"/>
+		<result column="default_value" property="defaultValue"/>
+		<result column="placeholder" property="placeholder"/>
+		<result column="param_range" property="range"/>
+		<result column="param_limit" property="limit"/>
+		<result column="param_options" property="options" typeHandler="com.pig4cloud.pig.common.mybatis.handler.JsonOptionListTypeHandler"/>
+		<result column="key_alias" property="keyAlias"/>
+		<result column="value_alias" property="valueAlias"/>
+		<result column="hide" property="hide"/>
+		<result column="creator" property="creator"/>
+		<result column="modifier" property="modifier"/>
+		<result column="gmt_create" property="gmtCreate"/>
+	<result column="gmt_update" property="gmtUpdate"/>
+		<result column="depend" property="depend" typeHandler="com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler"/>
+	</resultMap>
+
+	<!-- 基础查询字段列表 -->
+	<sql id="Base_Column_List">
+		id, app, name, field, type, required, default_value, placeholder, param_range, param_limit,
+		param_options, key_alias, value_alias, hide, creator, modifier, gmt_create, gmt_update, depend
+	</sql>
+
+	<!-- 根据监控类型查询参数定义列表 -->
+	<select id="findParamDefinesByApp" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM hzb_param_define
+		WHERE app = #{app}
+		ORDER BY gmt_create ASC
+	</select>
+
+</mapper>

@@ -17,23 +17,24 @@
 
 package com.pig4cloud.pig.monitor.service.impl;
 
-import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import com.pig4cloud.pig.common.core.entity.manager.Bulletin;
 import com.pig4cloud.pig.common.core.entity.manager.Monitor;
 import com.pig4cloud.pig.common.core.entity.message.CollectRep;
-import com.pig4cloud.pig.monitor.dao.BulletinDao;
+import com.pig4cloud.pig.monitor.mapper.BulletinMapper;
 import com.pig4cloud.pig.monitor.pojo.dto.BulletinMetricsData;
 import com.pig4cloud.pig.monitor.service.BulletinService;
 import com.pig4cloud.pig.monitor.service.MonitorService;
 import com.pig4cloud.pig.common.warehouse.store.realtime.RealTimeDataReader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 
 import java.util.*;
 
@@ -50,7 +51,7 @@ public class BulletinServiceImpl implements BulletinService {
     private static final String EMPTY_STRING = "";
 
     @Autowired
-    private BulletinDao bulletinDao;
+    private BulletinMapper bulletinMapper;
 
     @Autowired
     private MonitorService monitorService;
@@ -75,7 +76,8 @@ public class BulletinServiceImpl implements BulletinService {
         if (bulletin.getMonitorIds() == null || bulletin.getMonitorIds().isEmpty()) {
             throw new IllegalArgumentException("Bulletin monitorIds cannot be null or empty");
         }
-        if (bulletinDao.countByName(bulletin.getName()) > 0) {
+        Long count = bulletinMapper.selectCount(new QueryWrapper<Bulletin>().eq("name", bulletin.getName()));
+        if (count != null && count > 0) {
             throw new IllegalArgumentException("Bulletin name duplicated");
         }
     }
@@ -86,11 +88,11 @@ public class BulletinServiceImpl implements BulletinService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void editBulletin(Bulletin bulletin) {
-        Optional<Bulletin> optional = bulletinDao.findById(bulletin.getId());
-        if (optional.isEmpty()) {
+        Bulletin existing = bulletinMapper.selectById(bulletin.getId());
+        if (existing == null) {
             throw new IllegalArgumentException("Bulletin not found");
         }
-        bulletinDao.save(bulletin);
+        bulletinMapper.updateById(bulletin);
     }
 
     /**
@@ -99,7 +101,7 @@ public class BulletinServiceImpl implements BulletinService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void addBulletin(Bulletin bulletin) {
-        bulletinDao.save(bulletin);
+        bulletinMapper.insert(bulletin);
     }
 
     /**
@@ -107,11 +109,10 @@ public class BulletinServiceImpl implements BulletinService {
      */
     @Override
     public BulletinMetricsData buildBulletinMetricsData(Long id) {
-        Optional<Bulletin> optional = bulletinDao.findById(id);
-        if (optional.isEmpty()) {
+        Bulletin bulletin = bulletinMapper.selectById(id);
+        if (bulletin == null) {
             throw new IllegalArgumentException("Bulletin not found");
         }
-        Bulletin bulletin = optional.get();
         BulletinMetricsData.BulletinMetricsDataBuilder contentBuilder = BulletinMetricsData.builder()
                 .name(bulletin.getName());
         List<BulletinMetricsData.Data> dataList = new ArrayList<>();
@@ -172,31 +173,29 @@ public class BulletinServiceImpl implements BulletinService {
     }
 
     @Override
-    public Page<Bulletin> getBulletins(String search, Integer pageIndex, Integer pageSize) {
+    public IPage<Bulletin> getBulletins(String search, Integer pageIndex, Integer pageSize) {
         pageIndex = pageIndex == null ? 0 : pageIndex;
         pageSize = pageSize == null ? Integer.MAX_VALUE : pageSize;
-        Specification<Bulletin> specification = (root, query, criteriaBuilder) -> {
-            Predicate predicate = criteriaBuilder.conjunction();
-            if (StringUtils.isNotBlank(search)) {
-                Predicate predicateName = criteriaBuilder.like(root.get("name"), "%" + search + "%");
-                predicate = criteriaBuilder.and(predicateName);
-            }
-            return predicate;
-        };
-        PageRequest pageRequest = PageRequest.of(pageIndex, pageSize);
-        return bulletinDao.findAll(specification, pageRequest);
+
+        LambdaQueryWrapper<Bulletin> queryWrapper = new LambdaQueryWrapper<>();
+        if (StringUtils.isNotBlank(search)) {
+            queryWrapper.like(Bulletin::getName, search);
+        }
+
+        Page<Bulletin> page = new Page<>(pageIndex, pageSize);
+        return bulletinMapper.selectPage(page, queryWrapper);
     }
 
     @Override
     public void deleteBulletins(List<Long> ids) {
-        bulletinDao.deleteAllById(ids);
+        bulletinMapper.deleteBatchIds(ids);
     }
 
     /**
      * Get Bulletin by id
      */
     @Override
-    public Optional<Bulletin> getBulletinById(Long id) {
-        return bulletinDao.findById(id);
+    public Bulletin getBulletinById(Long id) {
+        return bulletinMapper.selectById(id);
     }
 }

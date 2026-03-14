@@ -17,12 +17,13 @@
 
 package com.pig4cloud.pig.common.core.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.arrow.memory.RootAllocator;
 import org.apache.arrow.vector.VectorSchemaRoot;
 import org.apache.arrow.vector.ipc.ArrowStreamReader;
 import org.apache.arrow.vector.ipc.ArrowStreamWriter;
 import com.pig4cloud.pig.common.core.entity.message.CollectRep;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.channels.Channels;
@@ -32,8 +33,9 @@ import java.util.List;
 /**
  * Arrow data serialization and deserialization utility class
  */
-@Slf4j
 public final class ArrowUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(ArrowUtil.class);
 
     private ArrowUtil() {
     }

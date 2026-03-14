@@ -17,8 +17,9 @@
 
 package com.pig4cloud.pig.common.core.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -33,8 +34,9 @@ import java.util.regex.Pattern;
 /**
  * common util
  */
-@Slf4j
 public final class CommonUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(CommonUtil.class);
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");
 

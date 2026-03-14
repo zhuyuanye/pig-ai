@@ -19,15 +19,17 @@ package com.pig4cloud.pig.common.core.util;
 
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
 /**
  * protobuf json convert util
  */
-@Slf4j
 public final class ProtoJsonUtil {
+
+    private static final Logger log = LoggerFactory.getLogger(ProtoJsonUtil.class);
 
     private static final JsonFormat.Printer PRINTER = JsonFormat.printer();
     private static final JsonFormat.Parser PARSER = JsonFormat.parser();

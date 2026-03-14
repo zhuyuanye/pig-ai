@@ -79,4 +79,14 @@ public class JdbcProtocol implements CommonRequestProtocol, Protocol {
      * ssh tunnel
      */
     private SshTunnel sshTunnel;
+
+    @Override
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    @Override
+    public void setPort(String port) {
+        this.port = port;
+    }
 }

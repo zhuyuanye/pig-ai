@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 pig4cloud Authors. All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pig4cloud.pig.monitor.mapper.PluginItemMapper">
+
+	<!-- 结果映射 - 插件项实体 -->
+	<resultMap id="BaseResultMap" type="com.pig4cloud.pig.common.core.entity.manager.PluginItem">
+		<id column="id" property="id"/>
+		<result column="metadata_id" property="metadataId"/>
+		<result column="class_identifier" property="classIdentifier"/>
+		<result column="type" property="type"/>
+	</resultMap>
+
+	<!-- 基础查询字段列表 -->
+	<sql id="Base_Column_List">
+		id, metadata_id, class_identifier, type
+	</sql>
+
+	<!-- 根据类标识符列表统计插件项数量 -->
+	<select id="countPluginItemByClassIdentifierIn" resultType="int">
+		SELECT COUNT(*)
+		FROM hzb_plugin_item
+		WHERE class_identifier IN
+		<foreach collection="classIdentifiers" item="identifier" open="(" separator="," close=")">
+			#{identifier}
+		</foreach>
+	</select>
+
+</mapper>

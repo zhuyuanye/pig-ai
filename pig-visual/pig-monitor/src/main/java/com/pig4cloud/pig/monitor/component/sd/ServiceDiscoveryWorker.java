@@ -27,10 +27,11 @@ import com.pig4cloud.pig.common.core.entity.manager.MonitorBind;
 import com.pig4cloud.pig.common.core.entity.manager.Param;
 import com.pig4cloud.pig.common.core.entity.message.CollectRep;
 import com.pig4cloud.pig.common.core.queue.CommonDataQueue;
-import com.pig4cloud.pig.monitor.dao.CollectorMonitorBindDao;
-import com.pig4cloud.pig.monitor.dao.MonitorBindDao;
-import com.pig4cloud.pig.monitor.dao.MonitorDao;
-import com.pig4cloud.pig.monitor.dao.ParamDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.monitor.mapper.CollectorMonitorBindMapper;
+import com.pig4cloud.pig.monitor.mapper.MonitorBindMapper;
+import com.pig4cloud.pig.monitor.mapper.MonitorMapper;
+import com.pig4cloud.pig.monitor.mapper.ParamMapper;
 import com.pig4cloud.pig.monitor.scheduler.ManagerWorkerPool;
 import com.pig4cloud.pig.monitor.service.MonitorService;
 import org.springframework.beans.factory.InitializingBean;
@@ -50,21 +51,21 @@ public class ServiceDiscoveryWorker implements InitializingBean {
     private static final String FILED_HOST = "host";
     private static final String FILED_PORT = "port";
     private final MonitorService monitorService;
-    private final ParamDao paramDao;
-    private final MonitorDao monitorDao;
-    private final MonitorBindDao monitorBindDao;
-    private final CollectorMonitorBindDao collectorMonitorBindDao;
+    private final ParamMapper paramMapper;
+    private final MonitorMapper monitorMapper;
+    private final MonitorBindMapper monitorBindMapper;
+    private final CollectorMonitorBindMapper collectorMonitorBindMapper;
     private final CommonDataQueue dataQueue;
     private final ManagerWorkerPool workerPool;
 
-    public ServiceDiscoveryWorker(MonitorService monitorService, ParamDao paramDao, MonitorDao monitorDao,
-                                  MonitorBindDao monitorBindDao, CollectorMonitorBindDao collectorMonitorBindDao,
+    public ServiceDiscoveryWorker(MonitorService monitorService, ParamMapper paramMapper, MonitorMapper monitorMapper,
+                                  MonitorBindMapper monitorBindMapper, CollectorMonitorBindMapper collectorMonitorBindMapper,
                                   CommonDataQueue dataQueue, ManagerWorkerPool workerPool) {
         this.monitorService = monitorService;
-        this.paramDao = paramDao;
-        this.monitorDao = monitorDao;
-        this.monitorBindDao = monitorBindDao;
-        this.collectorMonitorBindDao = collectorMonitorBindDao;
+        this.paramMapper = paramMapper;
+        this.monitorMapper = monitorMapper;
+        this.monitorBindMapper = monitorBindMapper;
+        this.collectorMonitorBindMapper = collectorMonitorBindMapper;
         this.dataQueue = dataQueue;
         this.workerPool = workerPool;
     }
@@ -80,17 +81,21 @@ public class ServiceDiscoveryWorker implements InitializingBean {
             while (!Thread.currentThread().isInterrupted()) {
                 try (final CollectRep.MetricsData metricsData = dataQueue.pollServiceDiscoveryData()) {
                     Long monitorId = metricsData.getId();
-                    final Monitor mainMonitor = monitorDao.findById(monitorId).orElse(null);
+                    final Monitor mainMonitor = monitorMapper.selectById(monitorId);
                     if (mainMonitor == null) {
                         log.warn("No monitor found for id {}", monitorId);
                         continue;
                     }
                     // collector
-                    final Optional<CollectorMonitorBind> collectorBind = collectorMonitorBindDao.findCollectorMonitorBindByMonitorId(monitorId);
-                    String collector = collectorBind.map(CollectorMonitorBind::getCollector).orElse(null);
+                    final CollectorMonitorBind collectorBind = collectorMonitorBindMapper.selectOne(
+                            new LambdaQueryWrapper<CollectorMonitorBind>()
+                                    .eq(CollectorMonitorBind::getMonitorId, monitorId)
+                                    .last("LIMIT 1")
+                    );
+                    String collector = collectorBind != null ? collectorBind.getCollector() : null;
                     // params
-                    List<Param> mainMonitorParams = paramDao.findParamsByMonitorId(monitorId);
-                    final Map<String, MonitorBind> subMonitorBindMap = monitorBindDao.findMonitorBindsByBizId(monitorId)
+                    List<Param> mainMonitorParams = paramMapper.findParamsByMonitorId(monitorId);
+                    final Map<String, MonitorBind> subMonitorBindMap = monitorBindMapper.findMonitorBindsByBizId(monitorId)
                             .stream().collect(Collectors.toMap(MonitorBind::getKeyStr, item -> item));
                     RowWrapper rowWrapper = metricsData.readRow();
                     Map<String, String> fieldsValue = Maps.newHashMapWithExpectedSize(8);
@@ -140,7 +145,7 @@ public class ServiceDiscoveryWorker implements InitializingBean {
                                 .monitorId(newMonitor.getId())
                                 .keyStr(keyStr)
                                 .build();
-                        monitorBindDao.save(monitorBind);
+                        monitorBindMapper.insert(monitorBind);
                     }
                     // hostMonitorMap only contains monitors which are already existed but not in service discovery data
                     // due to monitors that coincide with service discovery data are removed.
