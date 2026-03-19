@@ -190,6 +190,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 		</dependency>
+		<!-- MyBatis-Plus -->
+		<dependency>
+			<groupId>com.pig4cloud</groupId>
+			<artifactId>pig-common-mybatis</artifactId>
+		</dependency>
 		<!-- database migration -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>

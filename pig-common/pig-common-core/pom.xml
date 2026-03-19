@@ -98,6 +98,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- mybatis-plus annotation (实体类需要) -->
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-annotation</artifactId>
+		</dependency>
 		<!-- validation -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -108,6 +113,12 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-annotations</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<!-- lombok -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.dataformat</groupId>
