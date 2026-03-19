@@ -84,14 +84,15 @@ services:
 
   pig-monitor:
     build:
-      context: ./pig-visual/pig-monitor
+      context: ./pig-monitor
     restart: always
     ports:
-      - 5001:5001
+      - 1157:1157
     container_name: pig-monitor
     hostname: pig-monitor
     image: pig-monitor
     environment:
+      REDIS_HOST: pig-redis
       NACOS_HOST: pig-register
     networks:
       - spring_cloud_default
