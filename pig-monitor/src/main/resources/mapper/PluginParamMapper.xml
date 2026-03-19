@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 pig4cloud Authors. All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pig4cloud.pig.monitor.mapper.PluginParamMapper">
+
+	<!-- 结果映射 - 插件参数实体 -->
+	<resultMap id="BaseResultMap" type="com.pig4cloud.pig.monitor.pojo.dto.PluginParam">
+		<id column="id" property="id"/>
+		<result column="plugin_metadata_id" property="pluginMetadataId"/>
+		<result column="field" property="field"/>
+		<result column="param_value" property="paramValue"/>
+		<result column="type" property="type"/>
+		<result column="gmt_create" property="gmtCreate"/>
+		<result column="gmt_update" property="gmtUpdate"/>
+	</resultMap>
+
+	<!-- 基础查询字段列表 -->
+	<sql id="Base_Column_List">
+		id, plugin_metadata_id, field, param_value, type, gmt_create, gmt_update
+	</sql>
+
+	<!-- 根据插件元数据ID查询关联的参数列表 -->
+	<select id="findParamsByPluginMetadataId" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM hzb_plugin_param
+		WHERE plugin_metadata_id = #{pluginMetadataId}
+		ORDER BY id
+	</select>
+
+	<!-- 根据插件元数据ID删除关联的参数列表 -->
+	<delete id="deletePluginParamsByPluginMetadataId">
+		DELETE FROM hzb_plugin_param
+		WHERE plugin_metadata_id = #{pluginMetadataId}
+	</delete>
+
+	<!-- 根据插件元数据ID列表批量删除关联的参数 -->
+	<delete id="deletePluginParamsByPluginMetadataIdIn">
+		DELETE FROM hzb_plugin_param
+		WHERE plugin_metadata_id IN
+		<foreach collection="pluginMetadataIds" item="id" open="(" separator="," close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+</mapper>

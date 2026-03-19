@@ -1,0 +1,162 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.pig4cloud.pig.monitor.component.sd;
+
+import com.google.common.collect.Maps;
+import lombok.extern.slf4j.Slf4j;
+import com.pig4cloud.pig.common.core.constants.CommonConstants;
+import com.pig4cloud.pig.common.core.entity.arrow.RowWrapper;
+import com.pig4cloud.pig.common.core.entity.manager.CollectorMonitorBind;
+import com.pig4cloud.pig.common.core.entity.manager.Monitor;
+import com.pig4cloud.pig.common.core.entity.manager.MonitorBind;
+import com.pig4cloud.pig.common.core.entity.manager.Param;
+import com.pig4cloud.pig.common.core.entity.message.CollectRep;
+import com.pig4cloud.pig.common.core.queue.CommonDataQueue;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.monitor.mapper.CollectorMonitorBindMapper;
+import com.pig4cloud.pig.monitor.mapper.MonitorBindMapper;
+import com.pig4cloud.pig.monitor.mapper.MonitorMapper;
+import com.pig4cloud.pig.monitor.mapper.ParamMapper;
+import com.pig4cloud.pig.monitor.scheduler.ManagerWorkerPool;
+import com.pig4cloud.pig.monitor.service.MonitorService;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Service Discovery Worker
+ */
+@Slf4j
+@Component
+public class ServiceDiscoveryWorker implements InitializingBean {
+
+    private static final String FILED_HOST = "host";
+    private static final String FILED_PORT = "port";
+    private final MonitorService monitorService;
+    private final ParamMapper paramMapper;
+    private final MonitorMapper monitorMapper;
+    private final MonitorBindMapper monitorBindMapper;
+    private final CollectorMonitorBindMapper collectorMonitorBindMapper;
+    private final CommonDataQueue dataQueue;
+    private final ManagerWorkerPool workerPool;
+
+    public ServiceDiscoveryWorker(MonitorService monitorService, ParamMapper paramMapper, MonitorMapper monitorMapper,
+                                  MonitorBindMapper monitorBindMapper, CollectorMonitorBindMapper collectorMonitorBindMapper,
+                                  CommonDataQueue dataQueue, ManagerWorkerPool workerPool) {
+        this.monitorService = monitorService;
+        this.paramMapper = paramMapper;
+        this.monitorMapper = monitorMapper;
+        this.monitorBindMapper = monitorBindMapper;
+        this.collectorMonitorBindMapper = collectorMonitorBindMapper;
+        this.dataQueue = dataQueue;
+        this.workerPool = workerPool;
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        workerPool.executeJob(new SdUpdateTask());
+    }
+
+    private class SdUpdateTask implements Runnable {
+        @Override
+        public void run() {
+            while (!Thread.currentThread().isInterrupted()) {
+                try (final CollectRep.MetricsData metricsData = dataQueue.pollServiceDiscoveryData()) {
+                    Long monitorId = metricsData.getId();
+                    final Monitor mainMonitor = monitorMapper.selectById(monitorId);
+                    if (mainMonitor == null) {
+                        log.warn("No monitor found for id {}", monitorId);
+                        continue;
+                    }
+                    // collector
+                    final CollectorMonitorBind collectorBind = collectorMonitorBindMapper.selectOne(
+                            new LambdaQueryWrapper<CollectorMonitorBind>()
+                                    .eq(CollectorMonitorBind::getMonitorId, monitorId)
+                                    .last("LIMIT 1")
+                    );
+                    String collector = collectorBind != null ? collectorBind.getCollector() : null;
+                    // params
+                    List<Param> mainMonitorParams = paramMapper.findParamsByMonitorId(monitorId);
+                    final Map<String, MonitorBind> subMonitorBindMap = monitorBindMapper.findMonitorBindsByBizId(monitorId)
+                            .stream().collect(Collectors.toMap(MonitorBind::getKeyStr, item -> item));
+                    RowWrapper rowWrapper = metricsData.readRow();
+                    Map<String, String> fieldsValue = Maps.newHashMapWithExpectedSize(8);
+                    String defaultPort = mainMonitorParams.stream()
+                            .filter(param -> FILED_PORT.equals(param.getField()))
+                            .findFirst()
+                            .map(Param::getParamValue)
+                            .orElse("");
+                    while (rowWrapper.hasNextRow()) {
+                        rowWrapper = rowWrapper.nextRow();
+                        fieldsValue.clear();
+                        rowWrapper.cellStream().forEach(cell -> {
+                            String value = cell.getValue();
+                            fieldsValue.put(cell.getField().getName(), value);
+                        });
+                        final String host = fieldsValue.get(FILED_HOST);
+                        final String port = fieldsValue.getOrDefault(FILED_PORT, defaultPort);
+                        final String keyStr = host + ":" + port;
+                        if (subMonitorBindMap.containsKey(keyStr)) {
+                            subMonitorBindMap.remove(keyStr);
+                            continue;
+                        }
+                        Monitor newMonitor = mainMonitor.clone();
+                        newMonitor.setId(null);
+                        newMonitor.setHost(host);
+                        newMonitor.setName(newMonitor.getName() + "-" + host + ":" + port);
+                        newMonitor.setScrape(CommonConstants.SCRAPE_STATIC);
+                        newMonitor.setGmtCreate(LocalDateTime.now());
+                        newMonitor.setGmtUpdate(LocalDateTime.now());
+                        // replace host port
+                        List<Param> newParams = new LinkedList<>();
+                        for (Param param : mainMonitorParams) {
+                            Param newParam = param.clone();
+                            newParam.setId(null);
+                            newParam.setGmtUpdate(null);
+                            newParam.setGmtCreate(null);
+                            if (FILED_HOST.equals(newParam.getField())) {
+                                newParam.setParamValue(host);
+                            } else if (FILED_PORT.equals(newParam.getField())) {
+                                newParam.setParamValue(port);
+                            }
+                            newParams.add(newParam);
+                        }
+                        monitorService.addMonitor(newMonitor, newParams, collector, null);
+                        MonitorBind monitorBind = MonitorBind.builder()
+                                .bizId(monitorId)
+                                .monitorId(newMonitor.getId())
+                                .keyStr(keyStr)
+                                .build();
+                        monitorBindMapper.insert(monitorBind);
+                    }
+                    // hostMonitorMap only contains monitors which are already existed but not in service discovery data
+                    // due to monitors that coincide with service discovery data are removed.
+                    // Thus, all monitors still in hostMonitorMap need to be cancelled.
+                    final Set<Long> needCancelMonitorIdSet = subMonitorBindMap.values().stream()
+                            .map(MonitorBind::getMonitorId).collect(Collectors.toSet());
+                    monitorService.deleteMonitors(needCancelMonitorIdSet);
+                } catch (Exception exception) {
+                    log.error(exception.getMessage(), exception);
+                }
+            }
+        }
+    }
+}

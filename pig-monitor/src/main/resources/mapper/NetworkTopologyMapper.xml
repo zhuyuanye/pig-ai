@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2020 pig4cloud Authors. All Rights Reserved.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pig4cloud.pig.monitor.mapper.NetworkTopologyMapper">
+
+	<!-- 结果映射 - 网络拓扑信息实体 -->
+	<resultMap id="BaseResultMap" type="com.pig4cloud.pig.common.core.entity.network.NetworkTopologyInfo">
+		<id column="id" property="id"/>
+		<result column="config_id" property="configId"/>
+		<result column="ip" property="ip"/>
+		<result column="mac" property="mac"/>
+		<result column="interface_name" property="interfaceName"/>
+		<result column="vlan_id" property="vlanId"/>
+		<result column="vlan_name" property="vlanName"/>
+		<result column="port" property="port"/>
+		<result column="device_type" property="deviceType"/>
+		<result column="create_time" property="createTime"/>
+		<result column="update_time" property="updateTime"/>
+	</resultMap>
+
+	<!-- 基础查询字段列表 -->
+	<sql id="Base_Column_List">
+		id, config_id, ip, mac, interface_name, vlan_id, vlan_name, port, device_type, create_time, update_time
+	</sql>
+
+	<!-- 根据配置ID查询网络拓扑信息列表 -->
+	<select id="findByConfigId" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM hzb_network_topology_info
+		WHERE config_id = #{configId}
+		ORDER BY id
+	</select>
+
+	<!-- 根据MAC地址查询网络拓扑信息列表 -->
+	<select id="findByMac" resultMap="BaseResultMap">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM hzb_network_topology_info
+		WHERE mac = #{mac}
+		ORDER BY id
+	</select>
+
+	<!-- 根据配置ID删除所有关联的网络拓扑数据 -->
+	<delete id="deleteAllByConfigId">
+		DELETE FROM hzb_network_topology_info
+		WHERE config_id = #{configId}
+	</delete>
+
+</mapper>
