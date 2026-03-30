@@ -113,14 +113,6 @@ spring:
       port: ${REDIS_PORT:6379}
       password:
       database: 0
-  jpa:
-    show-sql: false
-    database-platform: org.eclipse.persistence.platform.database.PostgreSQLPlatform
-    database: postgresql
-    properties:
-      eclipselink:
-        logging:
-          level: SEVERE
 
   flyway:
     enabled: true

@@ -77,15 +77,7 @@ spring:
     platform: mysql
     hikari:
       max-lifetime: 120000
-  jpa:
-    show-sql: false
-    database-platform: org.eclipse.persistence.platform.database.MySQLPlatform
-    database: mysql
-    properties:
-      eclipselink:
-        logging:
-          level: SEVERE
-  
+
   flyway:
     enabled: true
     clean-disabled: true

@@ -76,15 +76,7 @@ spring:
     url: jdbc:postgresql://postgresql:5432/hertzbeat
     hikari:
       max-lifetime: 120000
-  jpa:
-    show-sql: false
-    database-platform: org.eclipse.persistence.platform.database.PostgreSQLPlatform
-    database: postgresql
-    properties:
-      eclipselink:
-        logging:
-          level: SEVERE
-  
+
   flyway:
     enabled: true
     clean-disabled: true
