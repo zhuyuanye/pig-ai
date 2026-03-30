@@ -29,5 +29,9 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>com.pig4cloud</groupId>
+			<artifactId>pig-common-mybatis</artifactId>
+		</dependency>
 	</dependencies>
 </project>

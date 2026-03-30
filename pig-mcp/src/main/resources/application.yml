@@ -1,0 +1,11 @@
+spring:
+  main:
+    banner-mode: off
+  ai:
+    mcp:
+      server:
+        name: pig-log-analysis-server
+        version: 0.1
+
+greptime:
+  url: http://localhost:4000

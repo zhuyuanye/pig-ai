@@ -92,14 +92,14 @@ public class AlertDefine {
      * 标签键值对，如 {status:success, env:prod}
      */
     @Schema(description = "标签(status:success,env:prod)", example = "{name: key1, value: value1}", accessMode = READ_WRITE)
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
     private Map<String, String> labels;
 
     /**
      * 注解键值对，如 {summary: 高CPU使用率}
      */
     @Schema(title = "注解", example = "summary: High CPU usage")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
     private Map<String, String> annotations;
 
     /**

@@ -36,6 +36,11 @@
 			<artifactId>collector-basic</artifactId>
 			<version>${revision}</version>
 		</dependency>
+		<!-- mybatis plus -->
+		<dependency>
+			<groupId>com.pig4cloud</groupId>
+			<artifactId>pig-common-mybatis</artifactId>
+		</dependency>
 		<!-- spring -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

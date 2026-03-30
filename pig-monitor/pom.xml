@@ -98,10 +98,10 @@
 			<artifactId>pig-common-alert</artifactId>
 			<version>${revision}</version>
 		</dependency>
-		<!-- collector -->
+		<!-- collector-common（调度接口，不含采集器启动模块） -->
 		<dependency>
 			<groupId>com.pig4cloud</groupId>
-			<artifactId>collector-collector</artifactId>
+			<artifactId>collector-common</artifactId>
 			<version>${revision}</version>
 			<exclusions>
 				<exclusion>

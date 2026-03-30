@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.obs.services.ObsClient;
 import lombok.extern.slf4j.Slf4j;
-import com.pig4cloud.pig.common.base.dao.GeneralConfigDao;
+import com.pig4cloud.pig.common.base.mapper.GeneralConfigMapper;
 import com.pig4cloud.pig.common.core.constants.GeneralConfigTypeEnum;
 import com.pig4cloud.pig.monitor.pojo.dto.ObjectStoreConfigChangeEvent;
 import com.pig4cloud.pig.monitor.pojo.dto.ObjectStoreDTO;
@@ -58,8 +58,8 @@ public class ObjectStoreConfigServiceImpl extends
      * @param generalConfigDao configDao object
      * @param objectMapper     JSON tool object
      */
-    public ObjectStoreConfigServiceImpl(GeneralConfigDao generalConfigDao, ObjectMapper objectMapper) {
-        super(generalConfigDao, objectMapper);
+    public ObjectStoreConfigServiceImpl(GeneralConfigMapper generalConfigMapper, ObjectMapper objectMapper) {
+        super(generalConfigMapper, objectMapper);
     }
 
     @Override

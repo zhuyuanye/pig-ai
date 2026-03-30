@@ -11,9 +11,7 @@
 	</parent>
 
 	<artifactId>collector-collector</artifactId>
-<!--	<packaging>pom</packaging>-->
-	<modules>
-	</modules>
+	<description>pig 采集器服务 - HertzBeat 数据采集微服务</description>
 
 	<properties>
 		<maven.compiler.source>21</maven.compiler.source>
@@ -22,55 +20,52 @@
 	</properties>
 
 	<dependencies>
-		<!-- collector-basic -->
+		<!-- 采集器子模块 -->
 		<dependency>
 			<groupId>com.pig4cloud</groupId>
 			<artifactId>collector-basic</artifactId>
 			<version>${revision}</version>
 		</dependency>
-
-		<!-- collector-kafka -->
 		<dependency>
 			<groupId>com.pig4cloud</groupId>
 			<artifactId>collector-kafka</artifactId>
 			<version>${revision}</version>
 		</dependency>
-
-		<!-- collector-mongodb -->
 		<dependency>
 			<groupId>com.pig4cloud</groupId>
 			<artifactId>collector-mongodb</artifactId>
 			<version>${revision}</version>
 		</dependency>
-
-		<!-- collector-nebulagraph -->
 		<dependency>
 			<groupId>com.pig4cloud</groupId>
 			<artifactId>collector-nebulagraph</artifactId>
 			<version>${revision}</version>
 		</dependency>
-
-		<!-- collector-rocketmq -->
 		<dependency>
 			<groupId>com.pig4cloud</groupId>
 			<artifactId>collector-rocketmq</artifactId>
 			<version>${revision}</version>
 		</dependency>
 
+		<!-- 注册中心 -->
+		<dependency>
+			<groupId>com.alibaba.cloud</groupId>
+			<artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.cloud</groupId>
+			<artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+		</dependency>
 
-
-		<!-- spring -->
+		<!-- Web & 容器 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
-
-		<!-- tomcat -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<artifactId>spring-boot-starter-undertow</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
@@ -80,262 +75,27 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-autoconfigure</artifactId>
 		</dependency>
-
 	</dependencies>
-
-	<build>
-		<finalName>pig-collector-${hzb.version}</finalName>
-	</build>
 
 	<profiles>
 		<profile>
-			<id>inner</id>
+			<id>cloud</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<build>
 				<plugins>
 					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
+						<groupId>org.springframework.boot</groupId>
+						<artifactId>spring-boot-maven-plugin</artifactId>
 					</plugin>
 					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-jar-plugin</artifactId>
-<!--						<version>${maven-jar-plugin.version}</version>-->
-						<version>3.2.0</version>
-						<executions>
-							<execution>
-								<phase>package</phase>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>cluster</id>
-			<build>
-				<resources>
-					<resource>
-						<directory>src/main/resources</directory>
-						<filtering>true</filtering>
-						<includes>
-							<include>*.yml</include>
-							<include>*.properties</include>
-							<include>*.xml</include>
-							<include>banner.txt</include>
-							<include>META-INF/**</include>
-						</includes>
-					</resource>
-				</resources>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<source>21</source>
-							<target>21</target>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-jar-plugin</artifactId>
-<!--						<version>${maven-jar-plugin.version}</version>-->
-						<version>3.2.0</version>
-						<configuration>
-							<classesDirectory>target/classes/</classesDirectory>
-							<archive>
-								<!--Generated JAR does not include Maven descriptor-related files-->
-								<addMavenDescriptor>false</addMavenDescriptor>
-								<manifest>
-									<!--Project startup class-->
-									<mainClass>com.pig4cloud.pig.collector.Collector</mainClass>
-									<useUniqueVersions>false</useUniqueVersions>
-									<!--Third-party JARs are added to the classpath using maven-dependency-plugin-->
-									<addClasspath>true</addClasspath>
-									<!--Location of external dependency JARs-->
-									<classpathPrefix>lib/</classpathPrefix>
-								</manifest>
-								<manifestEntries>
-									<Class-Path>. config</Class-Path>
-								</manifestEntries>
-							</archive>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-assembly-plugin</artifactId>
-<!--						<version>${maven-assembly-plugin.version}</version>-->
-						<version>3.3.0</version>
-						<executions>
-							<execution>
-								<id>without-jdk</id>
-								<!--Bound Maven operation-->
-								<phase>package</phase>
-								<!--Run once-->
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<descriptors>
-										<descriptor>../../script/assembly/collector/assembly.xml</descriptor>
-									</descriptors>
-									<outputDirectory>../../dist</outputDirectory>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<profile>
-			<id>runtime</id>
-			<build>
-				<resources>
-					<resource>
-						<directory>src/main/resources</directory>
-						<filtering>true</filtering>
-						<includes>
-							<include>*.yml</include>
-							<include>*.properties</include>
-							<include>*.xml</include>
-							<include>banner.txt</include>
-							<include>META-INF/**</include>
-						</includes>
-					</resource>
-				</resources>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<source>21</source>
-							<target>21</target>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-jar-plugin</artifactId>
-<!--						<version>${maven-jar-plugin.version}</version>-->
-						<version>3.2.0</version>
-						<configuration>
-							<classesDirectory>target/classes/</classesDirectory>
-							<archive>
-								<!--Generated JAR does not include Maven descriptor-related files-->
-								<addMavenDescriptor>false</addMavenDescriptor>
-								<manifest>
-									<!--Project startup class-->
-									<mainClass>com.pig4cloud.pig.collector.Collector</mainClass>
-									<useUniqueVersions>false</useUniqueVersions>
-									<!--Third-party JARs are added to the classpath using maven-dependency-plugin-->
-									<addClasspath>true</addClasspath>
-									<!--Location of external dependency JARs-->
-									<classpathPrefix>lib/</classpathPrefix>
-								</manifest>
-								<manifestEntries>
-									<Class-Path>. config</Class-Path>
-								</manifestEntries>
-							</archive>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-assembly-plugin</artifactId>
-<!--						<version>${maven-assembly-plugin.version}</version>-->
-						<version>3.3.0</version>
-						<executions>
-							<execution>
-								<id>without-jdk</id>
-								<!--Bound Maven operation-->
-								<phase>package</phase>
-								<!--Run once-->
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<descriptors>
-										<descriptor>../../script/assembly/collector/assembly.xml</descriptor>
-									</descriptors>
-									<outputDirectory>../../dist</outputDirectory>
-								</configuration>
-							</execution>
-							<execution>
-								<id>make-macos-arm64</id>
-								<!--Bound Maven operation-->
-								<phase>package</phase>
-								<!--Run once-->
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<descriptors>
-										<descriptor>../../script/assembly/collector/assembly-macos-arm64.xml</descriptor>
-									</descriptors>
-									<outputDirectory>../../dist</outputDirectory>
-								</configuration>
-							</execution>
-							<execution>
-								<id>make-macos-amd64</id>
-								<!--Bound Maven operation-->
-								<phase>package</phase>
-								<!--Run once-->
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<descriptors>
-										<descriptor>../../script/assembly/collector/assembly-macos-amd64.xml</descriptor>
-									</descriptors>
-									<outputDirectory>../../dist</outputDirectory>
-								</configuration>
-							</execution>
-							<execution>
-								<id>make-linux-arm64</id>
-								<!--Bound Maven operation-->
-								<phase>package</phase>
-								<!--Run once-->
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<descriptors>
-										<descriptor>../../script/assembly/collector/assembly-linux-arm64.xml</descriptor>
-									</descriptors>
-									<outputDirectory>../../dist</outputDirectory>
-								</configuration>
-							</execution>
-							<execution>
-								<id>make-linux-amd64</id>
-								<!--Bound Maven operation-->
-								<phase>package</phase>
-								<!--Run once-->
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<descriptors>
-										<descriptor>../../script/assembly/collector/assembly-linux-amd64.xml</descriptor>
-									</descriptors>
-									<outputDirectory>../../dist</outputDirectory>
-								</configuration>
-							</execution>
-							<execution>
-								<id>make-windows-64</id>
-								<!--Bound Maven operation-->
-								<phase>package</phase>
-								<!--Run once-->
-								<goals>
-									<goal>single</goal>
-								</goals>
-								<configuration>
-									<descriptors>
-										<descriptor>../../script/assembly/collector/assembly-windows-64.xml</descriptor>
-									</descriptors>
-									<outputDirectory>../../dist</outputDirectory>
-								</configuration>
-							</execution>
-						</executions>
+						<groupId>io.fabric8</groupId>
+						<artifactId>docker-maven-plugin</artifactId>
 					</plugin>
 				</plugins>
 			</build>
 		</profile>
 	</profiles>
+
 </project>

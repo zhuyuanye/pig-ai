@@ -17,11 +17,10 @@
 
 package com.pig4cloud.pig.common.core.entity.grafana;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,8 +31,7 @@ import java.io.Serializable;
 /**
  * Grafana dashboard entity
  */
-@Entity
-@Table(name = "hzb_grafana_dashboard")
+@TableName("hzb_grafana_dashboard")
 @Data
 @Builder
 @AllArgsConstructor
@@ -41,7 +39,7 @@ import java.io.Serializable;
 @Schema(description = "Grafana dashboard entity")
 public class GrafanaDashboard implements Serializable {
 
-    @Id
+    @TableId
     @Schema(description = "Monitor id")
     private Long monitorId;
 
@@ -67,6 +65,6 @@ public class GrafanaDashboard implements Serializable {
     private boolean enabled;
 
     @Schema(description = "template")
-    @Transient
+    @TableField(exist = false)
     private String template;
 }

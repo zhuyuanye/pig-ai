@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import com.pig4cloud.pig.common.alert.config.SmsConfig;
-import com.pig4cloud.pig.common.base.dao.GeneralConfigDao;
+import com.pig4cloud.pig.common.base.mapper.GeneralConfigMapper;
 import com.pig4cloud.pig.common.core.constants.GeneralConfigTypeEnum;
 import com.pig4cloud.pig.common.core.support.event.SmsConfigChangeEvent;
 import org.springframework.context.ApplicationContext;
@@ -47,8 +47,8 @@ public class SmsGeneralConfigServiceImpl extends AbstractGeneralConfigServiceImp
      * @param generalConfigDao dao layer operation data, needed to create an instance of this class
      * @param objectMapper     object mapping , needed to create an instance of this class
      */
-    public SmsGeneralConfigServiceImpl(GeneralConfigDao generalConfigDao, ObjectMapper objectMapper) {
-        super(generalConfigDao, objectMapper);
+    public SmsGeneralConfigServiceImpl(GeneralConfigMapper generalConfigMapper, ObjectMapper objectMapper) {
+        super(generalConfigMapper, objectMapper);
     }
 
     /**

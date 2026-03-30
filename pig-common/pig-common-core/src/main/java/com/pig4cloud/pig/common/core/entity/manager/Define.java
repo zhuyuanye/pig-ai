@@ -78,7 +78,7 @@ public class Define implements Serializable {
 	 * <p>
 	 * 监控类型的YAML格式配置定义，包含参数结构、默认值、验证规则等信息
 	 */
-	@TableField(updateStrategy = FieldStrategy.IGNORED)
+	@TableField(updateStrategy = FieldStrategy.ALWAYS)
 	@Schema(title = "定义内容", description = "定义YAML配置内容")
 	private String content;
 

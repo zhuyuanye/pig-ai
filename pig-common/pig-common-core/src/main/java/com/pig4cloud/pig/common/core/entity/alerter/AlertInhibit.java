@@ -67,21 +67,21 @@ public class AlertInhibit {
      * 源告警匹配标签，当源告警匹配这些标签时抑制规则生效
      */
     @Schema(title = "源告警匹配标签")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
     private Map<String, String> sourceLabels;
 
     /**
      * 目标告警匹配标签，匹配这些标签的告警将被抑制
      */
     @Schema(title = "目标告警匹配标签")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
     private Map<String, String> targetLabels;
 
     /**
      * 相等标签列表，源和目标告警中这些标签的值必须相同才能触发抑制
      */
     @Schema(title = "相等标签列表")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonStringListTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonStringListTypeHandler.class)
     private List<String> equalLabels;
 
     /**

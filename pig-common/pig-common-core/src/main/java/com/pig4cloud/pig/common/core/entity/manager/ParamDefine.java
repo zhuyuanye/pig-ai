@@ -82,7 +82,7 @@ public class ParamDefine implements Serializable {
 	 * <p>
 	 * 示例：{"zh-CN": "端口", "en-US": "Port"}
 	 */
-	@TableField(typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler")
+	@TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
 	@Schema(description = "参数字段国际化显示名称", example = "{zh-CN: '端口', en-US: 'Port'}", accessMode = READ_WRITE)
 	private Map<String, String> name;
 
@@ -171,7 +171,7 @@ public class ParamDefine implements Serializable {
 	 *   <li>value - 实际的值</li>
 	 * </ul>
 	 */
-	@TableField(value = "param_options", typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonOptionListTypeHandler")
+	@TableField(value = "param_options", typeHandler = com.pig4cloud.pig.common.core.handler.JsonOptionListTypeHandler.class)
 	@Schema(description = "单选框/复选框的可选值列表", example = "[{\"label\":\"选项1\",\"value\":\"value1\"}]",
 			accessMode = READ_WRITE)
 	private List<Object> options;
@@ -247,7 +247,7 @@ public class ParamDefine implements Serializable {
 	 * <p>
 	 * 示例：{"field":["value1","value2"]} 表示当field参数的值为value1或value2时，此参数才显示
 	 */
-	@TableField(typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler")
+	@TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
 	@Schema(title = "参数依赖关系", example = "{\"field\":[\"value1\",\"value2\"]}", accessMode = READ_WRITE)
 	private Map<String, List<Object>> depend;
 

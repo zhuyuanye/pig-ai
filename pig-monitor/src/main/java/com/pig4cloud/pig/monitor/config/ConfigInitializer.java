@@ -22,7 +22,7 @@ import com.pig4cloud.pig.monitor.util.JwtTokenUtil;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
-import com.pig4cloud.pig.common.base.dao.GeneralConfigDao;
+import com.pig4cloud.pig.common.base.mapper.GeneralConfigMapper;
 import com.pig4cloud.pig.common.core.constants.CommonConstants;
 import com.pig4cloud.pig.common.core.entity.manager.GeneralConfig;
 import com.pig4cloud.pig.common.core.util.TimeZoneUtil;
@@ -79,7 +79,7 @@ public class ConfigInitializer implements SmartLifecycle {
     private AppService appService;
 
     @Resource
-    protected GeneralConfigDao generalConfigDao;
+    protected GeneralConfigMapper generalConfigMapper;
 
     @Resource
     protected ObjectMapper objectMapper;
@@ -106,7 +106,7 @@ public class ConfigInitializer implements SmartLifecycle {
                                                        .type(systemGeneralConfigService.type())
                                                        .content(contentJson)
                                                        .build();
-            generalConfigDao.save(generalConfig2Save);
+            generalConfigMapper.insert(generalConfig2Save);
         }
         // for template config, flush the template config in db to memory
         TemplateConfig templateConfig = templateConfigService.getConfig();

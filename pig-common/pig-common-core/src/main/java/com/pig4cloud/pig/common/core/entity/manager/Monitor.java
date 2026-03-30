@@ -175,7 +175,7 @@ public class Monitor implements Serializable {
 	 * <p>
 	 * 示例：{"env":"test","team":"ops"}
 	 */
-	@TableField(typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler")
+	@TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
 	@Schema(title = "任务标签", example = "{env:test}", accessMode = READ_WRITE)
 	private Map<String, String> labels;
 
@@ -186,7 +186,7 @@ public class Monitor implements Serializable {
 	 * <p>
 	 * 示例：{"summary":"this task looks good","priority":"high"}
 	 */
-	@TableField(typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler")
+	@TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
 	@Schema(title = "任务注解", example = "{summary:this task looks good}", accessMode = READ_WRITE)
 	private Map<String, String> annotations;
 

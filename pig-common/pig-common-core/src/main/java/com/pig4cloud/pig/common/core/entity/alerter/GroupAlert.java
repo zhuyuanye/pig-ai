@@ -70,28 +70,28 @@ public class GroupAlert {
      * 分组标签
      */
     @Schema(title = "分组标签", example = "{\"alertname\": \"HighCPUUsage\"}")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
     private Map<String, String> groupLabels;
 
     /**
      * 公共标签（组内所有告警共有的标签）
      */
     @Schema(title = "公共标签", example = "{\"alertname\": \"HighCPUUsage\", \"severity\": \"critical\"}")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
     private Map<String, String> commonLabels;
 
     /**
      * 公共注解（组内所有告警共有的注解）
      */
     @Schema(title = "公共注解", example = "{\"summary\": \"High CPU usage detected\"}")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
     private Map<String, String> commonAnnotations;
 
     /**
      * 告警指纹列表，关联的单条告警 fingerprint
      */
     @Schema(title = "告警指纹列表", example = "[\"dxsdfdsf\"]")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonStringListTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonStringListTypeHandler.class)
     private List<String> alertFingerprints;
 
     /**

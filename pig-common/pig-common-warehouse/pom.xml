@@ -24,6 +24,11 @@
 			<artifactId>pig-common-core</artifactId>
 			<scope>provided</scope>
 		</dependency>
+		<!-- mybatis plus -->
+		<dependency>
+			<groupId>com.pig4cloud</groupId>
+			<artifactId>pig-common-mybatis</artifactId>
+		</dependency>
 		<!-- plugin -->
 		<dependency>
 			<groupId>com.pig4cloud</groupId>

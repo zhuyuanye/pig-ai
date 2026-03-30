@@ -23,7 +23,8 @@ import com.pig4cloud.pig.common.core.entity.manager.Monitor;
 import com.pig4cloud.pig.common.core.entity.message.CollectRep;
 import com.pig4cloud.pig.common.core.queue.CommonDataQueue;
 import com.pig4cloud.pig.common.core.util.SnowFlakeIdGenerator;
-import com.pig4cloud.pig.common.push.dao.PushMonitorDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.common.push.mapper.PushMonitorMapper;
 import com.pig4cloud.pig.common.push.service.PushGatewayService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,15 +47,15 @@ public class PushGatewayServiceImpl implements PushGatewayService {
 
     private final CommonDataQueue commonDataQueue;
 
-    private final PushMonitorDao pushMonitorDao;
+    private final PushMonitorMapper pushMonitorMapper;
 
     private final Map<String, Long> jobInstanceMap;
 
-    public PushGatewayServiceImpl(CommonDataQueue commonDataQueue, PushMonitorDao pushMonitorDao) {
+    public PushGatewayServiceImpl(CommonDataQueue commonDataQueue, PushMonitorMapper pushMonitorMapper) {
         this.commonDataQueue = commonDataQueue;
-        this.pushMonitorDao = pushMonitorDao;
+        this.pushMonitorMapper = pushMonitorMapper;
         jobInstanceMap = new ConcurrentHashMap<>();
-        pushMonitorDao.findMonitorsByType((byte) 1).forEach(monitor ->
+        pushMonitorMapper.selectList(new LambdaQueryWrapper<Monitor>().eq(Monitor::getType, (byte) 1)).forEach(monitor ->
                 jobInstanceMap.put(monitor.getApp() + "_" + monitor.getName(), monitor.getId()));
     }
 
@@ -82,7 +83,7 @@ public class PushGatewayServiceImpl implements PushGatewayService {
                             .type((byte) 1)
                             .status(CommonConstants.MONITOR_UP_CODE)
                             .build();
-                    this.pushMonitorDao.save(monitor);
+                    this.pushMonitorMapper.insert(monitor);
                     return monitorId;
                 });
             }

@@ -20,7 +20,7 @@ package com.pig4cloud.pig.monitor.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
-import com.pig4cloud.pig.common.base.dao.GeneralConfigDao;
+import com.pig4cloud.pig.common.base.mapper.GeneralConfigMapper;
 import com.pig4cloud.pig.common.core.constants.GeneralConfigTypeEnum;
 import com.pig4cloud.pig.monitor.pojo.dto.TemplateConfig;
 import com.pig4cloud.pig.monitor.service.AppService;
@@ -44,8 +44,8 @@ public class TemplateConfigServiceImpl extends AbstractGeneralConfigServiceImpl<
      * @param generalConfigDao configDao object
      * @param objectMapper     JSON tool object
      */
-    public TemplateConfigServiceImpl(GeneralConfigDao generalConfigDao, ObjectMapper objectMapper) {
-        super(generalConfigDao, objectMapper);
+    public TemplateConfigServiceImpl(GeneralConfigMapper generalConfigMapper, ObjectMapper objectMapper) {
+        super(generalConfigMapper, objectMapper);
     }
 
     @Override

@@ -19,7 +19,7 @@ package com.pig4cloud.pig.monitor.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pig4cloud.pig.common.base.dao.GeneralConfigDao;
+import com.pig4cloud.pig.common.base.mapper.GeneralConfigMapper;
 import com.pig4cloud.pig.common.core.constants.GeneralConfigTypeEnum;
 import com.pig4cloud.pig.monitor.pojo.dto.SystemSecret;
 import org.springframework.stereotype.Service;
@@ -39,8 +39,8 @@ public class SystemSecretServiceImpl extends AbstractGeneralConfigServiceImpl<Sy
      * @param generalConfigDao ConfigDao object
      * @param objectMapper     JSON tool object
      */
-    public SystemSecretServiceImpl(GeneralConfigDao generalConfigDao, ObjectMapper objectMapper) {
-        super(generalConfigDao, objectMapper);
+    public SystemSecretServiceImpl(GeneralConfigMapper generalConfigMapper, ObjectMapper objectMapper) {
+        super(generalConfigMapper, objectMapper);
     }
 
     @Override

@@ -21,7 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import com.pig4cloud.pig.common.alert.config.SmsConfig;
 import com.pig4cloud.pig.common.alert.service.impl.*;
-import com.pig4cloud.pig.common.base.dao.GeneralConfigDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.common.base.mapper.GeneralConfigMapper;
 import com.pig4cloud.pig.common.core.constants.GeneralConfigTypeEnum;
 import com.pig4cloud.pig.common.core.entity.manager.GeneralConfig;
 import com.pig4cloud.pig.common.core.support.event.SmsConfigChangeEvent;
@@ -39,14 +40,14 @@ public class SmsClientFactory {
 
     private static final String TYPE = GeneralConfigTypeEnum.sms.name();
 
-    private final GeneralConfigDao generalConfigDao;
+    private final GeneralConfigMapper generalConfigMapper;
     private final ObjectMapper objectMapper;
     private final SmsConfig yamlSmsConfig;
 
     private volatile SmsClient currentSmsClient;
 
-    public SmsClientFactory(GeneralConfigDao generalConfigDao, ObjectMapper objectMapper, SmsConfig yamlSmsConfig) {
-        this.generalConfigDao = generalConfigDao;
+    public SmsClientFactory(GeneralConfigMapper generalConfigMapper, ObjectMapper objectMapper, SmsConfig yamlSmsConfig) {
+        this.generalConfigMapper = generalConfigMapper;
         this.objectMapper = objectMapper;
         this.yamlSmsConfig = yamlSmsConfig;
     }
@@ -106,7 +107,7 @@ public class SmsClientFactory {
 
     private SmsConfig loadDatabaseConfig() {
         try {
-            GeneralConfig config = generalConfigDao.findByType(TYPE);
+            GeneralConfig config = generalConfigMapper.selectOne(new LambdaQueryWrapper<GeneralConfig>().eq(GeneralConfig::getType, TYPE));
             if (config != null && config.getContent() != null) {
                 return objectMapper.readValue(config.getContent(), SmsConfig.class);
             }

@@ -21,7 +21,7 @@ package com.pig4cloud.pig.monitor.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import com.pig4cloud.pig.common.base.dao.GeneralConfigDao;
+import com.pig4cloud.pig.common.base.mapper.GeneralConfigMapper;
 import com.pig4cloud.pig.common.core.constants.GeneralConfigTypeEnum;
 import com.pig4cloud.pig.monitor.pojo.dto.MuteConfig;
 import org.springframework.core.Ordered;
@@ -44,8 +44,8 @@ public class MuteGeneralConfigServiceImpl extends AbstractGeneralConfigServiceIm
      * @param generalConfigDao Dao object
      * @param objectMapper     JSON tool object
      */
-    protected MuteGeneralConfigServiceImpl(GeneralConfigDao generalConfigDao, ObjectMapper objectMapper) {
-        super(generalConfigDao, objectMapper);
+    protected MuteGeneralConfigServiceImpl(GeneralConfigMapper generalConfigMapper, ObjectMapper objectMapper) {
+        super(generalConfigMapper, objectMapper);
     }
 
     /**

@@ -1,0 +1,157 @@
+# Implementation Plan
+
+- [x] 1. Write bug condition exploration test
+  - **Property 1: Bug Condition** - JPA 残留代码导致编译失败
+  - **CRITICAL**: This test MUST FAIL on unfixed code - failure confirms the bug exists
+  - **DO NOT attempt to fix the test or the code when it fails**
+  - **NOTE**: This test encodes the expected behavior - it will validate the fix when it passes after implementation
+  - **GOAL**: Surface counterexamples that demonstrate the bug exists
+  - **Scoped PBT Approach**: 扫描项目源码，检查是否存在 `jakarta.persistence` import、JPA 注解（@Entity, @Table, @Column 等）、JPA 依赖声明
+  - 编写属性测试：对所有 Java 源文件，断言不包含 `jakarta.persistence` 相关 import
+  - 编写属性测试：对 pom.xml 文件，断言不包含 `spring-boot-starter-data-jpa` 依赖
+  - 编写属性测试：对编译器配置，断言 source/target 版本为 21
+  - Run test on UNFIXED code
+  - **EXPECTED OUTCOME**: Test FAILS (this is correct - it proves the bug exists)
+  - Document counterexamples found: 哪些文件包含 JPA 残留代码
+  - Mark task complete when test is written, run, and failure is documented
+  - _Requirements: 1.1, 1.2, 1.3, 1.5, 1.6, 1.7, 1.8_
+
+- [x] 2. Write preservation property tests (BEFORE implementing fix)
+  - **Property 2: Preservation** - MyBatis Plus 数据访问和业务逻辑不变
+  - **IMPORTANT**: Follow observation-first methodology
+  - Observe: 现有 MyBatis Plus Mapper 接口（HistoryMapper、GeneralConfigMapper 等）的方法签名和注解不变
+  - Observe: 现有 TypeHandler（JsonMapTypeHandler、ZonedDateTimeTypeHandler 等）的实现逻辑不变
+  - Observe: DataStorageDispatch 中 JdbcTemplate 相关代码不变
+  - Observe: DatabaseDataStorage 中 HistoryMapper 调用逻辑不变
+  - 编写属性测试：验证所有 Mapper 接口继承 BaseMapper 且方法签名不变
+  - 编写属性测试：验证所有 TypeHandler 实现正确的类型转换逻辑
+  - Verify test passes on UNFIXED code
+  - **EXPECTED OUTCOME**: Tests PASS (this confirms baseline behavior to preserve)
+  - Mark task complete when tests are written, run, and passing on unfixed code
+  - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
+
+- [x] 3. 移除 pig-common-core JPA 依赖
+  - [x] 3.1 移除 pig-common-core/pom.xml 中的 JPA 依赖
+    - 移除 `spring-boot-starter-data-jpa` 依赖声明
+    - 移除 `org.eclipse.persistence.jpa` 依赖声明（如存在）
+    - _Bug_Condition: codeElement.dependsOn('spring-boot-starter-data-jpa') OR codeElement.dependsOn('org.eclipse.persistence.jpa')_
+    - _Expected_Behavior: pig-common-core 模块不包含任何 JPA 依赖_
+    - _Preservation: 现有 MyBatis Plus 依赖不受影响_
+    - _Requirements: 1.5, 2.5_
+
+- [x] 4. 删除废弃的 JPA AttributeConverter 文件
+  - [x] 4.1 删除所有 AttributeConverter 实现文件
+    - 删除 `pig-common/pig-common-core/src/main/java/com/pig4cloud/pig/common/core/entity/alerter/JsonMapAttributeConverter.java`
+    - 删除 `pig-common/pig-common-core/src/main/java/com/pig4cloud/pig/common/core/entity/manager/JsonLongListAttributeConverter.java`
+    - 删除 `pig-common/pig-common-core/src/main/java/com/pig4cloud/pig/common/core/entity/manager/JsonOptionListAttributeConverter.java`
+    - 删除 `pig-common/pig-common-core/src/main/java/com/pig4cloud/pig/common/core/entity/manager/ZonedDateTimeAttributeConverter.java`
+    - 删除 `pig-common/pig-common-core/src/main/java/com/pig4cloud/pig/common/core/entity/manager/JsonStringListAttributeConverter.java`
+    - 删除 `pig-common/pig-common-core/src/main/java/com/pig4cloud/pig/common/core/entity/manager/JsonMapListAttributeConverter.java`
+    - 删除 `pig-common/pig-common-core/src/main/java/com/pig4cloud/pig/common/core/entity/manager/JsonByteListAttributeConverter.java`
+    - _Bug_Condition: codeElement.implements('jakarta.persistence.AttributeConverter')_
+    - _Expected_Behavior: 所有类型转换由 MyBatis Plus TypeHandler 处理，无 AttributeConverter 文件_
+    - _Preservation: 现有 TypeHandler（JsonMapTypeHandler、ZonedDateTimeTypeHandler 等）不受影响_
+    - _Requirements: 1.6, 2.6, 3.2_
+
+- [x] 5. 实体类 JPA 注解替换为 MyBatis Plus 注解
+  - [x] 5.1 替换 GeneralConfig 实体类注解
+    - `@Entity` → 移除
+    - `@Table(name = "hzb_config")` → `@TableName("hzb_config")`
+    - `@Id` + `@GeneratedValue` → `@TableId(value = "id", type = IdType.AUTO)`
+    - `@Column(...)` → `@TableField(...)` 或移除（MyBatis Plus 默认驼峰映射）
+    - `@EntityListeners(AuditingEntityListener.class)` → 移除
+    - `@Transient` → `@TableField(exist = false)`
+    - 移除所有 `jakarta.persistence.*` import，添加 `com.baomidou.mybatisplus.annotation.*` import
+    - _Requirements: 1.1, 2.1_
+  - [x] 5.2 替换 History 实体类注解
+    - 同 5.1 的替换规则
+    - _Requirements: 1.1, 2.1_
+  - [x] 5.3 替换 GrafanaDashboard 实体类注解
+    - 同 5.1 的替换规则
+    - _Requirements: 1.1, 2.1_
+  - [x] 5.4 替换 HzbUser 实体类注解
+    - 同 5.1 的替换规则
+    - _Requirements: 1.1, 2.1_
+  - [x] 5.5 替换 PushMetrics 实体类注解
+    - 同 5.1 的替换规则
+    - _Requirements: 1.1, 2.1_
+  - [x] 5.6 替换 SnmpConfigInfo 实体类注解
+    - 同 5.1 的替换规则
+    - _Requirements: 1.1, 2.1_
+  - [x] 5.7 替换 NetworkTopologyInfo 实体类注解
+    - 同 5.1 的替换规则
+    - _Requirements: 1.1, 2.1_
+  - [x] 5.8 替换 DataFragmentConfig 实体类注解
+    - 同 5.1 的替换规则
+    - _Requirements: 1.1, 2.1_
+
+- [x] 6. 清理启动类和配置类中的 JPA 引用
+  - [x] 6.1 清理 PigMonitorApplication 启动类
+    - 移除 `@EnableJpaAuditing` 注解及其 import
+    - 移除 `@EnableJpaRepositories(...)` 注解及其 import
+    - 移除 `@EntityScan(...)` 注解及其 import
+    - 确保 `@MapperScan` 扫描范围覆盖 `{"com.pig4cloud"}` 所有模块的 Mapper
+    - _Bug_Condition: codeElement.hasAnnotation IN ['@EnableJpaAuditing', '@EnableJpaRepositories', '@EntityScan']_
+    - _Expected_Behavior: 启动类仅保留 @MapperScan 和 @ComponentScan 等 MyBatis Plus/Spring 注解_
+    - _Preservation: 应用正常启动、注册到 Nacos、加载所有 Controller 和 Service_
+    - _Requirements: 1.2, 2.2, 3.6_
+  - [x] 6.2 清理 FlywayConfiguration 中的 JPA 依赖
+    - 移除 `@DependsOn("entityManagerFactory")` 注解
+    - Flyway 通过 dataSource 自动初始化，无需依赖 entityManagerFactory
+    - _Bug_Condition: codeElement.hasAnnotation('@DependsOn("entityManagerFactory")')_
+    - _Expected_Behavior: FlywayConfiguration 不依赖 entityManagerFactory bean_
+    - _Preservation: Flyway 迁移脚本正确执行_
+    - _Requirements: 1.8, 2.8, 3.5_
+
+- [x] 7. 清理 DataStorageDispatch 中的 EntityManager 注入
+  - [x] 7.1 移除 EntityManager 相关代码
+    - 移除 `@PersistenceContext` 注解和 `private EntityManager entityManager` 字段
+    - 移除 `import jakarta.persistence.EntityManager` 和 `import jakarta.persistence.PersistenceContext`
+    - 移除 `calculateMonitorStatus` 方法中 `entityManager.getEntityManagerFactory().getCache().evict(Monitor.class, id)` 调用
+    - JPA 二级缓存清除在纯 MyBatis Plus 环境下无意义，直接移除即可
+    - _Bug_Condition: codeElement.hasAnnotation('@PersistenceContext') AND codeElement.imports('jakarta.persistence.*')_
+    - _Expected_Behavior: DataStorageDispatch 不依赖 EntityManager，仅使用 JdbcTemplate_
+    - _Preservation: JdbcTemplate 更新监控状态的 SQL 逻辑不变_
+    - _Requirements: 1.3, 2.3, 3.3_
+
+- [x] 8. JpaDatabaseDataStorage 类名重命名（可选）
+  - [x] 8.1 重命名 JpaDatabaseDataStorage 为 DatabaseDataStorage
+    - 重命名类文件和类名
+    - 更新所有引用该类的地方（import、Spring bean 注入等）
+    - _Bug_Condition: 类名以 "Jpa" 为前缀但实际使用 MyBatis Plus HistoryMapper_
+    - _Expected_Behavior: 类名反映实际使用 MyBatis Plus 的实现_
+    - _Preservation: 通过 HistoryMapper 保存和查询历史数据的功能不变_
+    - _Requirements: 1.4, 2.4, 3.4_
+
+- [x] 9. 对齐编译版本到 Java 21
+  - [x] 9.1 修改 pig-common/pom.xml 编译版本
+    - `<source>17</source>` → `<source>21</source>`
+    - `<target>17</target>` → `<target>21</target>`
+    - _Bug_Condition: codeElement.compilerVersion != projectTargetVersion_
+    - _Expected_Behavior: maven-compiler-plugin 使用 Java 21 作为 source 和 target_
+    - _Preservation: 现有代码编译行为不变（Java 21 向后兼容 Java 17）_
+    - _Requirements: 1.7, 2.7_
+
+- [ ] 10. Fix verification
+  - [ ] 10.1 Verify bug condition exploration test now passes
+    - **Property 1: Expected Behavior** - JPA 残留代码全部清除
+    - **IMPORTANT**: Re-run the SAME test from task 1 - do NOT write a new test
+    - 重新扫描项目源码，确认不存在 `jakarta.persistence` import
+    - 确认 pom.xml 不包含 JPA 依赖
+    - 确认编译版本为 21
+    - **EXPECTED OUTCOME**: Test PASSES (confirms bug is fixed)
+    - _Requirements: 2.1, 2.2, 2.3, 2.5, 2.6, 2.7, 2.8_
+  - [ ] 10.2 Verify preservation tests still pass
+    - **Property 2: Preservation** - MyBatis Plus 数据访问和业务逻辑不变
+    - **IMPORTANT**: Re-run the SAME tests from task 2 - do NOT write new tests
+    - 确认所有 Mapper 接口方法签名不变
+    - 确认所有 TypeHandler 实现不变
+    - 确认 JdbcTemplate 和 HistoryMapper 调用逻辑不变
+    - **EXPECTED OUTCOME**: Tests PASS (confirms no regressions)
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
+
+- [ ] 11. Checkpoint - Ensure all tests pass
+  - 执行 `mvn compile` 确认项目编译通过
+  - 执行 `mvn test` 确认所有单元测试通过
+  - 确认无 `jakarta.persistence` 相关编译错误
+  - Ensure all tests pass, ask the user if questions arise.

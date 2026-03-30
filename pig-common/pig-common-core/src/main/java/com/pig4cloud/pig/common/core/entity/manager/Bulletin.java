@@ -78,7 +78,7 @@ public class Bulletin implements Serializable {
 	 * <p>
 	 * 关联到此公告的监控任务ID集合，以JSON数组格式存储
 	 */
-	@TableField(value = "monitor_ids", typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonLongListTypeHandler")
+	@TableField(value = "monitor_ids", typeHandler = com.pig4cloud.pig.common.core.handler.JsonLongListTypeHandler.class)
 	@Schema(description = "监控任务ID列表", example = "[1,2,3]")
 	private List<Long> monitorIds;
 
@@ -97,7 +97,7 @@ public class Bulletin implements Serializable {
 	 * <p>
 	 * 示例：{"fields": ["heapMemory", "cpuUsage"]}
 	 */
-	@TableField(value = "fields", typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonMapListTypeHandler")
+	@TableField(value = "fields", typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapListTypeHandler.class)
 	@Schema(description = "监控字段配置")
 	private Map<String, List<String>> fields;
 

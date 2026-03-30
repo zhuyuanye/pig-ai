@@ -91,28 +91,28 @@ public class AlertSilence {
      * 匹配告警信息的标签
      */
     @Schema(description = "匹配告警信息的标签", example = "{name: key1, value: value1}")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
     private Map<String, String> labels;
 
     /**
      * 周期性静默生效的星期，多选，全部或空表示每天。7:周日 1:周一 2:周二 3:周三 4:周四 5:周五 6:周六
      */
     @Schema(title = "周期性静默生效的星期", example = "[0,1]")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonByteListTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonByteListTypeHandler.class)
     private List<Byte> days;
 
     /**
      * 限制时间段开始
      */
     @Schema(title = "限制时间段开始", example = "00:00:00")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.ZonedDateTimeTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.ZonedDateTimeTypeHandler.class)
     private ZonedDateTime periodStart;
 
     /**
      * 限制时间段结束
      */
     @Schema(title = "限制时间段结束", example = "23:59:59")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.ZonedDateTimeTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.ZonedDateTimeTypeHandler.class)
     private ZonedDateTime periodEnd;
 
     /**

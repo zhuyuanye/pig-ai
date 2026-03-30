@@ -17,18 +17,16 @@
 
 package com.pig4cloud.pig.common.core.entity.manager;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -38,39 +36,36 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
 /**
  * Common Config Entity
  */
-@Entity
-@Table(name = "hzb_config")
+@TableName("hzb_config")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "Common server config entity")
-@EntityListeners(AuditingEntityListener.class)
 public class GeneralConfig {
 
-    @Id
+    @TableId
     @Schema(title = "Config type: email sms, primary key ", description = "Config type: email sms, primary key ",
             accessMode = READ_WRITE)
     @NotBlank(message = "ip can not null")
     private String type;
 
     @Schema(title = "Config content", description = "Config content，formatjson", accessMode = READ_WRITE)
-    @Column(length = 8192)
     private String content;
 
     @Schema(title = "The creator of this record", example = "tom", accessMode = READ_ONLY)
-    @CreatedBy
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
     @Schema(title = "This record was last modified by", example = "tom", accessMode = READ_ONLY)
-    @LastModifiedBy
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String modifier;
 
     @Schema(title = "This record creation time (millisecond timestamp)", accessMode = READ_ONLY)
-    @CreatedDate
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime gmtCreate;
 
     @Schema(title = "Record the latest modification time (timestamp in milliseconds)", accessMode = READ_ONLY)
-    @LastModifiedDate
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime gmtUpdate;
 }

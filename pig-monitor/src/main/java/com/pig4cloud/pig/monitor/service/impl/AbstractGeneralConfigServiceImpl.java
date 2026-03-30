@@ -21,7 +21,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import com.pig4cloud.pig.common.base.dao.GeneralConfigDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.common.base.mapper.GeneralConfigMapper;
 import com.pig4cloud.pig.common.base.service.GeneralConfigService;
 import com.pig4cloud.pig.common.core.entity.manager.GeneralConfig;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,17 +33,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 abstract class AbstractGeneralConfigServiceImpl<T> implements GeneralConfigService<T> {
 
-    protected final GeneralConfigDao generalConfigDao;
+    protected final GeneralConfigMapper generalConfigMapper;
 
     protected final ObjectMapper objectMapper;
 
     /**
-     * <p>Constructor, passing in GeneralConfigDao, ObjectMapper and type.</p>
-     * @param generalConfigDao Dao object
+     * <p>Constructor, passing in GeneralConfigMapper, ObjectMapper and type.</p>
+     * @param generalConfigMapper Mapper object
      * @param objectMapper     JSON tool object
      */
-    protected AbstractGeneralConfigServiceImpl(GeneralConfigDao generalConfigDao, ObjectMapper objectMapper) {
-        this.generalConfigDao = generalConfigDao;
+    protected AbstractGeneralConfigServiceImpl(GeneralConfigMapper generalConfigMapper, ObjectMapper objectMapper) {
+        this.generalConfigMapper = generalConfigMapper;
         this.objectMapper = objectMapper;
     }
 
@@ -60,7 +61,7 @@ abstract class AbstractGeneralConfigServiceImpl<T> implements GeneralConfigServi
                     .type(type())
                     .content(contentJson)
                     .build();
-            generalConfigDao.save(generalConfig2Save);
+            generalConfigMapper.insert(generalConfig2Save);
             log.info("Configuration saved successfully");
             handler(getConfig());
         } catch (JsonProcessingException e) {
@@ -74,7 +75,7 @@ abstract class AbstractGeneralConfigServiceImpl<T> implements GeneralConfigServi
      */
     @Override
     public T getConfig() {
-        GeneralConfig generalConfig = generalConfigDao.findByType(type());
+        GeneralConfig generalConfig = generalConfigMapper.selectOne(new LambdaQueryWrapper<GeneralConfig>().eq(GeneralConfig::getType, type()));
         if (generalConfig == null) {
             return null;
         }

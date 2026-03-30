@@ -17,8 +17,10 @@
 
 package com.pig4cloud.pig.common.core.entity.warehouse;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,13 +32,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
 /**
  * metrics history data entity
  */
-@Entity
-@Table(name = "hzb_history", indexes = {
-        @Index(name = "history_query_index", columnList = "monitorId"),
-        @Index(name = "history_query_index", columnList = "app"),
-        @Index(name = "history_query_index", columnList = "metrics"),
-        @Index(name = "history_query_index", columnList = "metric")
-})
+@TableName("hzb_history")
 @Data
 @Builder
 @AllArgsConstructor
@@ -44,8 +40,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
 @Schema(description = "Metrics History Data Entity")
 public class History {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(value = "id", type = IdType.AUTO)
     @Schema(description = "Metric data history entity primary key index ID", example = "87584674384", accessMode = READ_ONLY)
     private Long id;
 
@@ -61,14 +56,12 @@ public class History {
     @Schema(title = "Monitoring Metric usage speed count")
     private String metric;
 
-    @Column(length = 5000)
     private String instance;
 
     @Schema(title = "Metric Type 0: Number 1：String")
     private Byte metricType;
 
     @Schema(title = "Metric String Value")
-    @Column(length = 2048)
     private String str;
 
     @Schema(title = "Metric Integer Value")

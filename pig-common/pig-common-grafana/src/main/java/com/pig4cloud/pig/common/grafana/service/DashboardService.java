@@ -17,10 +17,11 @@
 
 package com.pig4cloud.pig.common.grafana.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.pig4cloud.pig.common.core.entity.grafana.GrafanaDashboard;
 import com.pig4cloud.pig.common.core.util.JsonUtil;
 import com.pig4cloud.pig.common.grafana.config.GrafanaProperties;
-import com.pig4cloud.pig.common.grafana.dao.DashboardDao;
+import com.pig4cloud.pig.common.grafana.mapper.DashboardMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -48,7 +49,7 @@ public class DashboardService {
     private ServiceAccountService serviceAccountService;
 
     @Autowired
-    private DashboardDao dashboardDao;
+    private DashboardMapper dashboardMapper;
 
     @Autowired
     private GrafanaProperties grafanaProperties;
@@ -94,7 +95,7 @@ public class DashboardService {
                             + grafanaDashboard.getUrl().replace(grafanaProperties.getUrl(), "")
                             + KIOSK + REFRESH + INSTANCE + monitorId + USE_DATASOURCE);
                     grafanaDashboard.setMonitorId(monitorId);
-                    dashboardDao.save(grafanaDashboard);
+                    dashboardMapper.insert(grafanaDashboard);
                     log.info("create dashboard success, token: {}", response.getBody());
                 }
                 return response;
@@ -121,15 +122,15 @@ public class DashboardService {
      */
     @Transactional(rollbackFor = Exception.class)
     public void deleteDashboard(Long monitorId) {
-        GrafanaDashboard grafanaDashboard = dashboardDao.findByMonitorId(monitorId);
+        GrafanaDashboard grafanaDashboard = dashboardMapper.selectOne(new LambdaQueryWrapper<GrafanaDashboard>().eq(GrafanaDashboard::getMonitorId, monitorId));
         if (Objects.isNull(grafanaDashboard)) {
             return;
         }
         String uid = grafanaDashboard.getUid();
-        List<GrafanaDashboard> grafanaDashboards = dashboardDao.findByUid(uid);
+        List<GrafanaDashboard> grafanaDashboards = dashboardMapper.selectList(new LambdaQueryWrapper<GrafanaDashboard>().eq(GrafanaDashboard::getUid, uid));
 
         if (grafanaDashboards.size() > 1) {
-            dashboardDao.deleteByMonitorId(monitorId);
+            dashboardMapper.delete(new LambdaQueryWrapper<GrafanaDashboard>().eq(GrafanaDashboard::getMonitorId, monitorId));
         } else {
             String token = serviceAccountService.getToken();
             String url = grafanaProperties.getPrefix() + grafanaProperties.getUrl() + String.format(DELETE_DASHBOARD_API, uid);
@@ -139,7 +140,7 @@ public class DashboardService {
             headers.setBearerAuth(token);
 
             HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-            dashboardDao.deleteByMonitorId(monitorId);
+            dashboardMapper.delete(new LambdaQueryWrapper<GrafanaDashboard>().eq(GrafanaDashboard::getMonitorId, monitorId));
 
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, requestEntity, String.class);
 
@@ -159,7 +160,7 @@ public class DashboardService {
      * @return GrafanaDashboard object
      */
     public GrafanaDashboard getDashboardByMonitorId(Long monitorId) {
-        return dashboardDao.findByMonitorId(monitorId);
+        return dashboardMapper.selectOne(new LambdaQueryWrapper<GrafanaDashboard>().eq(GrafanaDashboard::getMonitorId, monitorId));
     }
 
     /**
@@ -168,10 +169,10 @@ public class DashboardService {
      * @param monitorId the ID of the monitor associated with the dashboard
      */
     public void closeGrafanaDashboard(Long monitorId) {
-        GrafanaDashboard grafanaDashboard = dashboardDao.findByMonitorId(monitorId);
+        GrafanaDashboard grafanaDashboard = dashboardMapper.selectOne(new LambdaQueryWrapper<GrafanaDashboard>().eq(GrafanaDashboard::getMonitorId, monitorId));
         if (grafanaDashboard != null) {
             grafanaDashboard.setEnabled(false);
-            dashboardDao.save(grafanaDashboard);
+            dashboardMapper.updateById(grafanaDashboard);
         }
     }
 }

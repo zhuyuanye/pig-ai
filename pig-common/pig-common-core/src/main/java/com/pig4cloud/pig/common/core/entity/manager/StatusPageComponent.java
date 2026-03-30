@@ -95,7 +95,7 @@ public class StatusPageComponent implements Serializable {
 	 * <p>
 	 * 用于过滤和分类组件的标签信息，以JSON格式存储
 	 */
-	@TableField(typeHandler = "com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler")
+	@TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
 	@Schema(title = "组件标签", example = "{env:test}", accessMode = READ_WRITE)
 	private Map<String, String> labels;
 

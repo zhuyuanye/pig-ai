@@ -17,29 +17,24 @@
 
 package com.pig4cloud.pig.common.core.entity.push;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 /**
  * push metrics entity
  */
-@Entity
-@Table(name = "hzb_push_metrics", indexes = {
-        @Index(name = "push_query_index", columnList = "monitorId"),
-        @Index(name = "push_query_index", columnList = "time")
-})
+@TableName("hzb_push_metrics")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EntityListeners(AuditingEntityListener.class)
 public class PushMetrics {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
     private Long monitorId;
     private Long time;

@@ -22,13 +22,10 @@ import de.codecentric.boot.admin.server.config.EnableAdminServer;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportRuntimeHints;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -56,10 +53,7 @@ import jakarta.annotation.PostConstruct;
 @EnableDiscoveryClient
 @EnablePigFeignClients
 @SpringBootApplication
-@EnableJpaAuditing
-@EnableJpaRepositories(basePackages = {"com.pig4cloud.pig.common.base", "com.pig4cloud.pig.common.alert"})
-@EntityScan(basePackages = {"com.pig4cloud"})
-@MapperScan("com.pig4cloud.pig.monitor.mapper")
+@MapperScan("com.pig4cloud")
 @ComponentScan(basePackages = {"com.pig4cloud"})
 @ConfigurationPropertiesScan(basePackages = {"com.pig4cloud"})
 @ImportRuntimeHints(HertzbeatRuntimeHintsRegistrar.class)

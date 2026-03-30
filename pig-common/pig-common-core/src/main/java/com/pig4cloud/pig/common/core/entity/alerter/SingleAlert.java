@@ -64,14 +64,14 @@ public class SingleAlert {
      * 告警标签，如 {alertname: HighCPUUsage, priority: critical}
      */
     @Schema(title = "告警标签", example = "{\"alertname\": \"HighCPUUsage\"}")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
     private Map<String, String> labels;
 
     /**
      * 告警注解，如 {summary: 检测到高CPU使用率}
      */
     @Schema(title = "告警注解", example = "{\"summary\": \"High CPU usage detected\"}")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonMapTypeHandler.class)
     private Map<String, String> annotations;
 
     /**

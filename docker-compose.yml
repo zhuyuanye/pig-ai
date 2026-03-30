@@ -112,6 +112,22 @@ services:
     networks:
       - spring_cloud_default
 
+  pig-collector:
+    build:
+      context: ./pig-collector/collector-collector
+    restart: always
+    ports:
+      - 1159:1159
+    container_name: pig-collector
+    hostname: pig-collector
+    image: pig-collector
+    environment:
+      NACOS_HOST: pig-register
+      MANAGER_HOST: pig-monitor
+      MANAGER_PORT: 1158
+    networks:
+      - spring_cloud_default
+
   pig-codegen:
     build:
       context: ./pig-visual/pig-codegen

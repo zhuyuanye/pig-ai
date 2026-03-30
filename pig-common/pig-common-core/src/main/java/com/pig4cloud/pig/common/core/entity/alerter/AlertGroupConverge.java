@@ -63,7 +63,7 @@ public class AlertGroupConverge {
      * 分组标签列表
      */
     @Schema(title = "分组标签列表", example = "[\"instance\"]")
-    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonStringListTypeHandler.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.core.handler.JsonStringListTypeHandler.class)
     private List<String> groupLabels;
 
     /**

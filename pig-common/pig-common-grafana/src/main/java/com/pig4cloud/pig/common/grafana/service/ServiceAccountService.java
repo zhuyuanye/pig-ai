@@ -24,7 +24,8 @@ import com.pig4cloud.pig.common.core.entity.manager.GeneralConfig;
 import com.pig4cloud.pig.common.core.util.CommonUtil;
 import com.pig4cloud.pig.common.core.util.JsonUtil;
 import com.pig4cloud.pig.common.grafana.config.GrafanaProperties;
-import com.pig4cloud.pig.common.grafana.dao.GrafanaConfigDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.common.grafana.mapper.GrafanaConfigMapper;
 import com.pig4cloud.pig.common.grafana.dto.GrafanaConfig;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +50,7 @@ import static com.pig4cloud.pig.common.grafana.common.GrafanaConstants.*;
 public class ServiceAccountService {
 
     private final GrafanaProperties grafanaProperties;
-    private final GrafanaConfigDao grafanaConfigDao;
+    private final GrafanaConfigMapper grafanaConfigMapper;
     private final RestTemplate restTemplate;
 
     private String url;
@@ -60,11 +61,11 @@ public class ServiceAccountService {
     @Autowired
     public ServiceAccountService(
             GrafanaProperties grafanaProperties,
-            GrafanaConfigDao grafanaConfigDao,
+            GrafanaConfigMapper grafanaConfigMapper,
             RestTemplate restTemplate
     ) {
         this.grafanaProperties = grafanaProperties;
-        this.grafanaConfigDao = grafanaConfigDao;
+        this.grafanaConfigMapper = grafanaConfigMapper;
         this.restTemplate = restTemplate;
     }
 
@@ -132,7 +133,7 @@ public class ServiceAccountService {
                     GrafanaConfig grafanaConfig = GrafanaConfig.builder().token(token).build();
                     GeneralConfig generalConfig = GeneralConfig.builder().type(GRAFANA_CONFIG)
                             .content(JsonUtil.toJson(grafanaConfig)).build();
-                    grafanaConfigDao.save(generalConfig);
+                    grafanaConfigMapper.insert(generalConfig);
                     return token;
                 }
                 log.info("Create token success: {}", response.getBody());
@@ -150,7 +151,7 @@ public class ServiceAccountService {
      * @return The token key
      */
     public String getToken() {
-        GeneralConfig generalConfig = grafanaConfigDao.findByType(GRAFANA_CONFIG);
+        GeneralConfig generalConfig = grafanaConfigMapper.selectOne(new LambdaQueryWrapper<GeneralConfig>().eq(GeneralConfig::getType, GRAFANA_CONFIG));
         if (generalConfig == null) {
             log.error("Service token not found");
             return null;

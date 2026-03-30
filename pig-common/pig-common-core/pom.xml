@@ -29,10 +29,6 @@
 
     <description>pig 公共工具类核心包</description>
 
-    <properties>
-        <eclipse-jpa.version>4.0.2</eclipse-jpa.version>
-    </properties>
-
     <dependencies>
         <!--hutool-->
         <dependency>
@@ -82,26 +78,17 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-autoconfigure</artifactId>
 		</dependency>
-		<!-- jpa -->
-		<dependency>
-			<groupId>org.eclipse.persistence</groupId>
-			<artifactId>org.eclipse.persistence.jpa</artifactId>
-			<version>${eclipse-jpa.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.hibernate.orm</groupId>
-					<artifactId>hibernate-core</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
+
 		<!-- mybatis-plus annotation (实体类需要) -->
 		<dependency>
 			<groupId>com.baomidou</groupId>
 			<artifactId>mybatis-plus-annotation</artifactId>
+		</dependency>
+		<!-- mybatis-plus core (TypeHandler 基类需要) -->
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-core</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<!-- validation -->
 		<dependency>

@@ -20,7 +20,7 @@ package com.pig4cloud.pig.monitor.service.impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pig4cloud.pig.common.alert.dto.MailServerConfig;
-import com.pig4cloud.pig.common.base.dao.GeneralConfigDao;
+import com.pig4cloud.pig.common.base.mapper.GeneralConfigMapper;
 import com.pig4cloud.pig.common.core.constants.GeneralConfigTypeEnum;
 import org.springframework.stereotype.Service;
 
@@ -42,8 +42,8 @@ public class MailGeneralConfigServiceImpl extends AbstractGeneralConfigServiceIm
      * @param generalConfigDao dao layer operation data, needed to create an instance of this class
      * @param objectMapper     object mapping , needed to create an instance of this class
      */
-    public MailGeneralConfigServiceImpl(GeneralConfigDao generalConfigDao, ObjectMapper objectMapper) {
-        super(generalConfigDao, objectMapper);
+    public MailGeneralConfigServiceImpl(GeneralConfigMapper generalConfigMapper, ObjectMapper objectMapper) {
+        super(generalConfigMapper, objectMapper);
     }
 
     @Override

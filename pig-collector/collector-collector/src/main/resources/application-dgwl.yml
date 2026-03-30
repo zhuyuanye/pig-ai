@@ -1,0 +1,28 @@
+# 采集器服务本地配置（dgwl 环境）
+
+# 采集器信息
+collector:
+  info:
+    version: ${COLLECTOR_VERSION:1.7.1}
+    ip: ${COLLECTOR_IP:}
+  dispatch:
+    entrance:
+      netty:
+        enabled: true
+        # 采集器唯一标识名称
+        identity: ${IDENTITY:}
+        # 运行模式：public（公有集群）或 private（私有云边）
+        mode: ${MODE:public}
+        # 管理端（pig-monitor）的 Netty 服务地址
+        manager-host: ${MANAGER_HOST:pig-monitor}
+        # 管理端（pig-monitor）的 Netty 服务端口
+        manager-port: ${MANAGER_PORT:1158}
+
+# 推送地址（指向 pig-monitor）
+push:
+  uri: "${PUSH_HOST:pig-monitor}:${PUSH_PORT:1157}"
+
+# 消息队列类型
+common:
+  queue:
+    type: netty

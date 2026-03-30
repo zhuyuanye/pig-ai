@@ -30,10 +30,10 @@
 			<groupId>com.pig4cloud</groupId>
 			<artifactId>pig-common-warehouse</artifactId>
 		</dependency>
-		<!-- jpa -->
+		<!-- mybatis plus -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<groupId>com.pig4cloud</groupId>
+			<artifactId>pig-common-mybatis</artifactId>
 		</dependency>
 		<!-- swagger -->
 		<dependency>

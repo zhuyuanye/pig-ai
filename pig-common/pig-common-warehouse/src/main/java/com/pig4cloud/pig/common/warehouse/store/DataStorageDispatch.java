@@ -17,8 +17,6 @@
 
 package com.pig4cloud.pig.common.warehouse.store;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import com.pig4cloud.pig.common.core.constants.CommonConstants;
 import com.pig4cloud.pig.common.core.entity.manager.Monitor;
@@ -47,8 +45,6 @@ public class DataStorageDispatch {
     private final RealTimeDataWriter realTimeDataWriter;
     private final Optional<HistoryDataWriter> historyDataWriter;
     private final PluginRunner pluginRunner;
-    @PersistenceContext
-    private EntityManager entityManager;
 
     public DataStorageDispatch(CommonDataQueue commonDataQueue,
                                WarehouseWorkerPool workerPool,
@@ -100,9 +96,6 @@ public class DataStorageDispatch {
                 int status = code == CollectRep.Code.SUCCESS ? CommonConstants.MONITOR_UP_CODE : CommonConstants.MONITOR_DOWN_CODE;
                 int preStatus = code == CollectRep.Code.SUCCESS ? CommonConstants.MONITOR_DOWN_CODE : CommonConstants.MONITOR_UP_CODE;
                 int matchedRows = jdbcTemplate.update(sql, status, id, preStatus);
-                if (matchedRows > 0) {
-                    entityManager.getEntityManagerFactory().getCache().evict(Monitor.class, id);
-                }
             } catch (Exception e) {
                 log.error("Update monitor status failed for monitor id: {}", id, e);
             }

@@ -18,7 +18,8 @@
 package com.pig4cloud.pig.common.alert.notice.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pig4cloud.pig.common.base.dao.GeneralConfigDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.common.base.mapper.GeneralConfigMapper;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +70,7 @@ public class EmailAlertNotifyHandlerImpl extends AbstractAlertNotifyHandlerImpl 
     @Value("${spring.mail.properties.mail.smtp.starttls.enable:false}")
     private boolean starttlsEnable = false;
 
-    private final GeneralConfigDao generalConfigDao;
+    private final GeneralConfigMapper generalConfigMapper;
 
     private final ObjectMapper objectMapper;
 
@@ -85,7 +86,7 @@ public class EmailAlertNotifyHandlerImpl extends AbstractAlertNotifyHandlerImpl 
             String fromUsername = username;
             try {
                 boolean useDatabase = false;
-                GeneralConfig emailConfig = generalConfigDao.findByType(TYPE);
+                GeneralConfig emailConfig = generalConfigMapper.selectOne(new LambdaQueryWrapper<GeneralConfig>().eq(GeneralConfig::getType, TYPE));
                 if (emailConfig != null && emailConfig.getContent() != null) {
                     // enable database configuration
                     String content = emailConfig.getContent();

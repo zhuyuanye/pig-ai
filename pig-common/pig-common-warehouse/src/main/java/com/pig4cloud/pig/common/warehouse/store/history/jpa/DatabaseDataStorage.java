@@ -20,7 +20,6 @@ package com.pig4cloud.pig.common.warehouse.store.history.jpa;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -33,11 +32,10 @@ import com.pig4cloud.pig.common.core.entity.message.CollectRep;
 import com.pig4cloud.pig.common.core.entity.warehouse.History;
 import com.pig4cloud.pig.common.core.util.JsonUtil;
 import com.pig4cloud.pig.common.core.util.TimePeriodUtil;
-import com.pig4cloud.pig.common.warehouse.dao.HistoryDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.common.warehouse.mapper.HistoryMapper;
 import com.pig4cloud.pig.common.warehouse.store.history.AbstractHistoryDataStorage;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -52,22 +50,22 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- * data storage by mysql/h2 - jpa
+ * data storage by mysql/h2 - mybatis plus
  */
 @Component
 @ConditionalOnProperty(prefix = "warehouse.store.jpa", name = "enabled", havingValue = "true")
 @Slf4j
-public class JpaDatabaseDataStorage extends AbstractHistoryDataStorage {
-    private final HistoryDao historyDao;
+public class DatabaseDataStorage extends AbstractHistoryDataStorage {
+    private final HistoryMapper historyMapper;
     private final JpaProperties jpaProperties;
 
     private static final int STRING_MAX_LENGTH = 1024;
 
-    public JpaDatabaseDataStorage(JpaProperties jpaProperties,
-                                  HistoryDao historyDao) {
+    public DatabaseDataStorage(JpaProperties jpaProperties,
+                                  HistoryMapper historyMapper) {
         this.jpaProperties = jpaProperties;
         this.serverAvailable = true;
-        this.historyDao = historyDao;
+        this.historyMapper = historyMapper;
         expiredDataCleaner();
     }
 
@@ -101,17 +99,17 @@ public class JpaDatabaseDataStorage extends AbstractHistoryDataStorage {
                 expireTime = dateTime.toEpochSecond() * 1000L;
             }
             try {
-                int rows = historyDao.deleteHistoriesByTimeBefore(expireTime);
+                int rows = historyMapper.delete(new LambdaQueryWrapper<History>().lt(History::getTime, expireTime));
                 log.info("[jpa-metrics-store]-delete {} rows.", rows);
-                long total = historyDao.count();
+                long total = historyMapper.selectCount(null);
                 if (total > jpaProperties.maxHistoryRecordNum()) {
-                    rows = historyDao.deleteOlderHistoriesRecord(jpaProperties.maxHistoryRecordNum() / 2);
+                    rows = historyMapper.deleteOlderHistoriesRecord(jpaProperties.maxHistoryRecordNum() / 2);
                     log.warn("[jpa-metrics-store]-force delete {} rows due too many. Please use time series db instead of jpa for better performance.", rows);
                 }
             } catch (Exception e) {
                 log.error("expiredDataCleaner database error: {}.", e.getMessage());
                 log.error("try to truncate table hzb_history. Please use time series db instead of jpa for better performance.");
-                historyDao.truncateTable();
+                historyMapper.truncateTable();
             }
         }, 5, 30, TimeUnit.SECONDS);
     }
@@ -143,7 +141,7 @@ public class JpaDatabaseDataStorage extends AbstractHistoryDataStorage {
                 allHistoryList.addAll(singleHistoryList);
             }
 
-            historyDao.saveAll(allHistoryList);
+            allHistoryList.forEach(historyMapper::insert);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
@@ -193,42 +191,34 @@ public class JpaDatabaseDataStorage extends AbstractHistoryDataStorage {
     @Override
     public Map<String, List<Value>> getHistoryMetricData(Long monitorId, String app, String metrics, String metric, String label, String history) {
         Map<String, List<Value>> instanceValuesMap = new HashMap<>(8);
-        Specification<History> specification = (root, query, criteriaBuilder) -> {
-            List<Predicate> andList = new ArrayList<>();
-            Predicate predicateMonitorId = criteriaBuilder.equal(root.get("monitorId"), monitorId);
-            Predicate predicateMonitorType = criteriaBuilder.equal(root.get("app"), app);
-            if (CommonConstants.PROMETHEUS.equals(app)) {
-                predicateMonitorType = criteriaBuilder.like(root.get("app"), CommonConstants.PROMETHEUS_APP_PREFIX + "%");
-            }
-            Predicate predicateMonitorMetrics = criteriaBuilder.equal(root.get("metrics"), metrics);
-            Predicate predicateMonitorMetric = criteriaBuilder.equal(root.get("metric"), metric);
-            andList.add(predicateMonitorId);
-            andList.add(predicateMonitorType);
-            andList.add(predicateMonitorMetrics);
-            andList.add(predicateMonitorMetric);
+        LambdaQueryWrapper<History> queryWrapper = new LambdaQueryWrapper<History>()
+                .eq(History::getMonitorId, monitorId)
+                .eq(History::getMetrics, metrics)
+                .eq(History::getMetric, metric);
 
-            if (StringUtils.isNotBlank(label)) {
-                Predicate predicateMonitorInstance = criteriaBuilder.equal(root.get("instance"), label);
-                andList.add(predicateMonitorInstance);
-            }
+        if (CommonConstants.PROMETHEUS.equals(app)) {
+            queryWrapper.likeRight(History::getApp, CommonConstants.PROMETHEUS_APP_PREFIX);
+        } else {
+            queryWrapper.eq(History::getApp, app);
+        }
 
-            if (history != null) {
-                try {
-                    TemporalAmount temporalAmount = TimePeriodUtil.parseTokenTime(history);
-                    ZonedDateTime dateTime = ZonedDateTime.now().minus(temporalAmount);
-                    long timeBefore = dateTime.toEpochSecond() * 1000L;
-                    Predicate timePredicate = criteriaBuilder.ge(root.get("time"), timeBefore);
-                    andList.add(timePredicate);
-                } catch (Exception e) {
-                    log.error(e.getMessage());
-                }
+        if (StringUtils.isNotBlank(label)) {
+            queryWrapper.eq(History::getInstance, label);
+        }
+
+        if (history != null) {
+            try {
+                TemporalAmount temporalAmount = TimePeriodUtil.parseTokenTime(history);
+                ZonedDateTime dateTime = ZonedDateTime.now().minus(temporalAmount);
+                long timeBefore = dateTime.toEpochSecond() * 1000L;
+                queryWrapper.ge(History::getTime, timeBefore);
+            } catch (Exception e) {
+                log.error(e.getMessage());
             }
-            Predicate[] predicates = new Predicate[andList.size()];
-            Predicate predicate = criteriaBuilder.and(andList.toArray(predicates));
-            return query.where(predicate).getRestriction();
-        };
-        Sort sortExp = Sort.by(new Sort.Order(Sort.Direction.DESC, "time"));
-        List<History> historyList = historyDao.findAll(specification, sortExp);
+        }
+
+        queryWrapper.orderByDesc(History::getTime);
+        List<History> historyList = historyMapper.selectList(queryWrapper);
         for (History dataItem : historyList) {
             String value = "";
             if (dataItem.getMetricType() == CommonConstants.TYPE_NUMBER) {

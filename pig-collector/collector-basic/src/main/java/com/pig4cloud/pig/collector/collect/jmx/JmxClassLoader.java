@@ -28,7 +28,7 @@ public class JmxClassLoader extends ClassLoader {
     private static final String[] WHITE_PRE_LIST = new String[]{
             "java.",
             "javax.management.",
-            "org.apache.hertzbeat.",
+            "com.pig4cloud.pig.",
             "org.springframework.util.",
             "com.sun.",
             "sun.",
