@@ -31,6 +31,12 @@
 			<groupId>com.pig4cloud</groupId>
 			<artifactId>pig-common-mybatis</artifactId>
 		</dependency>
+		<!-- ANTLR4 runtime (alert expression parser) -->
+		<dependency>
+			<groupId>org.antlr</groupId>
+			<artifactId>antlr4-runtime</artifactId>
+			<version>4.13.2</version>
+		</dependency>
 		<!-- plugin -->
 		<dependency>
 			<groupId>com.pig4cloud</groupId>

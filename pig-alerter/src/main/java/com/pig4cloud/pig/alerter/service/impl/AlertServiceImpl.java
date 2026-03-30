@@ -39,6 +39,9 @@ public class AlertServiceImpl implements AlertService {
 
 	private final SingleAlertMapper singleAlertMapper;
 
+	/**
+	 * 分页查询单条告警列表
+	 */
 	@Override
 	public IPage<SingleAlert> getSingleAlerts(String status, String search, String sort, String order, int pageIndex,
 			int pageSize) {
@@ -58,6 +61,9 @@ public class AlertServiceImpl implements AlertService {
 		return singleAlertMapper.selectPage(page, wrapper);
 	}
 
+	/**
+	 * 分页查询分组告警列表（含关联的单条告警）
+	 */
 	@Override
 	public IPage<GroupAlert> getGroupAlerts(String status, String search, String sort, String order, int pageIndex,
 			int pageSize, String startTime, String endTime) {
@@ -96,6 +102,9 @@ public class AlertServiceImpl implements AlertService {
 		return groupAlertPage;
 	}
 
+	/**
+	 * 批量删除分组告警（同时删除关联的单条告警）
+	 */
 	@Override
 	public void deleteGroupAlerts(HashSet<Long> ids) {
 		List<GroupAlert> groupAlerts = groupAlertMapper
@@ -110,21 +119,33 @@ public class AlertServiceImpl implements AlertService {
 		groupAlertMapper.deleteByIds(ids);
 	}
 
+	/**
+	 * 批量删除单条告警
+	 */
 	@Override
 	public void deleteSingleAlerts(HashSet<Long> ids) {
 		singleAlertMapper.deleteByIds(ids);
 	}
 
+	/**
+	 * 批量修改分组告警状态
+	 */
 	@Override
 	public void editGroupAlertStatus(String status, List<Long> ids) {
 		groupAlertMapper.updateStatusByIds(status, ids);
 	}
 
+	/**
+	 * 批量修改单条告警状态
+	 */
 	@Override
 	public void editSingleAlertStatus(String status, List<Long> ids) {
 		singleAlertMapper.updateStatusByIds(status, ids);
 	}
 
+	/**
+	 * 获取告警统计汇总信息（按严重级别统计、处理率等）
+	 */
 	@Override
 	public AlertSummary getAlertsSummary() {
 		AlertSummary alertSummary = new AlertSummary();

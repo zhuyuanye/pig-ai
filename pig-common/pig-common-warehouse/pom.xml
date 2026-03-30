@@ -29,6 +29,11 @@
 			<groupId>com.pig4cloud</groupId>
 			<artifactId>pig-common-mybatis</artifactId>
 		</dependency>
+		<!-- spring jdbc (JdbcTemplate + HikariCP) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
 		<!-- plugin -->
 		<dependency>
 			<groupId>com.pig4cloud</groupId>

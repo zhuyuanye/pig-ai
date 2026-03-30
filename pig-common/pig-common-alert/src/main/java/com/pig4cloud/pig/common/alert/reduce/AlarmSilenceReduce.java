@@ -51,7 +51,7 @@ public class AlarmSilenceReduce {
         List<AlertSilence> alertSilenceList = CacheFactory.getAlertSilenceCache();
         if (alertSilenceList == null) {
             alertSilenceList = alertSilenceMapper.selectList(
-                    new LambdaQueryWrapper<AlertSilence>().eq(AlertSilence::getEnable, true));
+                    new LambdaQueryWrapper<AlertSilence>().eq(AlertSilence::isEnable, true));
             CacheFactory.setAlertSilenceCache(alertSilenceList);
         }
 

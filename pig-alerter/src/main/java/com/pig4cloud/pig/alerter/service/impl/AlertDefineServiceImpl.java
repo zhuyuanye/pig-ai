@@ -60,6 +60,9 @@ public class AlertDefineServiceImpl implements AlertDefineService {
 		alertDefineImExportServiceList.forEach(it -> alertDefineImExportServiceMap.put(it.type(), it));
 	}
 
+	/**
+	 * 校验告警规则定义（表达式合法性、名称唯一性）
+	 */
 	@Override
 	public void validate(AlertDefine alertDefine, boolean isModify) throws IllegalArgumentException {
 		if (StringUtils.hasText(alertDefine.getExpr())) {
@@ -83,6 +86,9 @@ public class AlertDefineServiceImpl implements AlertDefineService {
 		}
 	}
 
+	/**
+	 * 新增告警规则定义
+	 */
 	@Override
 	public void addAlertDefine(AlertDefine alertDefine) throws RuntimeException {
 		alertDefineMapper.insert(alertDefine);
@@ -90,6 +96,9 @@ public class AlertDefineServiceImpl implements AlertDefineService {
 		CacheFactory.clearAlertDefineCache();
 	}
 
+	/**
+	 * 修改告警规则定义
+	 */
 	@Override
 	public void modifyAlertDefine(AlertDefine alertDefine) throws RuntimeException {
 		alertDefineMapper.updateById(alertDefine);
@@ -97,6 +106,9 @@ public class AlertDefineServiceImpl implements AlertDefineService {
 		CacheFactory.clearAlertDefineCache();
 	}
 
+	/**
+	 * 根据ID删除告警规则定义
+	 */
 	@Override
 	public void deleteAlertDefine(long alertId) throws RuntimeException {
 		alertDefineMapper.deleteById(alertId);
@@ -104,11 +116,17 @@ public class AlertDefineServiceImpl implements AlertDefineService {
 		CacheFactory.clearAlertDefineCache();
 	}
 
+	/**
+	 * 根据ID查询告警规则定义
+	 */
 	@Override
 	public AlertDefine getAlertDefine(long alertId) throws RuntimeException {
 		return alertDefineMapper.selectById(alertId);
 	}
 
+	/**
+	 * 批量删除告警规则定义
+	 */
 	@Override
 	public void deleteAlertDefines(Set<Long> alertIds) throws RuntimeException {
 		alertDefineMapper.deleteByIds(alertIds);
@@ -118,6 +136,9 @@ public class AlertDefineServiceImpl implements AlertDefineService {
 		CacheFactory.clearAlertDefineCache();
 	}
 
+	/**
+	 * 动态条件分页查询告警规则定义
+	 */
 	@Override
 	public IPage<AlertDefine> getAlertDefines(List<Long> defineIds, String search, String sort, String order,
 			int pageIndex, int pageSize) {
@@ -141,8 +162,9 @@ public class AlertDefineServiceImpl implements AlertDefineService {
 			wrapper.in(AlertDefine::getId, defineIds);
 		}
 		if (!searchList.isEmpty()) {
+			List<String> finalSearchList = searchList;
 			wrapper.and(w -> {
-				for (String keyword : searchList) {
+				for (String keyword : finalSearchList) {
 					String lk = "%" + keyword.toLowerCase() + "%";
 					w.or(q -> q.like(AlertDefine::getName, lk)
 						.or()
@@ -161,6 +183,9 @@ public class AlertDefineServiceImpl implements AlertDefineService {
 		return alertDefineMapper.selectPage(page, wrapper);
 	}
 
+	/**
+	 * 导出告警规则定义配置
+	 */
 	@Override
 	public void export(List<Long> ids, String type, HttpServletResponse res) throws Exception {
 		var imExportService = alertDefineImExportServiceMap.get(type);
@@ -176,6 +201,9 @@ public class AlertDefineServiceImpl implements AlertDefineService {
 		imExportService.exportConfig(res.getOutputStream(), ids);
 	}
 
+	/**
+	 * 导入告警规则定义配置
+	 */
 	@Override
 	public void importConfig(MultipartFile file) throws Exception {
 		var type = FileUtil.getFileType(file);
@@ -187,6 +215,9 @@ public class AlertDefineServiceImpl implements AlertDefineService {
 		imExportService.importConfig(file.getInputStream());
 	}
 
+	/**
+	 * 获取所有启用的实时告警规则定义（带缓存）
+	 */
 	@Override
 	public List<AlertDefine> getRealTimeAlertDefines() {
 		List<AlertDefine> alertDefines = CacheFactory.getAlertDefineCache();
