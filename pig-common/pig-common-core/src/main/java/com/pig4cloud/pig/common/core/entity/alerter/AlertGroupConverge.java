@@ -17,80 +17,104 @@
 
 package com.pig4cloud.pig.common.core.entity.alerter;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.pig4cloud.pig.common.core.entity.manager.JsonStringListAttributeConverter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Alert group converge strategy entity
+ * 告警分组收敛策略实体
+ * <p>
+ * 定义告警分组收敛的策略，包括分组标签、等待时间、发送间隔等。
+ *
+ * @author pig4cloud
  */
-@Entity
-@Table(name = "hzb_alert_group_converge")
+@TableName("hzb_alert_group_converge")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Alert Group Converge Policy Entity")
-@EntityListeners(AuditingEntityListener.class)
+@Schema(description = "告警分组收敛策略实体")
 public class AlertGroupConverge {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "Primary Key Index ID", example = "87584674384")
+    /**
+     * 主键ID，自增
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    @Schema(title = "主键ID", example = "87584674384")
     private Long id;
 
-    @Schema(title = "Policy name", example = "group-converge-1")
+    /**
+     * 策略名称
+     */
+    @Schema(title = "策略名称", example = "group-converge-1")
     @Size(max = 100)
     @NotNull
     private String name;
 
-    @Schema(title = "Labels to group by", example = "[\"instance\"]")
-    @Convert(converter = JsonStringListAttributeConverter.class)
-    @Column(name = "group_labels", length = 1024)
+    /**
+     * 分组标签列表
+     */
+    @Schema(title = "分组标签列表", example = "[\"instance\"]")
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonStringListTypeHandler.class)
     private List<String> groupLabels;
 
-    @Schema(title = "Initial wait time before sending first group alert (s)", example = "30")
-    @Column(name = "group_wait")
+    /**
+     * 首次发送分组告警前的等待时间（秒）
+     */
+    @Schema(title = "首次发送分组告警前的等待时间（秒）", example = "30")
     private Long groupWait;
 
-    @Schema(title = "Interval between group alert sends (s)", example = "300")
-    @Column(name = "group_interval")
+    /**
+     * 分组告警发送间隔（秒）
+     */
+    @Schema(title = "分组告警发送间隔（秒）", example = "300")
     private Long groupInterval;
 
-    @Schema(title = "Interval for repeating firing alerts (s), set to 0 to disable repeating", example = "9000")
-    @Column(name = "repeat_interval")
+    /**
+     * 重复发送触发中告警的间隔（秒），设为0禁用重复发送
+     */
+    @Schema(title = "重复发送触发中告警的间隔（秒），设为0禁用重复发送", example = "9000")
     private Long repeatInterval;
 
-    @Schema(title = "Whether to enable this policy", example = "true")
+    /**
+     * 是否启用该策略
+     */
+    @Schema(title = "是否启用该策略", example = "true")
     private Boolean enable;
 
-    @Schema(title = "The creator of this record", example = "tom")
-    @CreatedBy
+    /**
+     * 创建者
+     */
+    @Schema(title = "创建者", example = "tom")
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
-    @Schema(title = "This record was last modified by", example = "tom")
-    @LastModifiedBy
+    /**
+     * 最后修改者
+     */
+    @Schema(title = "最后修改者", example = "tom")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String modifier;
 
-    @Schema(title = "This record creation time (millisecond timestamp)")
-    @CreatedDate
+    /**
+     * 创建时间
+     */
+    @Schema(title = "创建时间")
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime gmtCreate;
 
-    @Schema(title = "Record the latest modification time (timestamp in milliseconds)")
-    @LastModifiedDate
+    /**
+     * 最后修改时间
+     */
+    @Schema(title = "最后修改时间")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime gmtUpdate;
 }

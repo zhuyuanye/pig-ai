@@ -18,7 +18,8 @@
 package com.pig4cloud.pig.common.alert.reduce;
 
 import lombok.RequiredArgsConstructor;
-import com.pig4cloud.pig.common.alert.dao.AlertSilenceDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.common.alert.mapper.AlertSilenceMapper;
 import com.pig4cloud.pig.common.alert.notice.AlertNoticeDispatch;
 import com.pig4cloud.pig.common.core.cache.CacheFactory;
 import com.pig4cloud.pig.common.core.entity.alerter.AlertSilence;
@@ -38,7 +39,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AlarmSilenceReduce {
 
-    private final AlertSilenceDao alertSilenceDao;
+    private final AlertSilenceMapper alertSilenceMapper;
     private final AlertNoticeDispatch dispatcherAlarm;
 
     /**
@@ -49,7 +50,8 @@ public class AlarmSilenceReduce {
     public void silenceAlarm(GroupAlert groupAlert) {
         List<AlertSilence> alertSilenceList = CacheFactory.getAlertSilenceCache();
         if (alertSilenceList == null) {
-            alertSilenceList = alertSilenceDao.findAlertSilencesByEnableTrue();
+            alertSilenceList = alertSilenceMapper.selectList(
+                    new LambdaQueryWrapper<AlertSilence>().eq(AlertSilence::getEnable, true));
             CacheFactory.setAlertSilenceCache(alertSilenceList);
         }
 
@@ -105,7 +107,7 @@ public class AlarmSilenceReduce {
         if (startMatch && endMatch) {
             int time = Optional.ofNullable(alertSilence.getTimes()).orElse(0);
             alertSilence.setTimes(time + 1);
-            alertSilenceDao.save(alertSilence);
+            alertSilenceMapper.updateById(alertSilence);
             return false;
         }
         return true;

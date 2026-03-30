@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pig4cloud.pig.common.alert.mapper.AlertDefineBindMapper">
+
+    <!-- 根据告警规则ID删除绑定关系 -->
+    <delete id="deleteByAlertDefineId">
+        DELETE FROM hzb_alert_define_monitor_bind WHERE alert_define_id = #{alertDefineId}
+    </delete>
+
+    <!-- 根据监控ID删除绑定关系 -->
+    <delete id="deleteByMonitorId">
+        DELETE FROM hzb_alert_define_monitor_bind WHERE monitor_id = #{monitorId}
+    </delete>
+
+    <!-- 根据监控ID列表批量删除绑定关系 -->
+    <delete id="deleteByMonitorIds">
+        DELETE FROM hzb_alert_define_monitor_bind WHERE monitor_id IN
+        <foreach collection="monitorIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

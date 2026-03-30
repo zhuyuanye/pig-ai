@@ -17,8 +17,8 @@
 
 package com.pig4cloud.pig.common.core.entity.alerter;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,11 +27,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -39,207 +34,257 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
 
 /**
- * Message notification recipient entity
+ * 消息通知接收人实体
+ * <p>
+ * 定义通知接收人的信息，支持多种通知方式：
+ * 短信、邮件、Webhook、微信、钉钉、飞书、Telegram等。
+ *
+ * @author pig4cloud
  */
-@Entity
-@Table(name = "hzb_notice_receiver")
+@TableName("hzb_notice_receiver")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Message notification recipient entity")
-@EntityListeners(AuditingEntityListener.class)
+@Schema(description = "消息通知接收人实体")
 public class NoticeReceiver {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "Recipient entity primary key index ID", description = "Recipient entity primary key index ID",
+    /**
+     * 主键ID，自增
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    @Schema(title = "接收人主键ID", description = "接收人主键ID",
             example = "87584674384", accessMode = READ_ONLY)
     private Long id;
 
-    @Schema(title = "Recipient name", description = "Recipient name",
+    /**
+     * 接收人名称
+     */
+    @Schema(title = "接收人名称", description = "接收人名称",
             example = "tom", accessMode = READ_WRITE)
     @Size(max = 100)
     @NotBlank(message = "name can not null")
     private String name;
 
-    @Schema(title = "Notification information method: 0-SMS 1-Email 2-webhook 3-WeChat Official Account 4-Enterprise WeChat Robot "
-            + "5-DingTalk Robot 6-FeiShu Robot 7-Telegram Bot 8-SlackWebHook 9-Discord Bot 10-Enterprise WeChat app message",
-            description = "Notification information method: "
-                    + "0-SMS 1-Email 2-webhook 3-WeChat Official Account "
-                    + "4-Enterprise WeChat Robot 5-DingTalk Robot 6-FeiShu Robot "
-                    + "7-Telegram Bot 8-SlackWebHook 9-Discord Bot 10-Enterprise "
-                    + "WeChat app message",
+    /**
+     * 通知方式：0-短信 1-邮件 2-webhook 3-微信公众号 4-企业微信机器人
+     * 5-钉钉机器人 6-飞书机器人 7-Telegram Bot 8-SlackWebHook 9-Discord Bot 10-企业微信应用消息
+     */
+    @Schema(title = "通知方式", description = "通知方式：0-短信 1-邮件 2-webhook 3-微信公众号 4-企业微信机器人 "
+            + "5-钉钉机器人 6-飞书机器人 7-Telegram Bot 8-SlackWebHook 9-Discord Bot 10-企业微信应用消息",
             accessMode = READ_WRITE)
     @Min(0)
     @NotNull(message = "type can not null")
     private Byte type;
 
-    @Schema(title = "Mobile number: Valid when the notification method is SMS",
-            description = "Mobile number: Valid when the notification method is SMS",
+    /**
+     * 手机号码，通知方式为短信时有效
+     */
+    @Schema(title = "手机号码", description = "通知方式为短信时有效",
             example = "18923435643", accessMode = READ_WRITE)
     @Size(max = 100)
     private String phone;
 
-    @Schema(title = "Email account: Valid when the notification method is email",
-            description = "Email account: Valid when the notification method is email",
+    /**
+     * 邮箱地址，通知方式为邮件时有效
+     */
+    @Schema(title = "邮箱地址", description = "通知方式为邮件时有效",
             example = "tom@qq.com", accessMode = READ_WRITE)
     @Size(max = 100)
     private String email;
 
-    @Schema(title = "URL address: The notification method is valid for webhook",
-            description = "URL address: The notification method is valid for webhook",
+    /**
+     * Webhook地址，通知方式为webhook时有效
+     */
+    @Schema(title = "Webhook地址", description = "通知方式为webhook时有效",
             example = "https://www.tancloud.cn", accessMode = READ_WRITE)
     @Size(max = 300)
-    @Column(length = 300)
     private String hookUrl;
 
-    @Schema(title = "openId : The notification method is valid for WeChat official account, enterprise WeChat robot or FlyBook robot",
-            description = "openId : The notification method is valid for WeChat official account, enterprise WeChat robot or FlyBook robot",
+    /**
+     * 微信ID，通知方式为微信公众号、企业微信机器人或飞书机器人时有效
+     */
+    @Schema(title = "微信ID", description = "通知方式为微信公众号、企业微信机器人或飞书机器人时有效",
             example = "343432", accessMode = READ_WRITE)
     @Size(max = 300)
-    @Column(length = 300)
     private String wechatId;
 
-    @Schema(title = "Access token : The notification method is valid for DingTalk robot",
-            description = "Access token : The notification method is valid for DingTalk robot",
+    /**
+     * 访问令牌，通知方式为钉钉机器人时有效
+     */
+    @Schema(title = "访问令牌", description = "通知方式为钉钉机器人时有效",
             example = "34823984635647", accessMode = READ_WRITE)
     @Size(max = 300)
-    @Column(length = 300)
     private String accessToken;
 
-    @Schema(title = "Telegram bot token : The notification method is valid for Telegram Bot",
-            description = "Telegram bot token : The notification method is valid for Telegram Bot",
+    /**
+     * Telegram Bot Token
+     */
+    @Schema(title = "Telegram Bot Token", description = "通知方式为Telegram Bot时有效",
             example = "1499012345:AAEOB_wEYS-DZyPM3h5NzI8voJMXXXXXX", accessMode = READ_WRITE)
     private String tgBotToken;
 
-    @Schema(title = "Telegram user id: The notification method is valid for Telegram Bot",
-            description = "Telegram user id: The notification method is valid for Telegram Bot",
+    /**
+     * Telegram用户ID
+     */
+    @Schema(title = "Telegram用户ID", description = "通知方式为Telegram Bot时有效",
             example = "779294123", accessMode = READ_WRITE)
     private String tgUserId;
 
-    @Schema(title = "Telegram message thread id: The notification method is valid for Telegram Bot",
-            description = "TTelegram message thread id: The notification method is valid for Telegram Bot",
+    /**
+     * Telegram消息线程ID
+     */
+    @Schema(title = "Telegram消息线程ID", description = "通知方式为Telegram Bot时有效",
             example = "779294123", accessMode = READ_WRITE)
     private String tgMessageThreadId;
 
-    @Schema(title = "DingTalk,FeiShu,WeWork user id: The notification method is valid for DingTalk,FeiShu,WeWork Bot",
-            description = "DingTalk,FeiShu,WeWork user id: The notification method is valid for DingTalk,FeiShu,WeWork Bot",
+    /**
+     * 钉钉/飞书/企业微信用户ID
+     */
+    @Schema(title = "钉钉/飞书/企业微信用户ID", description = "通知方式为钉钉、飞书、企业微信Bot时有效",
             example = "779294123", accessMode = READ_WRITE)
     private String userId;
 
-    @Schema(title = "URL address: The notification method is valid for Slack",
-            description = "URL address: The notification method is valid for Slack",
+    /**
+     * Slack Webhook地址
+     */
+    @Schema(title = "Slack Webhook地址", description = "通知方式为Slack时有效",
             example = "https://hooks.slack.com/services/XXXX/XXXX/XXXX", accessMode = READ_WRITE)
     @Size(max = 300)
-    @Column(length = 300)
     private String slackWebHookUrl;
 
-    @Schema(title = "Enterprise weChat message: The notification method is valid for Enterprise WeChat app message",
-            description = "Enterprise weChat message: The notification method is valid for Enterprise WeChat app message",
+    /**
+     * 企业微信企业ID
+     */
+    @Schema(title = "企业微信企业ID", description = "通知方式为企业微信应用消息时有效",
             example = "ww1a603432123d0dc1", accessMode = READ_WRITE)
     private String corpId;
 
-    @Schema(title = "Enterprise weChat appId: The notification method is valid for Enterprise WeChat app message",
-            description = "Enterprise weChat appId: The notification method is valid for Enterprise WeChat app message",
+    /**
+     * 企业微信应用ID
+     */
+    @Schema(title = "企业微信应用ID", description = "通知方式为企业微信应用消息时有效",
             example = "1000001", accessMode = READ_WRITE)
     private Integer agentId;
 
-    @Schema(title = "Enterprise weChat secret: The notification method is valid for Enterprise WeChat app message",
-            description = "Enterprise weChat secret: The notification method is valid for Enterprise WeChat app message",
+    /**
+     * 企业微信应用密钥
+     */
+    @Schema(title = "企业微信应用密钥", description = "通知方式为企业微信应用消息时有效",
             example = "oUydwn92ey0lnuY02MixNa57eNK-20dJn5NEOG-u2uE", accessMode = READ_WRITE)
     private String appSecret;
 
-    @Schema(title = "Enterprise weChat party id: The notification method is valid for Enterprise WeChat app message",
-            description = "Enterprise weChat party id: The notification method is valid for Enterprise WeChat app message",
+    /**
+     * 企业微信部门ID
+     */
+    @Schema(title = "企业微信部门ID", description = "通知方式为企业微信应用消息时有效",
             example = "779294123", accessMode = READ_WRITE)
     private String partyId;
 
-    @Schema(title = "Enterprise weChat tag id: The notification method is valid for Enterprise WeChat app message",
-            description = "Enterprise weChat tag id: The notification method is valid for Enterprise WeChat app message",
+    /**
+     * 企业微信标签ID
+     */
+    @Schema(title = "企业微信标签ID", description = "通知方式为企业微信应用消息时有效",
             example = "779294123", accessMode = READ_WRITE)
     private String tagId;
 
-    @Schema(title = "Discord channel id: The notification method is valid for Discord",
-            description = "Discord channel id: The notification method is valid for Discord",
+    /**
+     * Discord频道ID
+     */
+    @Schema(title = "Discord频道ID", description = "通知方式为Discord时有效",
             example = "1065303416030642266", accessMode = READ_WRITE)
     @Size(max = 300)
-    @Column(length = 300)
     private String discordChannelId;
 
-    @Schema(title = "Discord bot token: The notification method is valid for Discord",
-            description = "Discord bot token: The notification method is valid for Discord",
+    /**
+     * Discord Bot Token
+     */
+    @Schema(title = "Discord Bot Token", description = "通知方式为Discord时有效",
             example = "MTA2NTMwMzU0ODY4Mzg4MjUzNw.xxxxx.xxxxxxx", accessMode = READ_WRITE)
     @Size(max = 300)
-    @Column(length = 300)
     private String discordBotToken;
 
-    @Schema(title = "huawei cloud SMN ak: If the notification method is valid for huawei cloud SMN",
-            description = "huawei cloud SMN ak: If the notification method is valid for huawei cloud SMN",
+    /**
+     * 华为云SMN AK
+     */
+    @Schema(title = "华为云SMN AK", description = "通知方式为华为云SMN时有效",
             example = "NCVBODJOEYHSW3VNXXXX", accessMode = READ_WRITE)
     @Size(max = 22)
-    @Column(length = 22)
     private String smnAk;
 
-    @Schema(title = "huawei cloud SMN sk: If the notification method is valid for huawei cloud SMN",
-            description = "huawei cloud SMN sk: If the notification method is valid for huawei cloud SMN",
+    /**
+     * 华为云SMN SK
+     */
+    @Schema(title = "华为云SMN SK", description = "通知方式为华为云SMN时有效",
             example = "nmSNhUJN9MlpPl8lfCsgdA0KvHCL9JXXXX", accessMode = READ_WRITE)
     @Size(max = 42)
-    @Column(length = 42)
     private String smnSk;
 
-    @Schema(title = "huawei cloud SMN projectId: If the notification method is valid for huawei cloud SMN",
-            description = "huawei cloud SMN projectId: If the notification method is valid for huawei cloud SMN",
+    /**
+     * 华为云SMN项目ID
+     */
+    @Schema(title = "华为云SMN项目ID", description = "通知方式为华为云SMN时有效",
             example = "320c2fb11edb47a481c299c1XXXXXX", accessMode = READ_WRITE)
     @Size(max = 32)
-    @Column(length = 32)
     private String smnProjectId;
 
-    @Schema(title = "huawei cloud SMN region: If the notification method is valid for huawei cloud SMN",
-            description = "huawei cloud SMN region: If the notification method is valid for huawei cloud SMN",
+    /**
+     * 华为云SMN区域
+     */
+    @Schema(title = "华为云SMN区域", description = "通知方式为华为云SMN时有效",
             example = "cn-east-3", accessMode = READ_WRITE)
     @Size(max = 32)
-    @Column(length = 32)
     private String smnRegion;
 
-    @Schema(title = "huawei cloud SMN TopicUrn: If the notification method is valid for huawei cloud SMN",
-            description = "huawei cloud SMN TopicUrn: If the notification method is valid for huawei cloud SMN",
+    /**
+     * 华为云SMN主题URN
+     */
+    @Schema(title = "华为云SMN主题URN", description = "通知方式为华为云SMN时有效",
             example = "urn:smn:cn-east-3:xxx:hertzbeat_test", accessMode = READ_WRITE)
     @Size(max = 300)
-    @Column(length = 300)
     private String smnTopicUrn;
 
-    @Schema(title = "serverChanToken : The notification method is valid for ServerChan",
-            description = "serverChanToken : The notification method is valid for ServerChan",
+    /**
+     * Server酱Token
+     */
+    @Schema(title = "Server酱Token", description = "通知方式为Server酱时有效",
             example = "SCT193569TSNm6xIabdjqeZPtOGOWcvU1e", accessMode = READ_WRITE)
     @Size(max = 300)
-    @Column(length = 300)
     private String serverChanToken;
 
-    @Schema(title = "Gotify token : The notification method is valid for Gotify",
-            description = "Gotify token : The notification method is valid for Gotify",
+    /**
+     * Gotify Token
+     */
+    @Schema(title = "Gotify Token", description = "通知方式为Gotify时有效",
             example = "A845h__ZMqDxZlO", accessMode = READ_WRITE)
     @Size(max = 300)
-    @Column(length = 300)
     private String gotifyToken;
 
-    @Schema(title = "The creator of this record", example = "tom",
-            accessMode = READ_ONLY)
-    @CreatedBy
+    /**
+     * 创建者
+     */
+    @Schema(title = "创建者", example = "tom", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
-    @Schema(title = "This record was last modified by", example = "tom", accessMode = READ_ONLY)
-    @LastModifiedBy
+    /**
+     * 最后修改者
+     */
+    @Schema(title = "最后修改者", example = "tom", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String modifier;
 
-    @Schema(title = "Record creation time (millisecond timestamp)",
-            example = "1612198922000", accessMode = READ_ONLY)
-    @CreatedDate
+    /**
+     * 创建时间
+     */
+    @Schema(title = "创建时间", example = "1612198922000", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime gmtCreate;
 
-    @Schema(title = "Record the latest modification time (timestamp in milliseconds)",
-            example = "1612198444000", accessMode = READ_ONLY)
-    @LastModifiedDate
+    /**
+     * 最后修改时间
+     */
+    @Schema(title = "最后修改时间", example = "1612198444000", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime gmtUpdate;
-
 }

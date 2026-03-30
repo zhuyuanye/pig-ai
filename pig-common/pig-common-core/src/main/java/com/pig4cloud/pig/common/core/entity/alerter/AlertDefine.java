@@ -17,19 +17,14 @@
 
 package com.pig4cloud.pig.common.core.entity.alerter;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -38,79 +33,120 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
 
 /**
- * Alarm Define Rule Entity
+ * 告警规则定义实体
+ * <p>
+ * 定义告警触发条件、阈值表达式、标签、注解等信息。
+ * 支持实时告警和周期性告警两种类型。
+ *
+ * @author pig4cloud
  */
-@Entity
-@Table(name = "hzb_alert_define")
+@TableName("hzb_alert_define")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Alarm Threshold Entity")
-@EntityListeners(AuditingEntityListener.class)
+@Schema(description = "告警规则定义实体")
 public class AlertDefine {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "Threshold Id", example = "87584674384", accessMode = READ_ONLY)
+    /**
+     * 告警规则ID，自增主键
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    @Schema(title = "告警规则ID", example = "87584674384", accessMode = READ_ONLY)
     private Long id;
 
-    @Schema(title = "Alert Rule Name", example = "high_cpu_usage", accessMode = READ_WRITE)
+    /**
+     * 告警规则名称，需唯一
+     */
+    @Schema(title = "告警规则名称", example = "high_cpu_usage", accessMode = READ_WRITE)
     @Size(max = 100)
     @NotNull
     private String name;
 
-    @Schema(title = "Rule Type: realtime, periodic", example = "0")
+    /**
+     * 规则类型：realtime（实时）、periodic（周期性）
+     */
+    @Schema(title = "规则类型: realtime, periodic", example = "realtime")
     private String type;
 
-    @Schema(title = "Alarm Threshold Expr", example = "usage>90", accessMode = READ_WRITE)
+    /**
+     * 告警阈值表达式，如 usage>90
+     */
+    @Schema(title = "告警阈值表达式", example = "usage>90", accessMode = READ_WRITE)
     @Size(max = 2048)
-    @Column(length = 2048)
     private String expr;
 
-    @Schema(title = "Execution Period (seconds) - For periodic rules", example = "300")
+    /**
+     * 执行周期（秒），仅周期性规则有效
+     */
+    @Schema(title = "执行周期（秒），仅周期性规则有效", example = "300")
     private Integer period;
 
-    @Schema(title = "Alarm Trigger Times.The alarm is triggered only after the required number of times is reached",
-            example = "3", accessMode = READ_WRITE)
+    /**
+     * 告警触发次数阈值，达到指定次数后才触发告警
+     */
+    @Schema(title = "告警触发次数阈值", example = "3", accessMode = READ_WRITE)
     private Integer times;
 
-    @Schema(description = "labels(status:success,env:prod,priority:critical)", example = "{name: key1, value: value1}",
-            accessMode = READ_WRITE)
-    @Convert(converter = JsonMapAttributeConverter.class)
-    @Column(length = 2048)
+    /**
+     * 标签键值对，如 {status:success, env:prod}
+     */
+    @Schema(description = "标签(status:success,env:prod)", example = "{name: key1, value: value1}", accessMode = READ_WRITE)
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
     private Map<String, String> labels;
 
-    @Schema(title = "Annotations", example = "summary: High CPU usage")
-    @Convert(converter = JsonMapAttributeConverter.class)
-    @Column(length = 4096)
+    /**
+     * 注解键值对，如 {summary: 高CPU使用率}
+     */
+    @Schema(title = "注解", example = "summary: High CPU usage")
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
     private Map<String, String> annotations;
 
-    @Schema(title = "Alert Content Template", example = "Instance {{ $labels.instance }} CPU usage is {{ $value }}%")
+    /**
+     * 告警内容模板，支持变量替换
+     */
+    @Schema(title = "告警内容模板", example = "实例 {{ $labels.instance }} CPU使用率 {{ $value }}%")
     @Size(max = 2048)
-    @Column(length = 2048)
     private String template;
 
-    @Schema(title = "Data Source Type", example = "PROMETHEUS")
+    /**
+     * 数据源类型，如 PROMETHEUS
+     */
+    @Schema(title = "数据源类型", example = "PROMETHEUS")
     @Size(max = 100)
     private String datasource;
 
-    @Schema(title = "Is Enabled", example = "true")
+    /**
+     * 是否启用该告警规则
+     */
+    @Schema(title = "是否启用", example = "true")
     private boolean enable = true;
 
-    @Schema(title = "The creator of this record", example = "tom", accessMode = READ_ONLY)
-    @CreatedBy
+    /**
+     * 创建者
+     */
+    @Schema(title = "创建者", example = "tom", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
-    @Schema(title = "The modifier of this record", example = "tom", accessMode = READ_ONLY)
-    @LastModifiedBy
+    /**
+     * 最后修改者
+     */
+    @Schema(title = "最后修改者", example = "tom", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String modifier;
 
-    @Schema(title = "Record create time", example = "1612198922000", accessMode = READ_ONLY)
-    @CreatedDate
+    /**
+     * 创建时间
+     */
+    @Schema(title = "创建时间", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime gmtCreate;
 
-    @Schema(title = "Record modify time", example = "1612198444000", accessMode = READ_ONLY)
-    @LastModifiedDate
+    /**
+     * 最后修改时间
+     */
+    @Schema(title = "最后修改时间", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime gmtUpdate;
 }

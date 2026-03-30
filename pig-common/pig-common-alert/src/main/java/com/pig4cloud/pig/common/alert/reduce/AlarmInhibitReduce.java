@@ -21,8 +21,9 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.pig4cloud.pig.common.alert.AlerterProperties;
-import com.pig4cloud.pig.common.alert.dao.AlertInhibitDao;
+import com.pig4cloud.pig.common.alert.mapper.AlertInhibitMapper;
 import com.pig4cloud.pig.common.core.constants.CommonConstants;
 import com.pig4cloud.pig.common.core.entity.alerter.AlertInhibit;
 import com.pig4cloud.pig.common.core.entity.alerter.GroupAlert;
@@ -70,7 +71,7 @@ public class AlarmInhibitReduce {
      */
     private static long SOURCE_ALERT_TTL = 4 * 60 * 60 * 1000L;
 
-    public AlarmInhibitReduce(AlarmSilenceReduce alarmSilenceReduce, AlertInhibitDao alertInhibitDao
+    public AlarmInhibitReduce(AlarmSilenceReduce alarmSilenceReduce, AlertInhibitMapper alertInhibitMapper
             , AlerterProperties alerterProperties) {
         this.alarmSilenceReduce = alarmSilenceReduce;
         if (alerterProperties.getInhibit() != null && alerterProperties.getInhibit().getTtl() > 0) {
@@ -78,7 +79,8 @@ public class AlarmInhibitReduce {
         }
         inhibitRules = new ConcurrentHashMap<>(8);
         sourceAlertCache = new ConcurrentHashMap<>(8);
-        List<AlertInhibit> inhibits = alertInhibitDao.findAlertInhibitsByEnableIsTrue();
+        List<AlertInhibit> inhibits = alertInhibitMapper.selectList(
+                new LambdaQueryWrapper<AlertInhibit>().eq(AlertInhibit::getEnable, true));
         refreshInhibitRules(inhibits);
         startScheduledCleanupCache();
     }

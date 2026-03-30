@@ -17,8 +17,8 @@
 
 package com.pig4cloud.pig.common.core.entity.alerter;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,11 +27,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -39,51 +34,60 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
 
 /**
- * Notification template entity
+ * 通知模板实体
+ * <p>
+ * 定义通知消息的模板，支持多种通知方式。
+ * 包含预设模板和自定义模板。
+ *
+ * @author pig4cloud
  */
-@Entity
-@Table(name = "hzb_notice_template")
+@TableName("hzb_notice_template")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Notify Policy Template")
-@EntityListeners(AuditingEntityListener.class)
+@Schema(description = "通知策略模板实体")
 public class NoticeTemplate {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "Notification Template Entity Primary Key Index ID",
-            description = "Notification Template Entity Primary Key Index ID",
+    /**
+     * 主键ID，自增
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    @Schema(title = "通知模板主键ID", description = "通知模板主键ID",
             example = "87584674384", accessMode = READ_ONLY)
     private Long id;
 
-    @Schema(title = "Template name",
-            description = "Template name",
+    /**
+     * 模板名称
+     */
+    @Schema(title = "模板名称", description = "模板名称",
             example = "dispatch-1", accessMode = READ_WRITE)
     @Size(max = 100)
     @NotBlank
     private String name;
 
-    @Schema(title = "Notification information method: 0-SMS 1-Email 2-webhook 3-WeChat Official Account 4-Enterprise WeChat Robot "
-            + "5-DingTalk Robot 6-FeiShu Robot 7-Telegram Bot 8-SlackWebHook 9-Discord Bot 10-Enterprise WeChat app message",
-            description = "Notification information method: "
-                    + "0-SMS 1-Email 2-webhook 3-WeChat Official Account "
-                    + "4-Enterprise WeChat Robot 5-DingTalk Robot 6-FeiShu Robot "
-                    + "7-Telegram Bot 8-SlackWebHook 9-Discord Bot 10-Enterprise WeChat app message",
+    /**
+     * 通知方式：0-短信 1-邮件 2-webhook 3-微信公众号 4-企业微信机器人
+     * 5-钉钉机器人 6-飞书机器人 7-Telegram Bot 8-SlackWebHook 9-Discord Bot 10-企业微信应用消息
+     */
+    @Schema(title = "通知方式", description = "通知方式：0-短信 1-邮件 2-webhook 3-微信公众号 4-企业微信机器人 "
+            + "5-钉钉机器人 6-飞书机器人 7-Telegram Bot 8-SlackWebHook 9-Discord Bot 10-企业微信应用消息",
             accessMode = READ_WRITE)
     @Min(0)
     @NotNull
     private Byte type;
 
-    @Schema(title = "Is it a preset template: true- preset template false- custom template.",
-            description = "Is it a preset template: true- preset template false- custom template.",
+    /**
+     * 是否为预设模板：true-预设模板 false-自定义模板
+     */
+    @Schema(title = "是否为预设模板", description = "是否为预设模板：true-预设模板 false-自定义模板",
             accessMode = READ_WRITE)
-    @Column(columnDefinition = "boolean default false")
     private boolean preset = false;
 
-    @Schema(title = "Template content",
-            description = "Template content",
+    /**
+     * 模板内容
+     */
+    @Schema(title = "模板内容", description = "模板内容",
             example = """
                     [${title}]
                     ${targetLabel} : ${target}
@@ -94,23 +98,34 @@ public class NoticeTemplate {
                     ${triggerTimeLabel} : ${triggerTime}
                     ${contentLabel} : ${content}""", accessMode = READ_WRITE)
     @Size(max = 60000)
-    @Lob
     @NotBlank
     private String content;
 
-    @Schema(title = "The creator of this record", example = "tom", accessMode = READ_ONLY)
-    @CreatedBy
+    /**
+     * 创建者
+     */
+    @Schema(title = "创建者", example = "tom", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
-    @Schema(title = "This record was last modified by", example = "tom", accessMode = READ_ONLY)
-    @LastModifiedBy
+    /**
+     * 最后修改者
+     */
+    @Schema(title = "最后修改者", example = "tom", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String modifier;
 
-    @Schema(title = "This record creation time (millisecond timestamp)", accessMode = READ_ONLY)
-    @CreatedDate
+    /**
+     * 创建时间
+     */
+    @Schema(title = "创建时间", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime gmtCreate;
 
-    @Schema(title = "Record the latest modification time (timestamp in milliseconds)", accessMode = READ_ONLY)
-    @LastModifiedDate
+    /**
+     * 最后修改时间
+     */
+    @Schema(title = "最后修改时间", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime gmtUpdate;
 }

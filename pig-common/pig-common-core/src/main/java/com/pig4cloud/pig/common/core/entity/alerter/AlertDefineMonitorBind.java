@@ -17,16 +17,13 @@
 
 package com.pig4cloud.pig.common.core.entity.alerter;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.pig4cloud.pig.common.core.entity.manager.Monitor;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
@@ -34,45 +31,56 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
 
 /**
- * Alarm Threshold Relate Monitor Entity
+ * 告警规则与监控绑定关系实体
+ * <p>
+ * 定义告警阈值规则与监控对象之间的关联关系。
+ *
+ * @author pig4cloud
  */
-@Entity
-@Table(name = "hzb_alert_define_monitor_bind", indexes = {
-        @Index(name = "index_alert_define_monitor", columnList = "alertDefineId"),
-        @Index(name = "index_alert_define_monitor", columnList = "monitor_id")
-})
+@TableName("hzb_alert_define_monitor_bind")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Alarm Threshold Relate Monitor Entity")
-@EntityListeners(AuditingEntityListener.class)
+@Schema(description = "告警规则与监控绑定关系实体")
 public class AlertDefineMonitorBind {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "id", example = "74384", accessMode = READ_ONLY)
+    /**
+     * 主键ID，自增
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    @Schema(title = "主键ID", example = "74384", accessMode = READ_ONLY)
     private Long id;
 
-    @Schema(title = "Alarm Define Id", example = "87432674384", accessMode = READ_WRITE)
+    /**
+     * 告警规则ID
+     */
+    @Schema(title = "告警规则ID", example = "87432674384", accessMode = READ_WRITE)
     private Long alertDefineId;
 
-    @Schema(title = "Monitor Id", example = "87432674336", accessMode = READ_WRITE)
-    @Column(name = "monitor_id")
+    /**
+     * 监控ID
+     */
+    @Schema(title = "监控ID", example = "87432674336", accessMode = READ_WRITE)
     private Long monitorId;
 
-    @Schema(title = "Record create time", example = "1612198922000", accessMode = READ_ONLY)
-    @CreatedDate
+    /**
+     * 记录创建时间
+     */
+    @Schema(title = "记录创建时间", example = "1612198922000", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime gmtCreate;
 
-    @Schema(title = "Record modify time", example = "1612198444000", accessMode = READ_ONLY)
-    @LastModifiedDate
+    /**
+     * 记录修改时间
+     */
+    @Schema(title = "记录修改时间", example = "1612198444000", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime gmtUpdate;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "monitor_id", referencedColumnName = "id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT),
-            insertable = false, updatable = false)
-    // todo instead of @NotFound
-    // @NotFound(action = NotFoundAction.IGNORE)
+    /**
+     * 关联的监控对象（非数据库字段，查询时填充）
+     */
+    @TableField(exist = false)
     private Monitor monitor;
 }

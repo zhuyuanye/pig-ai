@@ -17,63 +17,63 @@
 
 package com.pig4cloud.pig.common.alert.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pig4cloud.pig.common.core.entity.alerter.AlertSilence;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Set;
 
 /**
- * management interface service for alert silence
+ * 告警静默管理服务接口
  */
 public interface AlertSilenceService {
+
     /**
-     * Verify the correctness of the request data parameters
-     * @param alertSilence AlertSilence
-     * @param isModify     whether modify
-     * @throws IllegalArgumentException A checksum parameter error is thrown
+     * 校验请求数据参数的正确性
+     * @param alertSilence 告警静默实体
+     * @param isModify     是否为修改操作
+     * @throws IllegalArgumentException 校验参数错误时抛出
      */
     void validate(AlertSilence alertSilence, boolean isModify) throws IllegalArgumentException;
 
     /**
-     * New AlertSilence
-     * @param alertSilence AlertSilence Entity
-     * @throws RuntimeException Added procedure exception throwing
+     * 新增告警静默
+     * @param alertSilence 告警静默实体
+     * @throws RuntimeException 新增过程中的异常抛出
      */
     void addAlertSilence(AlertSilence alertSilence) throws RuntimeException;
 
     /**
-     * Modifying an AlertSilence
-     * @param alertSilence Alarm definition Entity
-     * @throws RuntimeException Exception thrown during modification
+     * 修改告警静默
+     * @param alertSilence 告警静默实体
+     * @throws RuntimeException 修改过程中的异常抛出
      */
     void modifyAlertSilence(AlertSilence alertSilence) throws RuntimeException;
 
     /**
-     * Obtain AlertSilence information
-     * @param silenceId AlertSilence ID
-     * @return AlertSilence
-     * @throws RuntimeException An exception was thrown during the query
+     * 获取告警静默信息
+     * @param silenceId 告警静默ID
+     * @return AlertSilence 告警静默实体
+     * @throws RuntimeException 查询过程中的异常抛出
      */
     AlertSilence getAlertSilence(long silenceId) throws RuntimeException;
 
-
     /**
-     * Delete AlertSilence in batches
-     * @param silenceIds AlertSilence IDs
-     * @throws RuntimeException Exception thrown during deletion
+     * 批量删除告警静默
+     * @param silenceIds 告警静默ID集合
+     * @throws RuntimeException 删除过程中的异常抛出
      */
     void deleteAlertSilences(Set<Long> silenceIds) throws RuntimeException;
 
     /**
-     * Dynamic conditional query
-     * @param silenceIds    Alarm Silence ID
-     * @param search        Search Name
-     * @param sort          Sort field
-     * @param order         Sort mode: asc: ascending, desc: descending
-     * @param pageIndex     List current page
-     * @param pageSize      Number of list pages
-     * @return The query results
+     * 动态条件查询告警静默
+     * @param silenceIds 告警静默ID列表
+     * @param search     搜索关键字
+     * @param sort       排序字段
+     * @param order      排序方式: asc-升序, desc-降序
+     * @param pageIndex  当前页码
+     * @param pageSize   每页数量
+     * @return 分页查询结果
      */
-    Page<AlertSilence> getAlertSilences(List<Long> silenceIds, String search, String sort, String order, int pageIndex, int pageSize);
+    IPage<AlertSilence> getAlertSilences(List<Long> silenceIds, String search, String sort, String order, int pageIndex, int pageSize);
 }

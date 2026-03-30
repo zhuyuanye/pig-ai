@@ -22,7 +22,7 @@ import com.google.common.collect.Sets;
 import com.pig4cloud.pig.common.grafana.service.DashboardService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import com.pig4cloud.pig.common.alert.dao.AlertDefineBindDao;
+import com.pig4cloud.pig.common.alert.mapper.AlertDefineBindMapper;
 import com.pig4cloud.pig.collector.dispatch.DispatchConstants;
 import com.pig4cloud.pig.common.core.constants.CommonConstants;
 import com.pig4cloud.pig.common.core.constants.ExportFileConstants;
@@ -97,7 +97,7 @@ public class MonitorServiceImpl implements MonitorService {
     @Autowired
     private CollectorMonitorBindMapper collectorMonitorBindMapper;
     @Autowired
-    private AlertDefineBindDao alertDefineBindDao;
+    private AlertDefineBindMapper alertDefineBindMapper;
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
@@ -523,7 +523,7 @@ public class MonitorServiceImpl implements MonitorService {
             monitors.forEach(monitor -> monitorMapper.deleteById(monitor.getId()));
             paramMapper.delete(new QueryWrapper<Param>().in("monitor_id", ids));
             Set<Long> monitorIds = monitors.stream().map(Monitor::getId).collect(Collectors.toSet());
-            alertDefineBindDao.deleteAlertDefineMonitorBindsByMonitorIdIn(monitorIds);
+            alertDefineBindMapper.deleteByMonitorIds(monitorIds);
             monitorBindMapper.delete(new QueryWrapper<MonitorBind>().in("biz_id", monitorIds));
             for (Monitor monitor : monitors) {
                 monitorBindMapper.delete(new QueryWrapper<MonitorBind>().eq("monitor_id", monitor.getId()));

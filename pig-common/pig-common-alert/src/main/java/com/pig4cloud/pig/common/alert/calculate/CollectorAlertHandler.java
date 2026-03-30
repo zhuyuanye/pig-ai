@@ -18,7 +18,8 @@
 package com.pig4cloud.pig.common.alert.calculate;
 
 import lombok.extern.slf4j.Slf4j;
-import com.pig4cloud.pig.common.alert.dao.AlertCollectorDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.common.alert.mapper.AlertCollectorMapper;
 import com.pig4cloud.pig.common.alert.reduce.AlarmCommonReduce;
 import com.pig4cloud.pig.common.alert.util.AlertUtil;
 import com.pig4cloud.pig.common.core.constants.CommonConstants;
@@ -44,7 +45,7 @@ public class CollectorAlertHandler {
     private static final String KEY_COLLECTOR_VERSION = "collectorVersion";
     private static final String KEY_COLLECTOR_HOST = "collectorHost";
 
-    private final AlertCollectorDao alertCollectorDao;
+    private final AlertCollectorMapper alertCollectorMapper;
 
     private final AlarmCommonReduce alarmCommonReduce;
 
@@ -53,10 +54,10 @@ public class CollectorAlertHandler {
     private ResourceBundle bundle;
 
 
-    public CollectorAlertHandler(AlarmCommonReduce alarmCommonReduce, AlertCollectorDao alertCollectorDao,
+    public CollectorAlertHandler(AlarmCommonReduce alarmCommonReduce, AlertCollectorMapper alertCollectorMapper,
                                  AlarmCacheManager alarmCacheManager) {
         this.alarmCommonReduce = alarmCommonReduce;
-        this.alertCollectorDao = alertCollectorDao;
+        this.alertCollectorMapper = alertCollectorMapper;
         this.alarmCacheManager = alarmCacheManager;
         this.bundle = ResourceBundleUtil.getBundle("alerter");
     }
@@ -67,7 +68,8 @@ public class CollectorAlertHandler {
      * @param identity collector name
      */
     public void online(final String identity) {
-        Collector collector = alertCollectorDao.findCollectorByName(identity);
+        Collector collector = alertCollectorMapper.selectOne(
+                new LambdaQueryWrapper<Collector>().eq(Collector::getName, identity));
         if (collector == null) {
             return;
         }
@@ -92,7 +94,8 @@ public class CollectorAlertHandler {
      * @param identity collector name
      */
     public void offline(final String identity) {
-        Collector collector = alertCollectorDao.findCollectorByName(identity);
+        Collector collector = alertCollectorMapper.selectOne(
+                new LambdaQueryWrapper<Collector>().eq(Collector::getName, identity));
         if (collector == null) {
             return;
         }

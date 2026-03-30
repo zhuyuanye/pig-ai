@@ -17,21 +17,14 @@
 
 package com.pig4cloud.pig.common.core.entity.alerter;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.pig4cloud.pig.common.core.entity.manager.JsonByteListAttributeConverter;
-import com.pig4cloud.pig.common.core.entity.manager.ZonedDateTimeAttributeConverter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -39,74 +32,114 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Alert Silence strategy entity
+ * 告警静默策略实体
+ * <p>
+ * 定义告警静默规则，支持一次性静默和周期性静默。
+ * 可按标签匹配告警，并设置静默时间段。
+ *
+ * @author pig4cloud
  */
-@Entity
-@Table(name = "hzb_alert_silence")
+@TableName("hzb_alert_silence")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Alert Silence Policy Entity")
-@EntityListeners(AuditingEntityListener.class)
+@Schema(description = "告警静默策略实体")
 public class AlertSilence {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "Primary Key Index ID",
-            example = "87584674384")
+    /**
+     * 主键ID，自增
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    @Schema(title = "主键ID", example = "87584674384")
     private Long id;
 
-    @Schema(title = "Policy name", example = "silence-1")
+    /**
+     * 策略名称
+     */
+    @Schema(title = "策略名称", example = "silence-1")
     @Size(max = 100)
     @NotNull
     private String name;
 
-    @Schema(title = "Whether to enable this policy", example = "true")
+    /**
+     * 是否启用该策略
+     */
+    @Schema(title = "是否启用该策略", example = "true")
     private boolean enable = true;
 
-    @Schema(title = "Whether to match all", example = "true")
+    /**
+     * 是否匹配所有告警
+     */
+    @Schema(title = "是否匹配所有告警", example = "true")
     private boolean matchAll = true;
 
-    @Schema(title = "Silence type 0: once, 1:cyc", example = "1")
+    /**
+     * 静默类型：0-一次性，1-周期性
+     */
+    @Schema(title = "静默类型：0-一次性，1-周期性", example = "1")
     @NotNull
     private Byte type;
 
-    @Schema(title = "Silenced alerts num", example = "3")
+    /**
+     * 已静默告警次数
+     */
+    @Schema(title = "已静默告警次数", example = "3")
     private Integer times;
 
-    @Schema(description = "Match the alarm information label", example = "{name: key1, value: value1}")
-    @Convert(converter = JsonMapAttributeConverter.class)
-    @Column(length = 2048)
+    /**
+     * 匹配告警信息的标签
+     */
+    @Schema(description = "匹配告警信息的标签", example = "{name: key1, value: value1}")
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
     private Map<String, String> labels;
 
-    @Schema(title = "The day of the WEEK is valid in periodic silence, multiple,"
-            + " all or empty is daily 7: Sunday 1: Monday 2: Tuesday 3: Wednesday 4: Thursday 5: Friday 6: Saturday",
-            example = "[0,1]")
-    @Convert(converter = JsonByteListAttributeConverter.class)
+    /**
+     * 周期性静默生效的星期，多选，全部或空表示每天。7:周日 1:周一 2:周二 3:周三 4:周四 5:周五 6:周六
+     */
+    @Schema(title = "周期性静默生效的星期", example = "[0,1]")
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonByteListTypeHandler.class)
     private List<Byte> days;
 
-    @Schema(title = "Limit time period start", example = "00:00:00")
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
+    /**
+     * 限制时间段开始
+     */
+    @Schema(title = "限制时间段开始", example = "00:00:00")
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.ZonedDateTimeTypeHandler.class)
     private ZonedDateTime periodStart;
 
-    @Schema(title = "Restricted time period end", example = "23:59:59")
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
+    /**
+     * 限制时间段结束
+     */
+    @Schema(title = "限制时间段结束", example = "23:59:59")
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.ZonedDateTimeTypeHandler.class)
     private ZonedDateTime periodEnd;
 
-    @Schema(title = "The creator of this record", example = "tom")
-    @CreatedBy
+    /**
+     * 创建者
+     */
+    @Schema(title = "创建者", example = "tom")
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
-    @Schema(title = "This record was last modified by", example = "tom")
-    @LastModifiedBy
+    /**
+     * 最后修改者
+     */
+    @Schema(title = "最后修改者", example = "tom")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String modifier;
 
-    @Schema(title = "This record creation time (millisecond timestamp)")
-    @CreatedDate
+    /**
+     * 创建时间
+     */
+    @Schema(title = "创建时间")
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime gmtCreate;
 
-    @Schema(title = "Record the latest modification time (timestamp in milliseconds)")
-    @LastModifiedDate
+    /**
+     * 最后修改时间
+     */
+    @Schema(title = "最后修改时间")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime gmtUpdate;
 }

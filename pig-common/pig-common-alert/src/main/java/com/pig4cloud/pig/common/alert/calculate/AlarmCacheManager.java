@@ -17,7 +17,8 @@
 
 package com.pig4cloud.pig.common.alert.calculate;
 
-import com.pig4cloud.pig.common.alert.dao.SingleAlertDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.common.alert.mapper.SingleAlertMapper;
 import com.pig4cloud.pig.common.alert.util.AlertUtil;
 import com.pig4cloud.pig.common.core.constants.CommonConstants;
 import com.pig4cloud.pig.common.core.entity.alerter.SingleAlert;
@@ -44,10 +45,11 @@ public class AlarmCacheManager {
      */
     private final Map<String, SingleAlert> firingAlertMap;
 
-    public AlarmCacheManager(SingleAlertDao singleAlertDao) {
+    public AlarmCacheManager(SingleAlertMapper singleAlertMapper) {
         this.pendingAlertMap = new ConcurrentHashMap<>(8);
         this.firingAlertMap = new ConcurrentHashMap<>(8);
-        List<SingleAlert> singleAlerts = singleAlertDao.querySingleAlertsByStatus(CommonConstants.ALERT_STATUS_FIRING);
+        List<SingleAlert> singleAlerts = singleAlertMapper.selectList(
+                new LambdaQueryWrapper<SingleAlert>().eq(SingleAlert::getStatus, CommonConstants.ALERT_STATUS_FIRING));
         for (SingleAlert singleAlert : singleAlerts) {
             String fingerprint = AlertUtil.calculateFingerprint(singleAlert.getLabels());
             singleAlert.setId(null);

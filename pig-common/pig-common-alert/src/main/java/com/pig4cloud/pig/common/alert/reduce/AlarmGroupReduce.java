@@ -21,7 +21,8 @@ package com.pig4cloud.pig.common.alert.reduce;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import com.pig4cloud.pig.common.alert.dao.AlertGroupConvergeDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.common.alert.mapper.AlertGroupConvergeMapper;
 import com.pig4cloud.pig.common.core.constants.CommonConstants;
 import com.pig4cloud.pig.common.core.entity.alerter.AlertGroupConverge;
 import com.pig4cloud.pig.common.core.entity.alerter.GroupAlert;
@@ -84,11 +85,12 @@ public class AlarmGroupReduce {
      */
     private final Map<String, GroupAlertCache> groupCacheMap;
 
-    public AlarmGroupReduce(AlarmInhibitReduce alarmInhibitReduce, AlertGroupConvergeDao alertGroupConvergeDao) {
+    public AlarmGroupReduce(AlarmInhibitReduce alarmInhibitReduce, AlertGroupConvergeMapper alertGroupConvergeMapper) {
         this.alarmInhibitReduce = alarmInhibitReduce;
         this.groupDefines = new ConcurrentHashMap<>(8);
         this.groupCacheMap = new ConcurrentHashMap<>(8);
-        List<AlertGroupConverge> groupConverges = alertGroupConvergeDao.findAlertGroupConvergesByEnableIsTrue();
+        List<AlertGroupConverge> groupConverges = alertGroupConvergeMapper.selectList(
+                new LambdaQueryWrapper<AlertGroupConverge>().eq(AlertGroupConverge::getEnable, true));
         refreshGroupDefines(groupConverges);
         startCheckAndSendGroups();
     }

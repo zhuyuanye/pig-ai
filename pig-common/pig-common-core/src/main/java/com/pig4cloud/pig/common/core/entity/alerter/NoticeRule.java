@@ -17,8 +17,8 @@
 
 package com.pig4cloud.pig.common.core.entity.alerter;
 
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
@@ -26,15 +26,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.pig4cloud.pig.common.core.entity.manager.JsonByteListAttributeConverter;
-import com.pig4cloud.pig.common.core.entity.manager.JsonLongListAttributeConverter;
-import com.pig4cloud.pig.common.core.entity.manager.JsonStringListAttributeConverter;
-import com.pig4cloud.pig.common.core.entity.manager.ZonedDateTimeAttributeConverter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
@@ -45,97 +36,137 @@ import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_WRITE;
 
 /**
- * Notification strategy entity
+ * 通知策略实体
+ * <p>
+ * 定义通知规则，包括接收人、模板、过滤条件、生效时间等。
+ * 支持按标签过滤、按星期和时间段限制通知。
+ *
+ * @author pig4cloud
  */
-@Entity
-@Table(name = "hzb_notice_rule")
+@TableName("hzb_notice_rule")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Notify Policy Entity")
-@EntityListeners(AuditingEntityListener.class)
+@Schema(description = "通知策略实体")
 public class NoticeRule {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "Notification Policy Entity Primary Key Index ID",
-            description = "Notification Policy Entity Primary Key Index ID",
+    /**
+     * 主键ID，自增
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    @Schema(title = "通知策略主键ID", description = "通知策略主键ID",
             example = "87584674384", accessMode = READ_ONLY)
     private Long id;
 
-    @Schema(title = "Policy name",
-            description = "Policy name",
+    /**
+     * 策略名称
+     */
+    @Schema(title = "策略名称", description = "策略名称",
             example = "dispatch-1", accessMode = READ_WRITE)
     @Size(max = 100)
     @NotBlank(message = "name can not null")
     private String name;
 
-    @Schema(title = "Recipient ID",
-            description = "Recipient ID",
+    /**
+     * 接收人ID列表
+     */
+    @Schema(title = "接收人ID列表", description = "接收人ID列表",
             example = "4324324", accessMode = READ_WRITE)
     @NotEmpty(message = "receiverId can not empty")
-    @Convert(converter = JsonLongListAttributeConverter.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonLongListTypeHandler.class)
     private List<Long> receiverId;
 
-    @Schema(title = "Recipient identification",
-            description = "Recipient identification",
+    /**
+     * 接收人名称列表
+     */
+    @Schema(title = "接收人名称列表", description = "接收人名称列表",
             example = "tom", accessMode = READ_WRITE)
-    @Convert(converter = JsonStringListAttributeConverter.class)
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonStringListTypeHandler.class)
     private List<String> receiverName;
 
-    @Schema(title = "Template ID",
-            description = "Template ID",
+    /**
+     * 模板ID
+     */
+    @Schema(title = "模板ID", description = "模板ID",
             example = "4324324", accessMode = READ_WRITE)
     private Long templateId;
 
-    @Schema(title = "Template identification",
-            description = "Template identification",
+    /**
+     * 模板名称
+     */
+    @Schema(title = "模板名称", description = "模板名称",
             example = "demo", accessMode = READ_WRITE)
     @Size(max = 100)
     private String templateName;
 
-    @Schema(title = "Whether to enable this policy",
-            description = "Whether to enable this policy",
+    /**
+     * 是否启用该策略
+     */
+    @Schema(title = "是否启用该策略", description = "是否启用该策略",
             example = "true", accessMode = READ_WRITE)
     private boolean enable = true;
 
-    @Schema(title = "Whether to forward all",
-            description = "Whether to forward all",
+    /**
+     * 是否转发所有告警
+     */
+    @Schema(title = "是否转发所有告警", description = "是否转发所有告警",
             example = "false", accessMode = READ_WRITE)
     private boolean filterAll = true;
 
-    @Schema(title = "Labels", example = "{\"alertname\": \"HighCPUUsage\", \"priority\": \"critical\", \"instance\": \"343483943\"}")
-    @Convert(converter = JsonMapAttributeConverter.class)
-    @Column(length = 2048)
+    /**
+     * 匹配标签
+     */
+    @Schema(title = "匹配标签", example = "{\"alertname\": \"HighCPUUsage\", \"priority\": \"critical\", \"instance\": \"343483943\"}")
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
     private Map<String, String> labels;
 
-    @Schema(title = "Day of the week, multiple, all or empty is daily 7: Sunday 1: Monday 2: Tuesday 3: Wednesday 4: Thursday 5: Friday 6: Saturday",
-            example = "[0,1]", accessMode = READ_WRITE)
-    @Convert(converter = JsonByteListAttributeConverter.class)
+    /**
+     * 生效的星期，多选，全部或空表示每天。7:周日 1:周一 2:周二 3:周三 4:周四 5:周五 6:周六
+     */
+    @Schema(title = "生效的星期", example = "[0,1]", accessMode = READ_WRITE)
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonByteListTypeHandler.class)
     private List<Byte> days;
 
-    @Schema(title = "Limit time period start", example = "00:00:00", accessMode = READ_WRITE)
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
+    /**
+     * 限制时间段开始
+     */
+    @Schema(title = "限制时间段开始", example = "00:00:00", accessMode = READ_WRITE)
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.ZonedDateTimeTypeHandler.class)
     private ZonedDateTime periodStart;
 
-    @Schema(title = "Restricted time period end", example = "23:59:59", accessMode = READ_WRITE)
-    @Convert(converter = ZonedDateTimeAttributeConverter.class)
+    /**
+     * 限制时间段结束
+     */
+    @Schema(title = "限制时间段结束", example = "23:59:59", accessMode = READ_WRITE)
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.ZonedDateTimeTypeHandler.class)
     private ZonedDateTime periodEnd;
 
-    @Schema(title = "The creator of this record", example = "tom", accessMode = READ_ONLY)
-    @CreatedBy
+    /**
+     * 创建者
+     */
+    @Schema(title = "创建者", example = "tom", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
-    @Schema(title = "This record was last modified by", example = "tom", accessMode = READ_ONLY)
-    @LastModifiedBy
+    /**
+     * 最后修改者
+     */
+    @Schema(title = "最后修改者", example = "tom", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String modifier;
 
-    @Schema(title = "This record creation time (millisecond timestamp)", accessMode = READ_ONLY)
-    @CreatedDate
+    /**
+     * 创建时间
+     */
+    @Schema(title = "创建时间", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT)
     private LocalDateTime gmtCreate;
 
-    @Schema(title = "Record the latest modification time (timestamp in milliseconds)", accessMode = READ_ONLY)
-    @LastModifiedDate
+    /**
+     * 最后修改时间
+     */
+    @Schema(title = "最后修改时间", accessMode = READ_ONLY)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime gmtUpdate;
 }

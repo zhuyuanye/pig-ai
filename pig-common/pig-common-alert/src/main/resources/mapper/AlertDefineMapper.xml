@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pig4cloud.pig.common.alert.mapper.AlertDefineMapper">
+
+    <!-- 告警规则定义结果映射（含 JSON 字段） -->
+    <resultMap id="alertDefineResultMap" type="com.pig4cloud.pig.common.core.entity.alerter.AlertDefine">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="type" property="type"/>
+        <result column="expr" property="expr"/>
+        <result column="period" property="period"/>
+        <result column="times" property="times"/>
+        <result column="labels" property="labels"
+                typeHandler="com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler"/>
+        <result column="annotations" property="annotations"
+                typeHandler="com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler"/>
+        <result column="template" property="template"/>
+        <result column="datasource" property="datasource"/>
+        <result column="enable" property="enable"/>
+        <result column="creator" property="creator"/>
+        <result column="modifier" property="modifier"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_update" property="gmtUpdate"/>
+    </resultMap>
+
+    <!-- 根据类型查询已启用的告警规则 -->
+    <select id="selectByTypeAndEnableTrue" resultMap="alertDefineResultMap">
+        SELECT * FROM hzb_alert_define
+        WHERE type = #{type} AND enable = true
+    </select>
+
+</mapper>

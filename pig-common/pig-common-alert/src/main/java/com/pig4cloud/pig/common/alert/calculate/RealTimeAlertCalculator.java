@@ -23,7 +23,6 @@ import org.apache.commons.jexl3.JexlException;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.lang3.StringUtils;
 import com.pig4cloud.pig.common.alert.AlerterWorkerPool;
-import com.pig4cloud.pig.common.alert.dao.SingleAlertDao;
 import com.pig4cloud.pig.common.alert.reduce.AlarmCommonReduce;
 import com.pig4cloud.pig.common.alert.service.AlertDefineService;
 import com.pig4cloud.pig.common.alert.util.AlertTemplateUtil;
@@ -80,9 +79,9 @@ public class RealTimeAlertCalculator {
 
     @Autowired
     public RealTimeAlertCalculator(AlerterWorkerPool workerPool, CommonDataQueue dataQueue,
-                                   AlertDefineService alertDefineService, SingleAlertDao singleAlertDao,
+                                   AlertDefineService alertDefineService,
                                    AlarmCommonReduce alarmCommonReduce, AlarmCacheManager alarmCacheManager) {
-        this(workerPool, dataQueue, alertDefineService, singleAlertDao, alarmCommonReduce, alarmCacheManager, true);
+        this(workerPool, dataQueue, alertDefineService, alarmCommonReduce, alarmCacheManager, true);
     }
 
     /**
@@ -91,13 +90,12 @@ public class RealTimeAlertCalculator {
      * @param workerPool          The worker pool used for concurrent alert calculation.
      * @param dataQueue           The queue from which metric data is pulled and pushed.
      * @param alertDefineService  The service providing alert definition rules.
-     * @param singleAlertDao      The DAO for fetching persisted alert states from storage.
      * @param alarmCommonReduce   The component responsible for reducing and sending alerts.
      * @param start               If true, the alert calculation threads will start automatically;
      *                            set to false to disable thread start (useful for unit testing).
      */
     public RealTimeAlertCalculator(AlerterWorkerPool workerPool, CommonDataQueue dataQueue,
-                                   AlertDefineService alertDefineService, SingleAlertDao singleAlertDao,
+                                   AlertDefineService alertDefineService,
                                    AlarmCommonReduce alarmCommonReduce, AlarmCacheManager alarmCacheManager, boolean start) {
         this.workerPool = workerPool;
         this.dataQueue = dataQueue;

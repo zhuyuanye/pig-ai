@@ -17,63 +17,63 @@
 
 package com.pig4cloud.pig.common.alert.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pig4cloud.pig.common.core.entity.alerter.AlertInhibit;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Set;
 
 /**
- * management interface service for alert inhibit
+ * 告警抑制管理服务接口
  */
 public interface AlertInhibitService {
+
     /**
-     * Verify the correctness of the request data parameters
-     * @param alertInhibit AlertInhibit
-     * @param isModify     whether modify
-     * @throws IllegalArgumentException A checksum parameter error is thrown
+     * 校验请求数据参数的正确性
+     * @param alertInhibit 告警抑制实体
+     * @param isModify     是否为修改操作
+     * @throws IllegalArgumentException 校验参数错误时抛出
      */
     void validate(AlertInhibit alertInhibit, boolean isModify) throws IllegalArgumentException;
 
     /**
-     * New AlertInhibit
-     * @param alertInhibit AlertInhibit Entity
-     * @throws RuntimeException Added procedure exception throwing
+     * 新增告警抑制
+     * @param alertInhibit 告警抑制实体
+     * @throws RuntimeException 新增过程中的异常抛出
      */
     void addAlertInhibit(AlertInhibit alertInhibit) throws RuntimeException;
 
     /**
-     * Modifying an AlertInhibit
-     * @param alertInhibit Alarm definition Entity
-     * @throws RuntimeException Exception thrown during modification
+     * 修改告警抑制
+     * @param alertInhibit 告警抑制实体
+     * @throws RuntimeException 修改过程中的异常抛出
      */
     void modifyAlertInhibit(AlertInhibit alertInhibit) throws RuntimeException;
 
     /**
-     * Obtain AlertInhibit information
-     * @param inhibitId AlertInhibit ID
-     * @return AlertInhibit
-     * @throws RuntimeException An exception was thrown during the query
+     * 获取告警抑制信息
+     * @param inhibitId 告警抑制ID
+     * @return AlertInhibit 告警抑制实体
+     * @throws RuntimeException 查询过程中的异常抛出
      */
     AlertInhibit getAlertInhibit(long inhibitId) throws RuntimeException;
 
-
     /**
-     * Delete AlertInhibit in batches
-     * @param inhibitIds AlertInhibit IDs
-     * @throws RuntimeException Exception thrown during deletion
+     * 批量删除告警抑制
+     * @param inhibitIds 告警抑制ID集合
+     * @throws RuntimeException 删除过程中的异常抛出
      */
     void deleteAlertInhibits(Set<Long> inhibitIds) throws RuntimeException;
 
     /**
-     * Dynamic conditional query
-     * @param inhibitIds    Alarm Silence ID
-     * @param search        Search Name
-     * @param sort          Sort field
-     * @param order         Sort mode: asc: ascending, desc: descending
-     * @param pageIndex     List current page
-     * @param pageSize      Number of list pages
-     * @return The query results
+     * 动态条件查询告警抑制
+     * @param inhibitIds 告警抑制ID列表
+     * @param search     搜索关键字
+     * @param sort       排序字段
+     * @param order      排序方式: asc-升序, desc-降序
+     * @param pageIndex  当前页码
+     * @param pageSize   每页数量
+     * @return 分页查询结果
      */
-    Page<AlertInhibit> getAlertInhibits(List<Long> inhibitIds, String search, String sort, String order, int pageIndex, int pageSize);
+    IPage<AlertInhibit> getAlertInhibits(List<Long> inhibitIds, String search, String sort, String order, int pageIndex, int pageSize);
 }

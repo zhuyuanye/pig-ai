@@ -1,0 +1,54 @@
+# 告警服务本地配置（dgwl 环境）
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    url: jdbc:postgresql://127.0.0.1:5432/pig-ai
+    hikari:
+      max-lifetime: 120000
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password:
+      database: 0
+  # 邮件配置（非必填，不使用邮箱通知可去掉）
+  mail:
+    host: smtp.qq.com
+    username: example@qq.com
+    password: your-auth-code
+    port: 465
+    properties:
+      mail:
+        smtp:
+          socketFactoryClass: javax.net.ssl.SSLSocketFactory
+          ssl:
+            enable: true
+
+# Pig OAuth2 资源服务器 - 放行的 URL
+security:
+  oauth2:
+    ignore:
+      urls:
+        # 告警上报接口（外部系统推送告警）
+        - /api/alerts/report/**
+        - /api/alert/sse/**
+        # Swagger
+        - /swagger-ui/**
+        - /swagger-ui.html
+        - /v3/api-docs/**
+        - /swagger-resources/**
+
+# 告警服务配置
+alerter:
+  console-url: https://console.tancloud.io
+  we-work-webhook-url: https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=
+  ding-talk-webhook-url: https://oapi.dingtalk.com/robot/send?access_token=
+  fly-book-webhook-url: https://open.feishu.cn/open-apis/bot/v2/hook/
+  telegram-webhook-url: https://api.telegram.org/bot%s/sendMessage
+  discord-webhook-url: https://discord.com/api/v9/channels/%s/messages
+  server-chan-webhook-url: https://sctapi.ftqq.com/%s.send
+  gotify-webhook-url: http://127.0.0.1/message?token=%s
+  inhibit:
+    ttl: 14400000

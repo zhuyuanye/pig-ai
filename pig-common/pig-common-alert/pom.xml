@@ -26,6 +26,11 @@
 			<version>${revision}</version>
 			<scope>provided</scope>
 		</dependency>
+		<!-- MyBatis Plus -->
+		<dependency>
+			<groupId>com.pig4cloud</groupId>
+			<artifactId>pig-common-mybatis</artifactId>
+		</dependency>
 		<!-- plugin -->
 		<dependency>
 			<groupId>com.pig4cloud</groupId>

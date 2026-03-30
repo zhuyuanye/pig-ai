@@ -1,6 +1,7 @@
 package com.pig4cloud.pig.common.alert.notice.impl;
 
-import com.pig4cloud.pig.common.alert.dao.AlertHistoryDao;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.pig4cloud.pig.common.alert.mapper.AlertHistoryMapper;
 import com.pig4cloud.pig.common.alert.notice.AlertHistoryService;
 import com.pig4cloud.pig.common.core.entity.alerter.AlertHistory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,7 @@ import java.util.List;
 public class AlertHistoryServiceImpl implements AlertHistoryService {
 
     @Resource
-    private AlertHistoryDao alertHistoryDao;
+    private AlertHistoryMapper alertHistoryMapper;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -35,15 +36,17 @@ public class AlertHistoryServiceImpl implements AlertHistoryService {
     @Override
     public List<AlertHistory> getAlertHistoryByOptionalTime(LocalDateTime start, LocalDateTime end) {
         if (start != null && end != null) {
-            return alertHistoryDao.findByCreateAlertTimeBetween(start, end);
+            return alertHistoryMapper.selectList(
+                    new LambdaQueryWrapper<AlertHistory>()
+                            .between(AlertHistory::getCreateAlertTime, start, end));
         } else {
-            return alertHistoryDao.findAll();
+            return alertHistoryMapper.selectList(null);
         }
     }
     @Transactional
     @Override
     public void deleteByCreateAlertTimeBetween(LocalDateTime start, LocalDateTime end) {
-        alertHistoryDao.deleteByCreateAlertTimeBetween(start, end);
+        alertHistoryMapper.deleteByCreateAlertTimeBetween(start, end);
     }
 
 

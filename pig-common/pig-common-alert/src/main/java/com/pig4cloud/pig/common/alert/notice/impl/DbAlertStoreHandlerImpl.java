@@ -17,11 +17,12 @@
 
 package com.pig4cloud.pig.common.alert.notice.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.pig4cloud.pig.common.alert.dao.AlertHistoryDao;
-import com.pig4cloud.pig.common.alert.dao.GroupAlertDao;
-import com.pig4cloud.pig.common.alert.dao.SingleAlertDao;
+import com.pig4cloud.pig.common.alert.mapper.AlertHistoryMapper;
+import com.pig4cloud.pig.common.alert.mapper.GroupAlertMapper;
+import com.pig4cloud.pig.common.alert.mapper.SingleAlertMapper;
 import com.pig4cloud.pig.common.alert.notice.AlertStoreHandler;
 import com.pig4cloud.pig.common.core.constants.CommonConstants;
 import com.pig4cloud.pig.common.core.entity.alerter.AlertHistory;
@@ -43,11 +44,11 @@ import java.util.stream.Collectors;
 @Slf4j
 final class DbAlertStoreHandlerImpl implements AlertStoreHandler {
 
-    private final GroupAlertDao groupAlertDao;
+    private final GroupAlertMapper groupAlertMapper;
 
-    private final SingleAlertDao singleAlertDao;
-    //历史数据入库DAO
-    private final AlertHistoryDao alertHistoryDao;
+    private final SingleAlertMapper singleAlertMapper;
+    //历史数据入库Mapper
+    private final AlertHistoryMapper alertHistoryMapper;
 
     @Override
     public GroupAlert store(GroupAlert groupAlert) {
@@ -62,7 +63,8 @@ final class DbAlertStoreHandlerImpl implements AlertStoreHandler {
 
         for (SingleAlert singleAlert : originalAlerts) {
             synchronized (singleAlert.getFingerprint().intern()) {
-                SingleAlert existAlert = singleAlertDao.findByFingerprint(singleAlert.getFingerprint());
+                SingleAlert existAlert = singleAlertMapper.selectOne(
+                        new LambdaQueryWrapper<SingleAlert>().eq(SingleAlert::getFingerprint, singleAlert.getFingerprint()));
                 if (existAlert != null) {
                     // Update the existing alert with the ID and creation time from the database
                     singleAlert.setId(existAlert.getId());
@@ -93,7 +95,14 @@ final class DbAlertStoreHandlerImpl implements AlertStoreHandler {
                 } else {
                     singleAlert.setFingerprintId(saveAlertHistory(singleAlert));
                 }
-                SingleAlert savedSingleAlert = singleAlertDao.save(singleAlert);
+                SingleAlert savedSingleAlert;
+                if (singleAlert.getId() != null) {
+                    singleAlertMapper.updateById(singleAlert);
+                    savedSingleAlert = singleAlert;
+                } else {
+                    singleAlertMapper.insert(singleAlert);
+                    savedSingleAlert = singleAlert;
+                }
                 newAlerts.add(savedSingleAlert);
                 alertFingerprints.add(savedSingleAlert.getFingerprint());
             }
@@ -101,7 +110,8 @@ final class DbAlertStoreHandlerImpl implements AlertStoreHandler {
         groupAlert.setAlerts(newAlerts);
         // Find existing alert group
         synchronized (groupAlert.getGroupKey().intern()) {
-            GroupAlert existGroupAlert = groupAlertDao.findByGroupKey(groupAlert.getGroupKey());
+            GroupAlert existGroupAlert = groupAlertMapper.selectOne(
+                    new LambdaQueryWrapper<GroupAlert>().eq(GroupAlert::getGroupKey, groupAlert.getGroupKey()));
             // Process resolved alerts
             if (existGroupAlert != null) {
                 List<String> existFingerprints = existGroupAlert.getAlertFingerprints();
@@ -137,7 +147,14 @@ final class DbAlertStoreHandlerImpl implements AlertStoreHandler {
             }
             // Save alert group
             groupAlert.setAlertFingerprints(alertFingerprints.stream().toList());
-            GroupAlert savedGroupAlert = groupAlertDao.save(groupAlert);
+            GroupAlert savedGroupAlert;
+            if (groupAlert.getId() != null) {
+                groupAlertMapper.updateById(groupAlert);
+                savedGroupAlert = groupAlert;
+            } else {
+                groupAlertMapper.insert(groupAlert);
+                savedGroupAlert = groupAlert;
+            }
             savedGroupAlert.setAlerts(groupAlert.getAlerts());
             return savedGroupAlert;
         }
@@ -154,7 +171,8 @@ final class DbAlertStoreHandlerImpl implements AlertStoreHandler {
      * @param fingerprintId 指纹 ID
      */
     private void updateAlertsByFingerprintId(String fingerprintId) {
-        List<AlertHistory> alertList = alertHistoryDao.findAllByFingerprintId(fingerprintId);
+        List<AlertHistory> alertList = alertHistoryMapper.selectList(
+                new LambdaQueryWrapper<AlertHistory>().eq(AlertHistory::getFingerprintId, fingerprintId));
         if (alertList == null || alertList.isEmpty()) {
             return; // 没有数据就直接返回
         }
@@ -162,8 +180,8 @@ final class DbAlertStoreHandlerImpl implements AlertStoreHandler {
         for (AlertHistory alert : alertList) {
             alert.setIsResolved(1); // 标记为已恢复
             alert.setResolvedTime(currentDate); // 使用统一时间
+            alertHistoryMapper.updateById(alert);
         }
-        alertHistoryDao.saveAll(alertList);
     }
 
 
@@ -194,7 +212,7 @@ final class DbAlertStoreHandlerImpl implements AlertStoreHandler {
         //不是报警恢复 新增数据
         if (!CommonConstants.ALERT_STATUS_RESOLVED.equals(singleAlert.getStatus())) {
             // 保存到数据库
-            alertHistoryDao.save(alertHistory);
+            alertHistoryMapper.insert(alertHistory);
         }
         return fingerprintId;
     }

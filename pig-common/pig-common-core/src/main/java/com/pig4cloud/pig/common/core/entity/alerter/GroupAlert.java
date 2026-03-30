@@ -17,19 +17,13 @@
 
 package com.pig4cloud.pig.common.core.entity.alerter;
 
+import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.pig4cloud.pig.common.core.entity.manager.JsonStringListAttributeConverter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,68 +32,101 @@ import java.util.Map;
 import static io.swagger.v3.oas.annotations.media.Schema.AccessMode.READ_ONLY;
 
 /**
- * Group Alert Content Entity
+ * 告警分组实体
+ * <p>
+ * 将多条相关的单条告警聚合为一个告警组，
+ * 通过 groupKey 唯一标识，包含公共标签和公共注解。
+ *
+ * @author pig4cloud
  */
-@Entity
-@Table(name = "hzb_alert_group", indexes = {@Index(name = "unique_group_key", columnList = "group_key", unique = true)})
+@TableName("hzb_alert_group")
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Schema(description = "Group Alarm Content Entity")
-@EntityListeners(AuditingEntityListener.class)
+@Schema(description = "告警分组实体")
 public class GroupAlert {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Schema(title = "Threshold Id", example = "87584674384", accessMode = READ_ONLY)
+    /**
+     * 主键ID，自增
+     */
+    @TableId(value = "id", type = IdType.AUTO)
+    @Schema(title = "告警组ID", example = "87584674384", accessMode = READ_ONLY)
     private Long id;
 
-    @Schema(title = "Group Key", example = "HighCPUUsage{alertname=\"HighCPUUsage\", instance=\"server1\"}")
-    @Column(length = 2048)
+    /**
+     * 告警组唯一标识（唯一索引）
+     */
+    @Schema(title = "告警组Key", example = "HighCPUUsage{alertname=\"HighCPUUsage\"}")
     private String groupKey;
 
-    @Schema(title = "Status", example = "resolved")
+    /**
+     * 告警组状态：firing（触发中）、resolved（已恢复）
+     */
+    @Schema(title = "告警状态", example = "resolved")
     private String status;
 
-    @Schema(title = "Group Labels", example = "{\"alertname\": \"HighCPUUsage\"}")
-    @Convert(converter = JsonMapAttributeConverter.class)
-    @Column(length = 2048)
+    /**
+     * 分组标签
+     */
+    @Schema(title = "分组标签", example = "{\"alertname\": \"HighCPUUsage\"}")
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
     private Map<String, String> groupLabels;
 
-    @Schema(title = "Common Labels", example = "{\"alertname\": \"HighCPUUsage\", \"instance\": \"server1\", \"severity\": \"critical\"}")
-    @Convert(converter = JsonMapAttributeConverter.class)
-    @Column(length = 2048)
+    /**
+     * 公共标签（组内所有告警共有的标签）
+     */
+    @Schema(title = "公共标签", example = "{\"alertname\": \"HighCPUUsage\", \"severity\": \"critical\"}")
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
     private Map<String, String> commonLabels;
 
-    @Schema(title = "Common Annotations", example = "{\"summary\": \"High CPU usage detected\", \"description\": \"CPU usage is back to normal for server1\"}")
-    @Convert(converter = JsonMapAttributeConverter.class)
-    @Column(length = 4096)
+    /**
+     * 公共注解（组内所有告警共有的注解）
+     */
+    @Schema(title = "公共注解", example = "{\"summary\": \"High CPU usage detected\"}")
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler.class)
     private Map<String, String> commonAnnotations;
 
-    @Schema(title = "Alert Fingerprints", example = "[\"dxsdfdsf\"]")
-    @Convert(converter = JsonStringListAttributeConverter.class)
-    @Column(length = 8192)
+    /**
+     * 告警指纹列表，关联的单条告警 fingerprint
+     */
+    @Schema(title = "告警指纹列表", example = "[\"dxsdfdsf\"]")
+    @TableField(typeHandler = com.pig4cloud.pig.common.mybatis.handler.JsonStringListTypeHandler.class)
     private List<String> alertFingerprints;
 
-    @Schema(title = "The creator of this record", example = "tom")
-    @CreatedBy
+    /**
+     * 创建者
+     */
+    @Schema(title = "创建者", example = "tom")
+    @TableField(fill = FieldFill.INSERT)
     private String creator;
 
-    @Schema(title = "This record was last modified by", example = "tom")
-    @LastModifiedBy
+    /**
+     * 最后修改者
+     */
+    @Schema(title = "最后修改者", example = "tom")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String modifier;
 
-    @Schema(title = "This record creation time (millisecond timestamp)")
-    @CreatedDate
+    /**
+     * 创建时间
+     */
+    @Schema(title = "创建时间")
+    @TableField(fill = FieldFill.INSERT)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime gmtCreate;
 
-    @Schema(title = "Record the latest modification time (timestamp in milliseconds)")
-    @LastModifiedDate
+    /**
+     * 最后修改时间
+     */
+    @Schema(title = "最后修改时间")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime gmtUpdate;
 
-    @Transient
+    /**
+     * 关联的单条告警列表（非数据库字段，查询时填充）
+     */
+    @TableField(exist = false)
     private List<SingleAlert> alerts;
 }

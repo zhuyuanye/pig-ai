@@ -189,6 +189,7 @@
 		<module>pig-visual</module>
 		<module>pig-collector</module>
 		<module>pig-monitor</module>
+		<module>pig-alerter</module>
 	</modules>
 
 	<dependencyManagement>

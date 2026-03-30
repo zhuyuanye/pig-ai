@@ -17,95 +17,94 @@
 
 package com.pig4cloud.pig.common.alert.service;
 
-import jakarta.servlet.http.HttpServletResponse;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pig4cloud.pig.common.core.entity.alerter.AlertDefine;
-import org.springframework.data.domain.Page;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
 
 /**
- * Alarm define manager service
+ * 告警定义管理服务接口
  */
 public interface AlertDefineService {
 
     /**
-     * Verify the correctness of the request data parameters
-     * @param alertDefine alertDefine
-     * @param isModify whether modify
-     * @throws IllegalArgumentException A checksum parameter error is thrown
+     * 校验请求数据参数的正确性
+     * @param alertDefine 告警定义实体
+     * @param isModify 是否为修改操作
+     * @throws IllegalArgumentException 校验参数错误时抛出
      */
     void validate(AlertDefine alertDefine, boolean isModify) throws IllegalArgumentException;
 
     /**
-     * New Alarm Definition
-     * @param alertDefine Alarm definition Entity
-     * @throws RuntimeException Added procedure exception throwing
+     * 新增告警定义
+     * @param alertDefine 告警定义实体
+     * @throws RuntimeException 新增过程中的异常抛出
      */
     void addAlertDefine(AlertDefine alertDefine) throws RuntimeException;
 
     /**
-     * Modifying an Alarm Definition
-     * @param alertDefine Alarm definition Entity
-     * @throws RuntimeException Exception thrown during modification
+     * 修改告警定义
+     * @param alertDefine 告警定义实体
+     * @throws RuntimeException 修改过程中的异常抛出
      */
     void modifyAlertDefine(AlertDefine alertDefine) throws RuntimeException;
 
     /**
-     * Deleting an Alarm Definition
-     * @param alertId Alarm Definition ID
-     * @throws RuntimeException Exception thrown during deletion
+     * 删除告警定义
+     * @param alertId 告警定义ID
+     * @throws RuntimeException 删除过程中的异常抛出
      */
     void deleteAlertDefine(long alertId) throws RuntimeException;
 
     /**
-     * Obtain alarm definition information
-     * @param alertId Monitor the ID
-     * @return AlertDefine
-     * @throws RuntimeException An exception was thrown during the query
+     * 获取告警定义信息
+     * @param alertId 告警定义ID
+     * @return AlertDefine 告警定义实体
+     * @throws RuntimeException 查询过程中的异常抛出
      */
     AlertDefine getAlertDefine(long alertId) throws RuntimeException;
 
-
     /**
-     * Delete alarm definitions in batches
-     * @param alertIds Alarm Definition IDs
-     * @throws RuntimeException Exception thrown during deletion
+     * 批量删除告警定义
+     * @param alertIds 告警定义ID集合
+     * @throws RuntimeException 删除过程中的异常抛出
      */
     void deleteAlertDefines(Set<Long> alertIds) throws RuntimeException;
 
     /**
-     * Dynamic conditional query
-     * @param defineIds     Alarm Definition ID List
-     * @param search        Search-Target Expr Template
-     * @param sort          Sort field
-     * @param order         Sort mode: asc: ascending, desc: descending
-     * @param pageIndex     List current page
-     * @param pageSize      Number of list pages
-     * @return The query results
+     * 动态条件查询告警定义
+     * @param defineIds 告警定义ID列表
+     * @param search    搜索关键字-目标表达式模板
+     * @param sort      排序字段
+     * @param order     排序方式: asc-升序, desc-降序
+     * @param pageIndex 当前页码
+     * @param pageSize  每页数量
+     * @return 分页查询结果
      */
-    Page<AlertDefine> getAlertDefines(List<Long> defineIds, String search, String sort, String order, int pageIndex, int pageSize);
+    IPage<AlertDefine> getAlertDefines(List<Long> defineIds, String search, String sort, String order, int pageIndex, int pageSize);
 
     /**
-     * Export file configuration of specified type based on ID list and export file type
-     * @param ids AlertDefine ID
-     * @param type File Type
-     * @param res Response
-     * @throws Exception An exception was thrown during the export
+     * 根据ID列表和导出文件类型导出指定类型的文件配置
+     * @param ids  告警定义ID列表
+     * @param type 文件类型
+     * @param res  HTTP响应对象
+     * @throws Exception 导出过程中的异常抛出
      */
     void export(List<Long> ids, String type, HttpServletResponse res) throws Exception;
 
     /**
-     * Add alarm threshold rules based on the uploaded alarm threshold file
-     * @param file Upload File
-     * @throws Exception An exception was thrown during the importConfig
+     * 根据上传的告警阈值文件添加告警阈值规则
+     * @param file 上传的文件
+     * @throws Exception 导入过程中的异常抛出
      */
     void importConfig(MultipartFile file) throws Exception;
 
     /**
-     * Get the real-time alarm definition list
-     * @return Real-time alarm definition list
+     * 获取实时告警定义列表
+     * @return 实时告警定义列表
      */
     List<AlertDefine> getRealTimeAlertDefines();
 

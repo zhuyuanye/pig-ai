@@ -97,6 +97,21 @@ services:
     networks:
       - spring_cloud_default
 
+  pig-alerter:
+    build:
+      context: ./pig-alerter
+    restart: always
+    ports:
+      - 1158:1158
+    container_name: pig-alerter
+    hostname: pig-alerter
+    image: pig-alerter
+    environment:
+      REDIS_HOST: pig-redis
+      NACOS_HOST: pig-register
+    networks:
+      - spring_cloud_default
+
   pig-codegen:
     build:
       context: ./pig-visual/pig-codegen

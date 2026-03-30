@@ -17,71 +17,74 @@
 
 package com.pig4cloud.pig.common.alert.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pig4cloud.pig.common.alert.dto.AlertSummary;
 import com.pig4cloud.pig.common.core.entity.alerter.GroupAlert;
 import com.pig4cloud.pig.common.core.entity.alerter.SingleAlert;
-import org.springframework.data.domain.Page;
 
 import java.util.HashSet;
 import java.util.List;
 
 /**
- * Alarm information management interface
+ * 告警信息管理服务接口
  */
 public interface AlertService {
 
     /**
-     * get and query single alerts
-     * @param status status
-     * @param search search
-     * @param sort sort
-     * @param order order
-     * @param pageIndex pageIndex
-     * @param pageSize pageSize
-     * @return single alerts
+     * 查询单条告警列表
+     * @param status    告警状态
+     * @param search    搜索关键字
+     * @param sort      排序字段
+     * @param order     排序方式
+     * @param pageIndex 当前页码
+     * @param pageSize  每页数量
+     * @return 单条告警分页结果
      */
-    Page<SingleAlert> getSingleAlerts(String status, String search, String sort, String order, int pageIndex, int pageSize);
+    IPage<SingleAlert> getSingleAlerts(String status, String search, String sort, String order, int pageIndex, int pageSize);
 
     /**
-     * Dynamic conditional query
-     * @param status        Alarm Status
-     * @param sort          Sort field
-     * @param order         Sort Type
-     * @param pageIndex     List current page
-     * @param pageSize      Number of list pagination
-     * @return search result
+     * 动态条件查询分组告警
+     * @param status    告警状态
+     * @param search    搜索关键字
+     * @param sort      排序字段
+     * @param order     排序方式
+     * @param pageIndex 当前页码
+     * @param pageSize  每页数量
+     * @param startTime 开始时间
+     * @param endTime   结束时间
+     * @return 分组告警分页结果
      */
-    Page<GroupAlert> getGroupAlerts(String status, String search, String sort, String order, int pageIndex, int pageSize, String startTime, String endTime);
+    IPage<GroupAlert> getGroupAlerts(String status, String search, String sort, String order, int pageIndex, int pageSize, String startTime, String endTime);
 
     /**
-     * delete the group alarm according to the alarm ID
-     * @param ids Alarm ID List
+     * 根据告警ID批量删除分组告警
+     * @param ids 告警ID集合
      */
     void deleteGroupAlerts(HashSet<Long> ids);
 
     /**
-     * delete the single alarm according to the alarm ID
-     * @param ids Alarm ID List
+     * 根据告警ID批量删除单条告警
+     * @param ids 告警ID集合
      */
     void deleteSingleAlerts(HashSet<Long> ids);
 
     /**
-     * Update the alarm status according to the alarm ID-status value
-     * @param status Alarm status to be modified
-     * @param ids   Alarm ID List to be modified
+     * 根据告警ID和状态值更新分组告警状态
+     * @param status 要修改的告警状态
+     * @param ids    要修改的告警ID列表
      */
     void editGroupAlertStatus(String status, List<Long> ids);
 
     /**
-     * Update the alarm status according to the alarm ID-status value
-     * @param status Alarm status to be modified
-     * @param ids  Alarm ID List to be modified
+     * 根据告警ID和状态值更新单条告警状态
+     * @param status 要修改的告警状态
+     * @param ids    要修改的告警ID列表
      */
     void editSingleAlertStatus(String status, List<Long> ids);
 
     /**
-     * Get alarm statistics information
-     * @return Alarm statistics information
+     * 获取告警统计摘要信息
+     * @return 告警统计摘要
      */
     AlertSummary getAlertsSummary();
 }

@@ -19,7 +19,7 @@ package com.pig4cloud.pig.common.alert.calculate;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
-import com.pig4cloud.pig.common.alert.dao.AlertDefineDao;
+import com.pig4cloud.pig.common.alert.mapper.AlertDefineMapper;
 import com.pig4cloud.pig.common.core.entity.alerter.AlertDefine;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -38,13 +38,13 @@ import static com.pig4cloud.pig.common.core.constants.CommonConstants.ALERT_THRE
 public class PeriodicAlertRuleScheduler implements CommandLineRunner {
 
     private final PeriodicAlertCalculator calculator;
-    private final AlertDefineDao alertDefineDao;
+    private final AlertDefineMapper alertDefineMapper;
     private final ScheduledExecutorService scheduledExecutor;
     private final Map<Long, ScheduledFuture<?>> scheduledFutures;
 
-    public PeriodicAlertRuleScheduler(PeriodicAlertCalculator calculator, AlertDefineDao alertDefineDao) {
+    public PeriodicAlertRuleScheduler(PeriodicAlertCalculator calculator, AlertDefineMapper alertDefineMapper) {
         this.calculator = calculator;
-        this.alertDefineDao = alertDefineDao;
+        this.alertDefineMapper = alertDefineMapper;
         ThreadFactory threadFactory = new ThreadFactoryBuilder()
                 .setUncaughtExceptionHandler((thread, throwable) -> {
                     log.error("Scheduled periodic alert threshold has uncaughtException.");
@@ -85,7 +85,7 @@ public class PeriodicAlertRuleScheduler implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         log.info("Starting periodic alert rule scheduler...");
-        List<AlertDefine> periodicRules = alertDefineDao.findAlertDefinesByTypeAndEnableTrue(ALERT_THRESHOLD_TYPE_PERIODIC);
+        List<AlertDefine> periodicRules = alertDefineMapper.selectByTypeAndEnableTrue(ALERT_THRESHOLD_TYPE_PERIODIC);
         for (AlertDefine rule : periodicRules) {
             updateSchedule(rule);
         }

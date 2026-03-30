@@ -17,63 +17,63 @@
 
 package com.pig4cloud.pig.common.alert.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pig4cloud.pig.common.core.entity.alerter.AlertGroupConverge;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Set;
 
 /**
- * management interface service for alert converge
+ * 告警收敛管理服务接口
  */
 public interface AlertGroupConvergeService {
+
     /**
-     * Verify the correctness of the request data parameters
-     * @param alertGroupConverge AlertGroupConverge
-     * @param isModify      whether modify
-     * @throws IllegalArgumentException A checksum parameter error is thrown
+     * 校验请求数据参数的正确性
+     * @param alertGroupConverge 告警收敛实体
+     * @param isModify           是否为修改操作
+     * @throws IllegalArgumentException 校验参数错误时抛出
      */
     void validate(AlertGroupConverge alertGroupConverge, boolean isModify) throws IllegalArgumentException;
 
     /**
-     * New AlertGroupConverge
-     * @param alertGroupConverge AlertGroupConverge Entity
-     * @throws RuntimeException Added procedure exception throwing
+     * 新增告警收敛
+     * @param alertGroupConverge 告警收敛实体
+     * @throws RuntimeException 新增过程中的异常抛出
      */
     void addAlertGroupConverge(AlertGroupConverge alertGroupConverge) throws RuntimeException;
 
     /**
-     * Modifying an AlertGroupConverge
-     * @param alertGroupConverge Alarm definition Entity
-     * @throws RuntimeException Exception thrown during modification
+     * 修改告警收敛
+     * @param alertGroupConverge 告警收敛实体
+     * @throws RuntimeException 修改过程中的异常抛出
      */
     void modifyAlertGroupConverge(AlertGroupConverge alertGroupConverge) throws RuntimeException;
 
     /**
-     * Obtain AlertGroupConverge information
-     * @param convergeId AlertGroupConverge ID
-     * @return AlertGroupConverge
-     * @throws RuntimeException An exception was thrown during the query
+     * 获取告警收敛信息
+     * @param convergeId 告警收敛ID
+     * @return AlertGroupConverge 告警收敛实体
+     * @throws RuntimeException 查询过程中的异常抛出
      */
     AlertGroupConverge getAlertGroupConverge(long convergeId) throws RuntimeException;
 
-
     /**
-     * Delete AlertGroupConverge in batches
-     * @param convergeIds AlertGroupConverge IDs
-     * @throws RuntimeException Exception thrown during deletion
+     * 批量删除告警收敛
+     * @param convergeIds 告警收敛ID集合
+     * @throws RuntimeException 删除过程中的异常抛出
      */
     void deleteAlertGroupConverges(Set<Long> convergeIds) throws RuntimeException;
 
     /**
-     * Dynamic conditional query
-     * @param convergeIds   Alarm Converge ID List
-     * @param search        Search Name
-     * @param sort          Sort field
-     * @param order         Sort mode: asc: ascending, desc: descending
-     * @param pageIndex     List current page
-     * @param pageSize      Number of list pages
-     * @return The query results
+     * 动态条件查询告警收敛
+     * @param convergeIds 告警收敛ID列表
+     * @param search      搜索关键字
+     * @param sort        排序字段
+     * @param order       排序方式: asc-升序, desc-降序
+     * @param pageIndex   当前页码
+     * @param pageSize    每页数量
+     * @return 分页查询结果
      */
-    Page<AlertGroupConverge> getAlertGroupConverges(List<Long> convergeIds, String search, String sort, String order, int pageIndex, int pageSize);
+    IPage<AlertGroupConverge> getAlertGroupConverges(List<Long> convergeIds, String search, String sort, String order, int pageIndex, int pageSize);
 }

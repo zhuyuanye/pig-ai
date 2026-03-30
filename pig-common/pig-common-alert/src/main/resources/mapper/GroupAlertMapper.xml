@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pig4cloud.pig.common.alert.mapper.GroupAlertMapper">
+
+    <!-- 告警分组结果映射（含 JSON 字段） -->
+    <resultMap id="groupAlertResultMap" type="com.pig4cloud.pig.common.core.entity.alerter.GroupAlert">
+        <id column="id" property="id"/>
+        <result column="group_key" property="groupKey"/>
+        <result column="status" property="status"/>
+        <result column="group_labels" property="groupLabels"
+                typeHandler="com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler"/>
+        <result column="common_labels" property="commonLabels"
+                typeHandler="com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler"/>
+        <result column="common_annotations" property="commonAnnotations"
+                typeHandler="com.pig4cloud.pig.common.mybatis.handler.JsonMapTypeHandler"/>
+        <result column="alert_fingerprints" property="alertFingerprints"
+                typeHandler="com.pig4cloud.pig.common.mybatis.handler.JsonStringListTypeHandler"/>
+        <result column="creator" property="creator"/>
+        <result column="modifier" property="modifier"/>
+        <result column="gmt_create" property="gmtCreate"/>
+        <result column="gmt_update" property="gmtUpdate"/>
+    </resultMap>
+
+    <!-- 批量更新告警组状态 -->
+    <update id="updateStatusByIds">
+        UPDATE hzb_alert_group SET status = #{status}
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>
