@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import com.pig4cloud.pig.common.core.entity.fragment.DataFragmentConfig;
 import com.pig4cloud.pig.monitor.config.FragmentSQLConstants;
 import com.pig4cloud.pig.monitor.fragment.DataFragmentConfigService;
-import com.pig4cloud.pig.monitor.fragment.dao.DataFragmentConfigDao;
+import com.pig4cloud.pig.monitor.fragment.mapper.DataFragmentConfigMapper;
 import com.pig4cloud.pig.monitor.pojo.dto.DataFragmentVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,8 +25,7 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class DataFragmentConfigServiceImpl implements DataFragmentConfigService {
 
-    @Resource
-    private DataFragmentConfigDao dataFragmentConfigDao;
+    private final DataFragmentConfigMapper dataFragmentConfigMapper;
 
     /**
      * 新增数据碎片配置
@@ -48,7 +47,18 @@ public class DataFragmentConfigServiceImpl implements DataFragmentConfigService 
                 config.setSqlInfo(FragmentSQLConstants.HGDB_FRAGMENT_SQL);
                 break;
         }
-        return dataFragmentConfigDao.save(config);
+        return dataFragmentConfigMapper.selectById(config.getId()) != null
+                ? updateAndReturn(config) : insertAndReturn(config);
+    }
+
+    private DataFragmentConfig insertAndReturn(DataFragmentConfig config) {
+        dataFragmentConfigMapper.insert(config);
+        return config;
+    }
+
+    private DataFragmentConfig updateAndReturn(DataFragmentConfig config) {
+        dataFragmentConfigMapper.updateById(config);
+        return config;
     }
 
     /**
@@ -58,7 +68,7 @@ public class DataFragmentConfigServiceImpl implements DataFragmentConfigService 
      */
     @Override
     public void deleteById(Long id) {
-        dataFragmentConfigDao.deleteById(id);
+        dataFragmentConfigMapper.deleteById(id);
     }
 
     /**
@@ -70,7 +80,8 @@ public class DataFragmentConfigServiceImpl implements DataFragmentConfigService 
     @Override
     @Transactional(readOnly = true)
     public Optional<DataFragmentConfig> findById(Long id) {
-        return dataFragmentConfigDao.findById(id);
+        DataFragmentConfig result = dataFragmentConfigMapper.selectById(id);
+        return Optional.ofNullable(result);
     }
 
     /**
@@ -81,7 +92,7 @@ public class DataFragmentConfigServiceImpl implements DataFragmentConfigService 
     @Override
     @Transactional(readOnly = true)
     public List<DataFragmentConfig> findAll() {
-        return dataFragmentConfigDao.findAll();
+        return dataFragmentConfigMapper.selectList(null);
     }
 
     /**
