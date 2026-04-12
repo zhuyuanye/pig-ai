@@ -1,13 +1,12 @@
 package com.pig4cloud.pig.monitor.fragment.impl;
 
 
-import jakarta.annotation.Resource;
-import lombok.RequiredArgsConstructor;
 import com.pig4cloud.pig.common.core.entity.fragment.DataFragmentConfig;
 import com.pig4cloud.pig.monitor.config.FragmentSQLConstants;
 import com.pig4cloud.pig.monitor.fragment.DataFragmentConfigService;
-import com.pig4cloud.pig.monitor.fragment.mapper.DataFragmentConfigMapper;
+import com.pig4cloud.pig.monitor.mapper.DataFragmentConfigMapper;
 import com.pig4cloud.pig.monitor.pojo.dto.DataFragmentVO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

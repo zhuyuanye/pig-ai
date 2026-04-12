@@ -37,10 +37,19 @@ public interface ConfigConstants {
         String PKG = "com.pig4cloud.pig.common";
     }
 
+	/**
+	 * Package name constant.
+	 */
+	interface PkgCollectorConstant {
+		String PKG = "com.pig4cloud.pig.collector";
+	}
+
     /**
      * hertzbeat project module constant.
      */
     interface FunctionModuleConstants {
+
+        String CORE = "core";
 
         String ALERT = "alert";
 

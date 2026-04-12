@@ -87,6 +87,8 @@
     <logger name="org.hibernate" level="info"/>
     <logger name="org.apache.http" level="info"/>
     <logger name="com.zaxxer" level="info"/>
+    <logger name="com.alibaba.nacos" level="warn"/>
+    <logger name="org.jboss.logging" level="warn"/>
     <logger name="springfox" level="info"/>
     <logger name="org.mongodb" level="warn"/>
     <logger name="io.greptime" level="warn"/>
@@ -115,6 +117,14 @@
             <appender-ref ref="ErrOutFileAppender"/>
         </root>
     </springProfile>
+
+	<springProfile name="dgwl">
+		<root level="INFO">
+			<appender-ref ref="ConsoleAppender"/>
+			<appender-ref ref="SystemOutFileAppender"/>
+			<appender-ref ref="ErrOutFileAppender"/>
+		</root>
+	</springProfile>
 
     <!-- Development environment configuration -->
     <springProfile name="mysql">

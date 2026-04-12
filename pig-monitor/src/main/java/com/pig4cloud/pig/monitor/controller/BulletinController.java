@@ -18,18 +18,18 @@
 
 package com.pig4cloud.pig.monitor.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.pig4cloud.pig.common.core.entity.dto.Message;
+import com.pig4cloud.pig.common.core.entity.manager.Bulletin;
+import com.pig4cloud.pig.common.core.util.ResponseUtil;
+import com.pig4cloud.pig.common.warehouse.store.realtime.RealTimeDataReader;
+import com.pig4cloud.pig.monitor.pojo.dto.BulletinMetricsData;
+import com.pig4cloud.pig.monitor.service.BulletinService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import com.pig4cloud.pig.common.core.entity.dto.Message;
-import com.pig4cloud.pig.common.core.entity.manager.Bulletin;
-import com.pig4cloud.pig.common.core.util.ResponseUtil;
-import com.pig4cloud.pig.monitor.pojo.dto.BulletinMetricsData;
-import com.pig4cloud.pig.monitor.service.BulletinService;
-import com.pig4cloud.pig.common.warehouse.store.realtime.RealTimeDataReader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -79,12 +79,12 @@ public class BulletinController {
     @Operation(summary = "Query One Bulletin", description = "Query One Bulletin")
     @GetMapping("/{id}")
     public ResponseEntity<Message<Bulletin>> getBulletin(@Valid @PathVariable Long id) {
-        return ResponseEntity.ok(Message.success(bulletinService.getBulletinById(id).orElse(null)));
+        return ResponseEntity.ok(Message.success(bulletinService.getBulletinById(id)));
     }
 
     @Operation(summary = "Query Bulletins", description = "Query All Bulletin")
     @GetMapping
-    public ResponseEntity<Message<Page<Bulletin>>> queryBulletins(
+    public ResponseEntity<Message<IPage<Bulletin>>> queryBulletins(
             @Parameter(description = "Search", example = "tom") @RequestParam(required = false) final String search,
             @Parameter(description = "List current page", example = "0") @RequestParam(defaultValue = "0") Integer pageIndex,
             @Parameter(description = "Number of list pagination", example = "8") @RequestParam(required = false) Integer pageSize) {

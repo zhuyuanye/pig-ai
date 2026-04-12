@@ -32,6 +32,11 @@ import org.springframework.context.annotation.Configuration;
         ConfigConstants.FunctionModuleConstants.AI)
 public class AiProperties {
 
+	/**
+     * AI Enable
+     */
+	private Boolean enabled;
+
     /**
      * AI Type: zhiPu, alibabaAi, kimiAi, sparkDesk
      */

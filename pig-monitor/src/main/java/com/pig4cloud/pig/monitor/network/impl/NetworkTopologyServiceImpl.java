@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import com.pig4cloud.pig.common.core.entity.network.NetworkTopologyInfo;
 import com.pig4cloud.pig.monitor.network.NetworkTopologyService;
-import com.pig4cloud.pig.monitor.network.mapper.NetworkTopologyMapper;
+import com.pig4cloud.pig.monitor.mapper.NetworkTopologyMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

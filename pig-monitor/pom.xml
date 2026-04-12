@@ -188,6 +188,10 @@
 			<groupId>com.pig4cloud</groupId>
 			<artifactId>pig-common-mybatis</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+		</dependency>
 		<!-- database migration -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
@@ -323,6 +327,7 @@
 					<include>db/**</include>
 					<include>templates/**</include>
 					<include>**/*.html</include>
+					<include>mapper/*.xml</include>
 				</includes>
 			</resource>
 		</resources>

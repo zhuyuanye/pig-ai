@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import com.pig4cloud.pig.common.core.entity.network.SnmpConfigInfo;
 import com.pig4cloud.pig.monitor.network.SnmpConfigService;
-import com.pig4cloud.pig.monitor.network.mapper.SnmpConfigMapper;
+import com.pig4cloud.pig.monitor.mapper.SnmpConfigMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

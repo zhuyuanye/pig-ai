@@ -29,8 +29,8 @@ import org.springframework.context.annotation.ComponentScan;
  */
 
 @AutoConfiguration
-@ComponentScan(basePackages = ConfigConstants.PkgConstant.PKG
-		+ SignConstants.DOT
-		+ ConfigConstants.FunctionModuleConstants.COLLECTOR)
+@ComponentScan(basePackages = ConfigConstants.PkgCollectorConstant.PKG
+		/*+ SignConstants.DOT
+		+ ConfigConstants.FunctionModuleConstants.COLLECTOR*/)
 public class CollectorAutoConfiguration {
 }

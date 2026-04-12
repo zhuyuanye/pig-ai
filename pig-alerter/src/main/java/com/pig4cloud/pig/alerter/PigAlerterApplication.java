@@ -16,12 +16,15 @@
 
 package com.pig4cloud.pig.alerter;
 
+import com.pig4cloud.pig.common.core.constants.ConfigConstants;
+import com.pig4cloud.pig.common.core.constants.SignConstants;
 import com.pig4cloud.pig.common.feign.annotation.EnablePigFeignClients;
 import com.pig4cloud.pig.common.security.annotation.EnablePigResourceServer;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -40,8 +43,13 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableDiscoveryClient
 @EnablePigFeignClients
 @EnablePigResourceServer
-@SpringBootApplication(scanBasePackages = {"com.pig4cloud.pig"})
-@MapperScan("com.pig4cloud.pig.common.alert.mapper")
+@SpringBootApplication
+@MapperScan({"com.pig4cloud.pig.common.alert.mapper", "com.pig4cloud.pig.common.base.mapper"})
+@ComponentScan(
+		basePackages = ConfigConstants.PkgConstant.PKG
+				+ SignConstants.DOT
+				+ ConfigConstants.FunctionModuleConstants.CORE
+)
 @EnableAsync
 @EnableScheduling
 public class PigAlerterApplication {

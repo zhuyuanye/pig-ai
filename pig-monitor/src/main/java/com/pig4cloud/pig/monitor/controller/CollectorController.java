@@ -17,15 +17,15 @@
 
 package com.pig4cloud.pig.monitor.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.tags.Tag;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pig4cloud.pig.common.core.entity.dto.CollectorSummary;
 import com.pig4cloud.pig.common.core.entity.dto.Message;
 import com.pig4cloud.pig.common.core.util.ResponseUtil;
 import com.pig4cloud.pig.monitor.service.CollectorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,7 +48,7 @@ public class CollectorController {
     @GetMapping
     @Operation(summary = "Get a list of collectors based on query filter items",
             description = "Get a list of collectors based on query filter items")
-    public ResponseEntity<Message<Page<CollectorSummary>>> getCollectors(
+    public ResponseEntity<Message<IPage<CollectorSummary>>> getCollectors(
             @Parameter(description = "collector name", example = "tom") @RequestParam(required = false) final String name,
             @Parameter(description = "List current page", example = "0") @RequestParam(defaultValue = "0") int pageIndex,
             @Parameter(description = "Number of list pagination", example = "8") @RequestParam(required = false) Integer pageSize) {

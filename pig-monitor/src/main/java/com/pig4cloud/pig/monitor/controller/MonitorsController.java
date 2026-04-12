@@ -17,15 +17,15 @@
 
 package com.pig4cloud.pig.monitor.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.pig4cloud.pig.common.core.entity.dto.Message;
+import com.pig4cloud.pig.common.core.entity.manager.Monitor;
+import com.pig4cloud.pig.monitor.service.MonitorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
-import com.pig4cloud.pig.common.core.entity.dto.Message;
-import com.pig4cloud.pig.common.core.entity.manager.Monitor;
-import com.pig4cloud.pig.monitor.service.MonitorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,7 +49,7 @@ public class MonitorsController {
     @GetMapping
     @Operation(summary = "Obtain a list of monitoring information based on query filter items",
             description = "Obtain a list of monitoring information based on query filter items")
-    public ResponseEntity<Message<Page<Monitor>>> getMonitors(
+    public ResponseEntity<Message<IPage<Monitor>>> getMonitors(
             @Parameter(description = "Monitor ID", example = "6565463543") @RequestParam(required = false) final List<Long> ids,
             @Parameter(description = "Monitor Type", example = "linux") @RequestParam(required = false) final String app,
             @Parameter(description = "Monitor Status 0:no monitor,1:usable,2:disabled,9:all status", example = "1") @RequestParam(required = false) final Byte status,
@@ -59,7 +59,7 @@ public class MonitorsController {
             @Parameter(description = "Sort mode eg:asc desc", example = "desc") @RequestParam(defaultValue = "desc") final String order,
             @Parameter(description = "List current page", example = "0") @RequestParam(defaultValue = "0") int pageIndex,
             @Parameter(description = "Number of list pagination ", example = "8") @RequestParam(defaultValue = "8") int pageSize) {
-        Page<Monitor> monitorPage = monitorService.getMonitors(ids, app, search, status, sort, order, pageIndex, pageSize, labels);
+        IPage<Monitor> monitorPage = monitorService.getMonitors(ids, app, search, status, sort, order, pageIndex, pageSize, labels);
         return ResponseEntity.ok(Message.success(monitorPage));
     }
 

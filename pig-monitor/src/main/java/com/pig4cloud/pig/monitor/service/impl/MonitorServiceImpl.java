@@ -17,13 +17,13 @@
 
 package com.pig4cloud.pig.monitor.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Sets;
-import com.pig4cloud.pig.common.grafana.service.DashboardService;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import com.pig4cloud.pig.common.alert.mapper.AlertDefineBindMapper;
 import com.pig4cloud.pig.collector.dispatch.DispatchConstants;
+import com.pig4cloud.pig.common.alert.mapper.AlertDefineBindMapper;
 import com.pig4cloud.pig.common.core.constants.CommonConstants;
 import com.pig4cloud.pig.common.core.constants.ExportFileConstants;
 import com.pig4cloud.pig.common.core.constants.NetworkConstants;
@@ -36,6 +36,8 @@ import com.pig4cloud.pig.common.core.entity.manager.*;
 import com.pig4cloud.pig.common.core.entity.message.CollectRep;
 import com.pig4cloud.pig.common.core.support.event.MonitorDeletedEvent;
 import com.pig4cloud.pig.common.core.util.*;
+import com.pig4cloud.pig.common.grafana.service.DashboardService;
+import com.pig4cloud.pig.common.warehouse.service.WarehouseService;
 import com.pig4cloud.pig.monitor.config.ManagerSseManager;
 import com.pig4cloud.pig.monitor.mapper.*;
 import com.pig4cloud.pig.monitor.pojo.dto.AppCount;
@@ -47,7 +49,8 @@ import com.pig4cloud.pig.monitor.service.LabelService;
 import com.pig4cloud.pig.monitor.service.MonitorService;
 import com.pig4cloud.pig.monitor.support.exception.MonitorDatabaseException;
 import com.pig4cloud.pig.monitor.support.exception.MonitorDetectException;
-import com.pig4cloud.pig.common.warehouse.service.WarehouseService;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -58,9 +61,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -278,7 +278,7 @@ public class MonitorServiceImpl implements MonitorService {
             for (ParamDefine paramDefine : paramDefines) {
                 String field = paramDefine.getField();
                 Param param = paramMap.get(field);
-                if (paramDefine.isRequired() && (param == null || param.getParamValue() == null)) {
+                if (Boolean.TRUE.equals(paramDefine.getRequired()) && (param == null || param.getParamValue() == null)) {
                     throw new IllegalArgumentException("Params field " + field + " is required.");
                 }
                 if (param != null && StringUtils.hasText(param.getParamValue())) {
@@ -346,7 +346,8 @@ public class MonitorServiceImpl implements MonitorService {
                             break;
                         case "radio":
                             // radio single value check
-                            List<ParamDefine.Option> options = paramDefine.getOptions();
+                            @SuppressWarnings("unchecked")
+                            List<ParamDefine.Option> options = (List<ParamDefine.Option>) (List<?>) paramDefine.getOptions();
                             boolean invalid = true;
                             if (options != null) {
                                 for (ParamDefine.Option option : options) {
@@ -362,7 +363,8 @@ public class MonitorServiceImpl implements MonitorService {
                             }
                             break;
                         case "checkbox":
-                            List<ParamDefine.Option> checkboxOptions = paramDefine.getOptions();
+                            @SuppressWarnings("unchecked")
+                            List<ParamDefine.Option> checkboxOptions = (List<ParamDefine.Option>) (List<?>) paramDefine.getOptions();
                             boolean checkboxInvalid = true;
                             if (checkboxOptions != null) {
                                 for (ParamDefine.Option option : checkboxOptions) {

@@ -16,9 +16,12 @@
 
 package com.pig4cloud.pig.monitor;
 
+import com.pig4cloud.pig.common.core.constants.ConfigConstants;
+import com.pig4cloud.pig.common.core.constants.SignConstants;
 import com.pig4cloud.pig.common.feign.annotation.EnablePigFeignClients;
 import com.pig4cloud.pig.monitor.nativex.HertzbeatRuntimeHintsRegistrar;
 import de.codecentric.boot.admin.server.config.EnableAdminServer;
+import jakarta.annotation.PostConstruct;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,8 +31,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportRuntimeHints;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import jakarta.annotation.PostConstruct;
 
 /**
  * 监控中心应用启动类
@@ -53,8 +54,14 @@ import jakarta.annotation.PostConstruct;
 @EnableDiscoveryClient
 @EnablePigFeignClients
 @SpringBootApplication
-@MapperScan("com.pig4cloud")
-@ComponentScan(basePackages = {"com.pig4cloud"})
+@MapperScan({"com.pig4cloud.pig.monitor.mapper", "com.pig4cloud.pig.common.push.mapper",
+		"com.pig4cloud.pig.common.base.mapper", "com.pig4cloud.pig.common.warehouse.mapper",
+		"com.pig4cloud.pig.common.alert.mapper", "com.pig4cloud.pig.common.grafana.mapper"})
+@ComponentScan(
+        basePackages = ConfigConstants.PkgConstant.PKG
+                + SignConstants.DOT
+                + ConfigConstants.FunctionModuleConstants.CORE
+)
 @ConfigurationPropertiesScan(basePackages = {"com.pig4cloud"})
 @ImportRuntimeHints(HertzbeatRuntimeHintsRegistrar.class)
 @EnableAsync

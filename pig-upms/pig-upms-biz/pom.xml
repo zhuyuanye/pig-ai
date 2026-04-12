@@ -40,6 +40,10 @@
             <groupId>com.pig4cloud</groupId>
             <artifactId>pig-upms-api</artifactId>
         </dependency>
+		<dependency>
+			<groupId>com.baomidou</groupId>
+			<artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+		</dependency>
         <!--文件管理-->
         <dependency>
             <groupId>com.pig4cloud</groupId>
@@ -64,11 +68,6 @@
         <dependency>
             <groupId>com.pig4cloud</groupId>
             <artifactId>pig-common-swagger</artifactId>
-        </dependency>
-        <!-- orm 模块-->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>
         <dependency>
             <groupId>com.mysql</groupId>
@@ -99,6 +98,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
+		<!-- ============ Swagger ============ -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+		</dependency>
     </dependencies>
 
     <profiles>

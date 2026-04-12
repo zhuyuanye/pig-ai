@@ -20,7 +20,9 @@ package com.pig4cloud.pig.common.warehouse.config;
 
 import com.pig4cloud.pig.common.core.constants.ConfigConstants;
 import com.pig4cloud.pig.common.core.constants.SignConstants;
+import com.pig4cloud.pig.common.warehouse.store.realtime.memory.MemoryProperties;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
@@ -32,5 +34,6 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = ConfigConstants.PkgConstant.PKG
 		+ SignConstants.DOT
 		+ ConfigConstants.FunctionModuleConstants.WAREHOUSE)
+@EnableConfigurationProperties(MemoryProperties.class)
 public class WarehouseAutoConfiguration {
 }

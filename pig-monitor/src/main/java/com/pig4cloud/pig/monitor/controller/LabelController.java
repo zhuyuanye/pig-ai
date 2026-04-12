@@ -17,15 +17,15 @@
 
 package com.pig4cloud.pig.monitor.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.pig4cloud.pig.common.core.entity.dto.Message;
+import com.pig4cloud.pig.common.core.entity.manager.Label;
+import com.pig4cloud.pig.monitor.service.LabelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import com.pig4cloud.pig.common.core.entity.dto.Message;
-import com.pig4cloud.pig.common.core.entity.manager.Label;
-import com.pig4cloud.pig.monitor.service.LabelService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,7 +64,7 @@ public class LabelController {
 
     @GetMapping()
     @Operation(summary = "Get labels information", description = "Obtain label information based on conditions")
-    public ResponseEntity<Message<Page<Label>>> getLabels(
+    public ResponseEntity<Message<IPage<Label>>> getLabels(
             @Parameter(description = "Label content search", example = "status") @RequestParam(required = false) String search,
             @Parameter(description = "Label type", example = "0") @RequestParam(required = false) Byte type,
             @Parameter(description = "List current page", example = "0") @RequestParam(defaultValue = "0") int pageIndex,

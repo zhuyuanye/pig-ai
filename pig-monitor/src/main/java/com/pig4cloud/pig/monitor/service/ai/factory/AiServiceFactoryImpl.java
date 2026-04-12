@@ -19,13 +19,13 @@ package com.pig4cloud.pig.monitor.service.ai.factory;
 
 import com.pig4cloud.pig.common.core.constants.AiTypeEnum;
 import com.pig4cloud.pig.monitor.service.ai.AiService;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
  * AI bean factory
  */
 @Component
-@ConditionalOnProperty(prefix = "ai", name = "type")
+@ConditionalOnProperty(prefix = "ai", name = "enabled", havingValue = "true", matchIfMissing = false)
 public class AiServiceFactoryImpl {
 
     @Autowired(required = false)

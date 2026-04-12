@@ -18,21 +18,20 @@
 package com.pig4cloud.pig.common.core.config;
 
 
-import com.pig4cloud.pig.common.core.constants.ConfigConstants;
-import com.pig4cloud.pig.common.core.constants.SignConstants;
 import com.pig4cloud.pig.common.core.util.AesUtil;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.ComponentScan;
 
 /**
  * common module config
  */
 
 @AutoConfiguration
-@ComponentScan(basePackages = ConfigConstants.PkgConstant.PKG
-        + SignConstants.DOT
-        + ConfigConstants.FunctionModuleConstants.COMMON)
+//@ComponentScan(
+//        basePackages = ConfigConstants.PkgConstant.PKG
+//                + SignConstants.DOT
+//                + ConfigConstants.FunctionModuleConstants.CORE
+//)
 @EnableConfigurationProperties(CommonProperties.class)
 public class CommonConfig {
 

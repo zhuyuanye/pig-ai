@@ -27,7 +27,7 @@ import com.pig4cloud.pig.common.core.entity.manager.PluginMetadata;
 import com.pig4cloud.pig.monitor.pojo.dto.PluginParam;
 import com.pig4cloud.pig.monitor.pojo.dto.PluginParametersVO;
 import com.pig4cloud.pig.monitor.service.PluginService;
-import org.springframework.data.domain.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,11 +57,11 @@ public class PluginController {
 
     @GetMapping()
     @Operation(summary = "Get Plugins information", description = "Obtain plugins information based on conditions")
-    public ResponseEntity<Message<Page<PluginMetadata>>> getPlugins(
+    public ResponseEntity<Message<IPage<PluginMetadata>>> getPlugins(
         @Parameter(description = "plugin name search", example = "status") @RequestParam(required = false) String search,
         @Parameter(description = "List current page", example = "0") @RequestParam(defaultValue = "0") int pageIndex,
         @Parameter(description = "Number of list pagination", example = "8") @RequestParam(defaultValue = "8") int pageSize) {
-        Page<PluginMetadata> alertPage = pluginService.getPlugins(search, pageIndex, pageSize);
+        IPage<PluginMetadata> alertPage = pluginService.getPlugins(search, pageIndex, pageSize);
         return ResponseEntity.ok(Message.success(alertPage));
     }
 

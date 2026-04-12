@@ -17,6 +17,7 @@
 
 package com.pig4cloud.pig.monitor.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.pig4cloud.pig.common.core.entity.dto.Message;
 import com.pig4cloud.pig.common.core.entity.user.HzbUser;
 import com.pig4cloud.pig.common.core.util.ResponseUtil;
@@ -33,7 +34,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -168,7 +168,7 @@ public class AccountController {
      */
     @Operation(summary = "分页查询用户（可模糊搜索用户名）", description = "根据用户名关键字和分页参数查询用户列表")
     @GetMapping("/page")
-    public Page<HzbUser> getUsersByPage(
+    public IPage<HzbUser> getUsersByPage(
             @Parameter(description = "用户名关键字（可选）", example = "admin") @RequestParam(required = false) String username,
             @Parameter(description = "页码（从1开始）", example = "1") @RequestParam(defaultValue = "1") int page,
             @Parameter(description = "每页大小", example = "10") @RequestParam(defaultValue = "10") int size

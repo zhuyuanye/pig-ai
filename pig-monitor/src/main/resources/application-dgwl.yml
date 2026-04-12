@@ -19,6 +19,11 @@ spring:
 #    name: ${HOSTNAME:@hertzbeat@}${PID}
 #  profiles:
 #    active: prod
+  boot:
+    admin:
+      notify:
+        mail:
+          enabled: false
   mvc:
     static-path-pattern: /**
   jackson:
@@ -37,7 +42,13 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+#mybatis:
+#  mapper-locations: classpath*:mapper/*.xml
 
+  # 或指定具体路径
+  # mapper-locations: classpath:/mapper/UserMapper.xml
 management:
   health:
     mail:
@@ -69,18 +80,18 @@ security:
         - /api/alertHistory/**
         # HertzBeat 前端静态资源
         - /assets/**
-        - /**/*.html
-        - /**/*.js
-        - /**/*.css
-        - /**/*.ico
-        - /**/*.png
-        - /**/*.gif
-        - /**/*.jpg
-        - /**/*.svg
-        - /**/*.json
-        - /**/*.woff
-        - /**/*.ttf
-        - /**/*.eot
+        - /*.html
+        - /*.js
+        - /*.css
+        - /*.ico
+        - /*.png
+        - /*.gif
+        - /*.jpg
+        - /*.svg
+        - /*.json
+        - /*.woff
+        - /*.ttf
+        - /*.eot
         # Swagger
         - /swagger-ui/**
         - /swagger-ui.html
@@ -293,12 +304,13 @@ grafana:
 
 # See the documentation for details : https://hertzbeat.apache.org/zh-cn/docs/help/aiConfig
 ai:
+  enabled: false
   # AI Type:zhiPu、alibabaAi、kimiAi、sparkDesk
-  type:
+  type: zhiPu
   # Model name：glm-4、qwen-turboo、moonshot-v1-8k、generalv3.5
-  model:
+  model: glm-4.7
   # api key
-  api-key:
+  api-key: 2506e6c0f8ae20ddac623bcfeedc9236.qASfGikHklF2rPS5
   #At present, only IFLYTEK large model needs to be filled in
   api-secret:
 springdoc:

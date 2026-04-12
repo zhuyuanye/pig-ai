@@ -16,8 +16,8 @@ spring:
   # 邮件配置（非必填，不使用邮箱通知可去掉）
   mail:
     host: smtp.qq.com
-    username: example@qq.com
-    password: your-auth-code
+    username: 280545735@qq.com
+    password: mmrjoujswixibgce
     port: 465
     properties:
       mail:

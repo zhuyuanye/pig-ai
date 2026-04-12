@@ -1,4 +1,4 @@
-package com.pig4cloud.pig.alerter.service.impl;
+package com.pig4cloud.pig.common.alert.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;

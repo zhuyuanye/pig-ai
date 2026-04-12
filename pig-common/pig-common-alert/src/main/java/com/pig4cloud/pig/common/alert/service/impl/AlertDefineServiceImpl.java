@@ -1,4 +1,4 @@
-package com.pig4cloud.pig.alerter.service.impl;
+package com.pig4cloud.pig.common.alert.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.pig4cloud.pig.common.alert.mapper.AlertDefineMapper;
 import com.pig4cloud.pig.common.alert.calculate.PeriodicAlertRuleScheduler;
@@ -40,7 +39,6 @@ import static com.pig4cloud.pig.common.core.constants.CommonConstants.ALERT_THRE
 @Service
 @Transactional(rollbackFor = Exception.class)
 @Slf4j
-@RequiredArgsConstructor
 public class AlertDefineServiceImpl implements AlertDefineService {
 
 	private final AlertDefineMapper alertDefineMapper;
